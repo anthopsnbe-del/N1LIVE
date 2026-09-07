@@ -9,3 +9,24 @@
 .gp{--gp-line:#3d4e40;--gp-accent:#deeea0}.gp-heading{padding-bottom:28px}.gp-heading h1{font-size:clamp(36px,4.6vw,64px)}.gp-care{box-shadow:0 18px 45px #0002;background:linear-gradient(145deg,#2d3a2c,#18271f)}.gp-scene{background:radial-gradient(ellipse at 45% 30%,#72805d,#344b3c 65%,#1b3028);box-shadow:0 16px 50px #0002}.gp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.gp-stats>div{border:1px solid #40523d;border-radius:12px;padding:14px 7px;background:#1d2d2299}.gp-stats a{color:#deeea0;text-underline-offset:3px}.gp-filter{display:flex;align-items:center;gap:14px;padding:18px 0 0;flex-wrap:wrap}.gp-filter label{font-size:11px;color:#b6c4a5}.gp-filter input{font:12px system-ui;color:#eff4df;background:#19281f;border:1px solid #526c4b;border-radius:10px;padding:12px 14px;min-width:220px;flex:1}.gp-filter span{font:10px monospace;color:#91a286}.gp input:focus-visible{outline:2px solid #deeea0;outline-offset:3px}.gp-card-grid{gap:16px}.gp-variety{padding:15px;background:linear-gradient(150deg,#304030,#1c2c22);border-color:#455a40;transition:transform .18s,border-color .18s,box-shadow .18s}.gp-variety:hover{transform:translateY(-4px);border-color:#a8bc76;box-shadow:0 14px 28px #0003}.gp-thumb{height:160px;background:radial-gradient(ellipse,#d7dfae22,transparent 69%)}.gp-variety h3{font-size:14px}.gp-variety p{font-size:10px}.gp-variety.locked .gp-thumb{opacity:.82}.gp-variety.locked{background:linear-gradient(145deg,#28362a,#17251e)}.gp-accessories{margin-top:16px;grid-template-columns:repeat(3,1fr)}.gp-supplies article{background:linear-gradient(150deg,#304032,#1b2b21)}.gp-section-tabs button{min-height:48px}.gp-variety button{min-height:36px}.gp-scene-controls{top:48px}.gp-scene-label{top:19px}.gp button:not(:disabled):hover{filter:brightness(1.12)}
 @media(max-width:800px){.gp-thumb{height:150px}.gp-accessories{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:480px){.gp-heading h1{font-size:35px}.gp-stats{grid-template-columns:repeat(2,1fr)}.gp-thumb{height:135px}.gp-card-grid{gap:9px}.gp-variety{padding:10px}.gp-variety h3{font-size:12px}.gp-filter{gap:8px}.gp-filter input{min-width:0;width:100%;flex-basis:100%}.gp-filter span{font-size:9px}.gp-accessories{grid-template-columns:1fr}.gp-scene-controls button{font-size:9px;padding:7px}.gp-scene{height:365px}}
+
+/* Édition sonore : notifications flottantes, jauges de pot, nouveaux contrôles */
+.gp-toasts{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;width:min(92%,340px)}
+.gp-toast{background:#16231bd9;border:1px solid #6d8352;color:#eef4dd;border-radius:11px;padding:9px 14px;font-size:11px;line-height:1.4;text-align:center;backdrop-filter:blur(8px);box-shadow:0 10px 26px #0004;animation:gp-toast-in .28s ease}
+.gp-toast.gain{border-color:#d8ec83;color:#eef8c6}
+.gp-toast.ready{border-color:#f3c987;color:#ffe9c4}
+.gp-toast-out{opacity:0;transform:translateY(-6px);transition:opacity .4s,transform .4s}
+@keyframes gp-toast-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.gp-pot-tabs button{position:relative;overflow:hidden}
+.gp-pot-bar{position:absolute;left:0;bottom:0;height:3px;width:var(--v,0%);background:linear-gradient(90deg,#89a758,#d8ec83);transition:width .6s linear}
+.gp-pot-tabs button.ready{border-color:#f3c987}
+.gp-pot-tabs button.ready .gp-pot-bar{background:#f3c987;animation:gp-ready-pulse 1.6s ease-in-out infinite}
+@keyframes gp-ready-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.gp-secondary{width:100%;margin-top:8px;padding:12px;border-radius:12px;border:1px solid #b7c79c60;background:#d8ec830f;color:#e6f0cd;font-size:12px;min-height:44px}
+.gp-secondary:not(:disabled):hover{border-color:#d8ec83}
+.gp-check{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:#b6c4a5;cursor:pointer}
+.gp-check input{accent-color:#d8ec83;width:15px;height:15px}
+.gp-scene-hint kbd{display:inline-block;border:1px solid #ffffff35;border-radius:4px;padding:0 4px;font:9px/1.6 monospace;background:#0003;margin:0 1px}
+#gpSound[aria-pressed="false"]{opacity:.6}
+@media(max-width:800px){.gp-toasts{bottom:52px}.gp-scene-hint kbd{display:none}}
+@media(prefers-reduced-motion:reduce){.gp-toast{animation:none}.gp-pot-tabs button.ready .gp-pot-bar{animation:none}}

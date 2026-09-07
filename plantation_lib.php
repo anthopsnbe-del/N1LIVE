@@ -21,7 +21,7 @@ function gp_check(bool $condition, string $message): void {
 }
 function gp_event(array &$s, string $text, int $now): void {
     array_unshift($s['history'], ['at'=>$now,'text'=>$text]);
-    $s['history'] = array_slice($s['history'],0,12);
+    $s['history'] = array_slice($s['history'],0,20);
 }
 /** Pure transition, also exercised by the offline test suite. */
 function gp_apply(array $s, string $action, array $p, int $now): array {
@@ -102,6 +102,7 @@ function gp_apply(array $s, string $action, array $p, int $now): array {
             gp_event($s,'Croisement réussi : '.$catalog[$id]['name'].'.',$now);break;
         default: throw new DomainException('Action inconnue.');
     }
+    unset($pot); // la référence ne doit pas survivre dans le tableau retourné
     $s['revision']++;
     return $s;
 }
@@ -114,6 +115,12 @@ function gp_schema(PDO $pdo): void {
 /** One-time upgrade; old seeds, crops, discoveries and counters are preserved. */
 function gp_upgrade(array $s): array {
     if(($s['version']??1)<2){foreach(['diesel','peche','pin','orchidee'] as $id)$s['seeds'][$id]=($s['seeds'][$id]??0)+2;$s['version']=2;}
-    if(!isset($s['accessories']))$s['accessories']=[];
+    // Complète uniquement ce qui manque : aucune progression existante n'est réinitialisée.
+    $defaults = gp_initial();
+    foreach(['revision','credits','soil','water','feed','total'] as $key)
+        if(!isset($s[$key])||!is_int($s[$key])) $s[$key] = (int)($s[$key] ?? $defaults[$key]);
+    foreach(['seeds','buds','harvests','discoveries','accessories','history','seen'] as $key)
+        if(!isset($s[$key])||!is_array($s[$key])) $s[$key] = [];
+    if(empty($s['pots'])||!is_array($s['pots'])) $s['pots'] = $defaults['pots'];
     return $s;
 }

@@ -1,3 +1,11 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Plantation — aperçu local</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="assets/plantation/plantation.css">
+<style>body{margin:0;background:#141d16;padding:24px;font-family:system-ui,sans-serif}</style>
+</head><body>
+<!-- Aperçu de développement : ouvre ce fichier via un petit serveur local
+     (par exemple `php -S localhost:8000`) pour tester le jeu sans base de données.
+     La sauvegarde utilisée est locale (localStorage) et n'a aucun lien avec les comptes joueurs. -->
 <section class="gp" id="gpRoot" aria-label="Plantation">
   <header class="gp-heading"><div><span class="gp-kicker">GREENSTAND / BOTANICAL CLUB</span><h1>Ta petite jungle.</h1><p>La collection grandit. Les recettes évoluent. Ta serre aussi.</p></div><div class="gp-balance"><span>POINTS DE SERRE</span><b id="gpCredits">—</b><small>Gagnés à chaque récolte</small></div></header>
   <div class="gp-message" id="gpMessage" role="status" aria-live="polite">Ouverture de ta serre…</div>
@@ -31,3 +39,14 @@
   <section id="gp-supplies" class="gp-section" hidden><div class="gp-section-heading"><div><span class="gp-kicker">L’ÉTABLI</span><h2>Tout à portée de main.</h2></div><p>L’eau se recharge gratuitement.<br>Les points de serre restent propres à cet atelier.</p></div><div class="gp-supplies"><article><span class="gp-supply-symbol">▱</span><h3>Terreau</h3><p>5 préparations de pot.</p><button type="button" data-buy="soil">5 sacs · 15 pts</button></article><article><span class="gp-supply-symbol">◈</span><h3>Réserve d’eau</h3><p>Remplis les 6 doses de ton arrosoir.</p><button type="button" id="gpRefill">Remplir gratuitement</button></article><article><span class="gp-supply-symbol">✦</span><h3>Soins bonus</h3><p>5 jetons pour des récoltes étoilées.</p><button type="button" data-buy="feed">5 soins · 20 pts</button></article><article><span class="gp-supply-symbol">⊞</span><h3>Agrandir la serre</h3><p>Jusqu’à six pots simultanément.</p><button type="button" id="gpUnlockPot">Débloquer un pot</button></article></div><div class="gp-supplies gp-accessories"><article><span class="gp-supply-symbol">✺</span><h3>Ventilateur rétro</h3><p>Un nouvel objet animé sur l’établi.</p><button type="button" data-accessory="fan">Installer · 120 pts</button></article><article><span class="gp-supply-symbol">♧</span><h3>Brumisateur</h3><p>Une brume d’ambiance dans ta serre.</p><button type="button" data-accessory="humidifier">Installer · 140 pts</button></article><article><span class="gp-supply-symbol">⌕</span><h3>Loupe botanique</h3><p>Un accessoire de collection pour ton établi.</p><button type="button" data-accessory="loupe">Installer · 100 pts</button></article></div><p class="gp-fine">Accessoires décoratifs : aucun avantage au classement. La vue détaillée des buds est accessible à tous.</p></section>
   <footer class="gp-footer">BOTANICAL CLUB · Culture et croisements de jeu imaginaires · 14 fondatrices + 91 hybrides</footer>
 </section>
+
+<script>window.GP_CONFIG={demo:true,assetBase:'assets/plantation/',endpoint:'',csrf:'',catalog:null};</script>
+<script src="assets/plantation/three.min.js"></script>
+<script src="assets/plantation/models.js"></script>
+<script src="assets/plantation/demo.js"></script>
+<script>
+fetch('assets/plantation/catalog.json').then(r=>r.json()).then(c=>{
+ window.GP_CONFIG.catalog=c;
+ const s=document.createElement('script');s.src='assets/plantation/plantation.js';document.body.append(s);
+});
+</script></body></html>
