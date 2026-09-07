@@ -13,82 +13,146 @@
 
  /* Ressources partagées : jamais libérées par dispose(), réutilisées par tous les buds. */
  const CACHE=new Map();
- const cached=(key,make)=>{let o=CACHE.get(key);if(!o){o=make();o.userData.shared=true;CACHE.set(key,o);}return o;};
+ let ENV=null; // carte d'environnement partagée, renseignée par studio()
+ const cached=(key,make)=>{let o=CACHE.get(key);if(!o){o=make();o.userData=o.userData||{};o.userData.shared=true;CACHE.set(key,o);}return o;};
  const YAXIS=new T.Vector3(0,1,0),ZAXIS=new T.Vector3(0,0,1);
  /* Profil d'une cola : épaules basses larges, pointe effilée. */
  const cola=t=>{t=Math.min(1,Math.max(0,t));return Math.pow(Math.sin(Math.PI*Math.pow(t,.74)),.8);};
- const calyxGeo=()=>cached('calyx',()=>{const geo=new T.IcosahedronGeometry(1,1),p=geo.attributes.position;
-  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),k=1-Math.max(0,y)*.46;p.setXYZ(i,x*k*.9,y*1.2,z*k*.93);}
-  p.needsUpdate=true;geo.computeVertexNormals();return geo;});
- const pistilGeo=()=>cached('pistil',()=>new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,0,0),new T.Vector3(.008,.042,.005),new T.Vector3(.038,.076,.015),new T.Vector3(.088,.09,.028)]),9,.0026,4,false));
- const stalkGeo=()=>cached('stalk',()=>new T.CylinderGeometry(.0015,.0022,.014,4));
- const headGeo=()=>cached('head',()=>new T.IcosahedronGeometry(.0052,0));
- const sugarGeo=()=>cached('sugar',()=>{const s=new T.Shape();s.moveTo(0,0);s.lineTo(.06,.08);s.lineTo(.035,.11);s.lineTo(.07,.16);s.lineTo(0,.38);s.lineTo(-.07,.16);s.lineTo(-.035,.11);s.lineTo(-.06,.08);s.closePath();return new T.ShapeGeometry(s);});
- const frost=(color,extra={})=>{const m=new T.MeshPhysicalMaterial({color,roughness:.14,metalness:0,clearcoat:1,clearcoatRoughness:.08,...extra});m.color.convertSRGBToLinear();m.emissive.convertSRGBToLinear();return m;};
+ const a0=n=>n*2.7+Math.sin(n*4.3)*3.1;
 
- /** Bud procédural : calices en verticilles, pistils recourbés, trichomes à tête. */
+ /* Grain fin généré une fois : casse l'aspect lisse des surfaces sans fichier externe. */
+ const grain=()=>cached('grain',()=>{
+  const size=256,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+  const ctx=canvas.getContext('2d'),img=ctx.createImageData(size,size),d=img.data,noise=rnd(1917);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+   const i=(y*size+x)*4;
+   const fine=noise(),coarse=Math.sin(x*.19)*Math.sin(y*.23)*.5+.5;
+   const value=Math.max(0,Math.min(255,(fine*.62+coarse*.38)*255));
+   d[i]=d[i+1]=d[i+2]=value;d[i+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+  const tex=new T.CanvasTexture(canvas);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.repeat.set(3,3);
+  tex.userData={shared:true};return tex;
+ });
+
+ /* La photo de surface, répétée plus finement : c'est elle qui donne la matière. */
+ const budSkin=()=>cached('budSkin',()=>{const t=surface.clone();t.needsUpdate=true;t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(.42,.42);return t;});
+ /* Calice : lentille renflée à la base, pointe effilée, légère quille — pas une bille. */
+ const calyxGeo=()=>cached('calyx',()=>{
+  const pts=[],N=13;
+  for(let i=0;i<=N;i++){
+   const t=i/N,radius=Math.pow(Math.sin(Math.PI*Math.pow(t,.6)),.62)*(1-t*.32);
+   pts.push(new T.Vector2(Math.max(.002,radius*.8),t*1.05-.2));
+  }
+  const geo=new T.LatheGeometry(pts,9),p=geo.attributes.position;
+  for(let i=0;i<p.count;i++){
+   const x=p.getX(i),y=p.getY(i),z=p.getZ(i),bend=.09*y*y;
+   p.setXYZ(i,x*1.06+bend,y,z*.82);
+  }
+  p.needsUpdate=true;geo.computeVertexNormals();return geo;
+ });
+ /* Version économique pour les buds miniatures de la serre. */
+ const calyxLowGeo=()=>cached('calyxLow',()=>{const geo=new T.IcosahedronGeometry(1,0),p=geo.attributes.position;
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),k=1-Math.max(0,y)*.5;p.setXYZ(i,x*k*.82,y*1.45,z*k*.6);}
+  p.needsUpdate=true;geo.computeVertexNormals();return geo;});
+ const pistilGeo=()=>cached('pistil',()=>new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,0,0),new T.Vector3(.006,.04,.004),new T.Vector3(.03,.075,.014),new T.Vector3(.082,.086,.03),new T.Vector3(.124,.07,.05)]),10,.0022,4,false));
+ const stalkGeo=()=>cached('stalk',()=>new T.CylinderGeometry(.0011,.0018,.013,4));
+ const headGeo=()=>cached('head',()=>new T.SphereGeometry(.0034,5,4));
+ const sugarGeo=()=>cached('sugar',()=>{const s=new T.Shape();s.moveTo(0,0);s.lineTo(.05,.09);s.lineTo(.028,.13);s.lineTo(.055,.19);s.lineTo(0,.44);s.lineTo(-.055,.19);s.lineTo(-.028,.13);s.lineTo(-.05,.09);s.closePath();return new T.ShapeGeometry(s);});
+ const frost=(color,extra={})=>{const m=new T.MeshPhysicalMaterial({color,roughness:.09,metalness:0,clearcoat:1,clearcoatRoughness:.04,envMap:ENV,envMapIntensity:2.4,...extra});m.color.convertSRGBToLinear();m.emissive.convertSRGBToLinear();return m;};
+
+ /** Bud procédural : calices en verticilles résinés, pistils recourbés, tapis de trichomes. */
  function bud(v,size=1){
   const g=new T.Group(),r=rnd(v.seed),detail=size>.5,hybrid=(v.parents||[]).length>0;
   const H=1.34,dummy=new T.Object3D(),tone=new T.Color(),spin=new T.Quaternion(),tilt=new T.Quaternion();
   const base=new T.Color(v.bud);
-  const tint=base.clone().lerp(new T.Color('#c1c8a2'),.3),
-   deep=base.clone().lerp(new T.Color('#16210f'),.55),
-   bright=base.clone().lerp(new T.Color('#eaf1c4'),.34);
-  const skin=mat('#ffffff',{map:surface,bumpMap:surface,bumpScale:.032,roughness:.92});
-  const core=mesh(new T.SphereGeometry(1,16,14),mat(deep.getStyle(),{map:surface,roughness:.96}),g,0,.64,0);
-  core.scale.set(.3,.72,.29);core.receiveShadow=false;
-  tube(g,new T.Vector3(0,-.09,0),new T.Vector3(0,.16,0),.024,mat('#5f7a38'));
+  const tint=base.clone().lerp(new T.Color('#b9c397'),.22),
+   deep=base.clone().lerp(new T.Color('#0a1105'),.7),
+   bright=base.clone().lerp(new T.Color('#e6efbb'),.3),
+   rust=base.clone().lerp(new T.Color('#7a4423'),.6),
+   shadowTone=base.clone().lerp(new T.Color('#243a1c'),.72);
+  const texture=grain();
+  /* Résine : un vernis spéculaire par-dessus une surface mate et grenue. */
+  const skin=detail
+   ?new T.MeshPhysicalMaterial({color:0xffffff,roughness:.62,metalness:0,
+     map:budSkin(),bumpMap:texture,bumpScale:.022,clearcoat:.42,clearcoatRoughness:.34,
+     envMap:ENV,envMapIntensity:.55,sheen:new T.Color(hybrid?'#dbe8b4':'#c9d79c')})
+   :mat('#ffffff',{map:budSkin(),roughness:.72});
+  if(skin.sheen)skin.sheen.convertSRGBToLinear();
+  const core=mesh(new T.SphereGeometry(1,14,12),mat(deep.getStyle(),{map:surface,roughness:.98}),g,0,.64,0);
+  core.scale.set(.3,.74,.29);core.receiveShadow=false;
+  tube(g,new T.Vector3(0,-.09,0),new T.Vector3(0,.18,0),.022,mat('#586f31',{bumpMap:texture,bumpScale:.01}));
 
-  const nodes=detail?15:6,calyxCount=detail?430:110,pistilCount=detail?230:44,
-   frostCount=detail?(hybrid?520:430):(hybrid?110:90),leaves=detail?22:6;
-  const lobes=new T.InstancedMesh(calyxGeo(),skin,calyxCount);
-  const hairs=new T.InstancedMesh(pistilGeo(),mat('#ffffff',{roughness:.7}),pistilCount);
-  const stalks=new T.InstancedMesh(stalkGeo(),mat('#dfe4cb',{roughness:.55}),frostCount);
-  const heads=new T.InstancedMesh(headGeo(),frost('#f6f9ea',{emissive:'#7d8f5c',emissiveIntensity:.18}),frostCount);
+  const nodes=detail?18:6,calyxCount=detail?680:130,pistilCount=detail?430:52,
+   frostCount=detail?(hybrid?2400:1900):(hybrid?90:75),leaves=detail?15:5;
+  const lobes=new T.InstancedMesh(detail?calyxGeo():calyxLowGeo(),skin,calyxCount);
+  const hairs=new T.InstancedMesh(pistilGeo(),new T.MeshStandardMaterial({color:0xffffff,roughness:.62,envMapIntensity:.6}),pistilCount);
+  const stalks=detail?new T.InstancedMesh(stalkGeo(),mat('#e6ead2',{roughness:.4}),frostCount):null;
+  const heads=new T.InstancedMesh(headGeo(),detail
+   ?frost('#fdfef6',{emissive:'#4d5a33',emissiveIntensity:.05})
+   :mat('#fdfef6',{roughness:.35,emissive:'#4d5a33',emissiveIntensity:.05}),frostCount);
 
   for(let i=0;i<calyxCount;i++){
-   const n=i%nodes,t=(n+.6)/nodes+(r()-.5)*.05,y=t*H,bump=1+.13*Math.sin(y*6.5+n*1.7)+.07*Math.sin(y*17.3);
-   const w=(.085+cola(t)*.24)*bump;
-   const a=i*2.39996+n*.87+r()*.45,out=w*(.5+r()*.6);
-   dummy.position.set(Math.cos(a)*out,y+(r()-.5)*.07,Math.sin(a)*out);
-   const s=(.036+r()*.026)*(.7+cola(t)*.6);
-   dummy.scale.set(s*(1.02+r()*.3),s*(1.12+r()*.8),s*(.98+r()*.28));
-   dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*.5)).multiply(tilt.setFromAxisAngle(ZAXIS,-(.2+(1-t)*.6+r()*.45)));
+   const n=i%nodes,t=(n+.6)/nodes+(r()-.5)*.1,y=t*H,
+    bump=1+.2*Math.sin(y*5.6+n*1.9)+.11*Math.sin(y*14.7+n*.7)+.06*Math.sin(a0(n));
+   const w=(.08+cola(t)*.235)*bump*(1-.42*Math.max(0,t-.8)/.2);
+   const a=i*2.39996+n*.91+r()*.5,depth=.52+Math.pow(r(),.7)*.56,out=w*depth;
+   const drift=.055*cola(t);
+   dummy.position.set(Math.cos(a)*out+Math.cos(a0(n))*drift,y+(r()-.5)*.075,Math.sin(a)*out+Math.sin(a0(n))*drift);
+   const filler=r()<.32;
+   const s=(filler?.03+r()*.028:.055+r()*.06)*(.66+cola(t)*.62);
+   dummy.scale.set(s*(.95+r()*.3),s*(1+r()*.45+t*.5),s*(.95+r()*.28));
+   dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*.6)).multiply(tilt.setFromAxisAngle(ZAXIS,-(.18+(1-t)*.62+r()*.5)));
    dummy.updateMatrix();lobes.setMatrixAt(i,dummy.matrix);
-   tone.copy(r()<.5?deep:bright).lerp(tint,.3+r()*.55).convertSRGBToLinear();lobes.setColorAt(i,tone);
+   /* Occlusion simulée : plus un calice est enfoncé, plus il est sombre. */
+   const shade=Math.min(1,Math.max(0,(depth-.52)/.56));
+   tone.copy(deep).lerp(base,Math.pow(shade,.75)*(.62+.34*t));
+   if(shade>.72)tone.lerp(r()<.4?bright:tint,(shade-.72)*1.5*r());
+   const dice=r();if(dice<.09)tone.lerp(rust,.35+r()*.3);else if(dice<.15)tone.lerp(shadowTone,.4);
+   tone.convertSRGBToLinear();lobes.setColorAt(i,tone);
   }
   if(lobes.instanceColor)lobes.instanceColor.needsUpdate=true;
 
-  const pistil=new T.Color(v.pistil),pistilTip=pistil.clone().lerp(new T.Color('#fff3dc'),.45);
+  const pistil=new T.Color(v.pistil),pistilTip=pistil.clone().lerp(new T.Color('#fff1d6'),.5),
+   pistilDry=pistil.clone().lerp(new T.Color('#7d3b1c'),.55);
   for(let i=0;i<pistilCount;i++){
-   const t=.14+Math.pow(r(),.62)*.82,y=t*H,w=.1+cola(t)*.245,a=r()*6.283;
-   dummy.position.set(Math.cos(a)*w*.72,y,Math.sin(a)*w*.72);
-   const len=.9+r()*1.1;dummy.scale.set(.9+r()*.4,len,.9+r()*.4);
-   dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*.8)).multiply(tilt.setFromAxisAngle(ZAXIS,-(.05+r()*1.05)));
+   const t=.06+Math.pow(r(),.55)*.92,y=t*H,w=.1+cola(t)*.245,a=r()*6.283;
+   dummy.position.set(Math.cos(a)*w*.68,y,Math.sin(a)*w*.68);
+   dummy.scale.set(.8+r()*.5,.7+r()*1.2,.8+r()*.5);
+   dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*1)).multiply(tilt.setFromAxisAngle(ZAXIS,-(r()*1.25)));
    dummy.updateMatrix();hairs.setMatrixAt(i,dummy.matrix);
-   tone.copy(r()<.3?pistilTip:pistil).lerp(bright,r()*.12).convertSRGBToLinear();hairs.setColorAt(i,tone);
+   const dice=r();
+   tone.copy(dice<.25?pistilTip:dice<.62?pistil:pistilDry).lerp(bright,r()*.1).convertSRGBToLinear();
+   hairs.setColorAt(i,tone);
   }
   if(hairs.instanceColor)hairs.instanceColor.needsUpdate=true;
 
+  /* Tapis de trichomes : dense, plus fourni vers la pointe, orienté vers l'extérieur. */
   const dir=new T.Vector3(),pos=new T.Vector3();
   for(let i=0;i<frostCount;i++){
-   const t=.05+r()*.95,y=t*H,w=.1+cola(t)*.25,a=r()*6.283,lean=.3+r()*1.1;
+   const t=Math.pow(r(),.72),y=t*H,w=(.088+cola(t)*.245)*(.9+r()*.22),a=r()*6.283,lean=.15+r()*1.25;
    dir.set(Math.cos(a)*Math.cos(lean),Math.sin(lean),Math.sin(a)*Math.cos(lean)).normalize();
    pos.set(Math.cos(a)*w,y,Math.sin(a)*w);
    dummy.quaternion.setFromUnitVectors(YAXIS,dir);
-   dummy.scale.setScalar(.75+r()*.7);
-   dummy.position.copy(pos).addScaledVector(dir,.007*dummy.scale.x);dummy.updateMatrix();stalks.setMatrixAt(i,dummy.matrix);
-   dummy.position.copy(pos).addScaledVector(dir,.018*dummy.scale.x);dummy.updateMatrix();heads.setMatrixAt(i,dummy.matrix);
+   dummy.scale.setScalar(.6+r()*.95);
+   if(stalks){dummy.position.copy(pos).addScaledVector(dir,.006*dummy.scale.x);dummy.updateMatrix();stalks.setMatrixAt(i,dummy.matrix);}
+   dummy.position.copy(pos).addScaledVector(dir,.014*dummy.scale.x);dummy.updateMatrix();heads.setMatrixAt(i,dummy.matrix);
   }
 
-  const sugar=mat(new T.Color(v.leaf).lerp(new T.Color('#dfe7c4'),.16).getStyle(),{side:T.DoubleSide,map:surface,roughness:.88});
+  const sugarColor=new T.Color(v.leaf).lerp(new T.Color('#20300f'),.3);
+  const sugar=detail
+   ?new T.MeshPhysicalMaterial({color:sugarColor,side:T.DoubleSide,map:budSkin(),bumpMap:texture,bumpScale:.006,
+     roughness:.66,clearcoat:.3,clearcoatRoughness:.4,envMap:ENV,envMapIntensity:.5})
+   :mat(sugarColor.getStyle(),{side:T.DoubleSide,map:budSkin(),roughness:.75});
+  if(detail)sugar.color.convertSRGBToLinear();
   for(let i=0;i<leaves;i++){
-   const t=.12+r()*.82,a=r()*6.283,w=.12+cola(t)*.2;
+   const t=.1+r()*.85,a=r()*6.283,w=.11+cola(t)*.2;
    const l=mesh(sugarGeo(),sugar,g,Math.cos(a)*w,t*H,Math.sin(a)*w);
-   l.rotation.set(.45+r()*.35,a,-.45+r()*.9);l.scale.setScalar(.38+r()*.38);l.receiveShadow=false;
+   l.rotation.set(.4+r()*.5,a,-.5+r());l.scale.setScalar(.2+r()*.26);l.receiveShadow=false;
   }
-  lobes.castShadow=true;hairs.castShadow=false;stalks.castShadow=false;heads.castShadow=false;
-  g.add(lobes,hairs,stalks,heads);
+  lobes.castShadow=true;hairs.castShadow=false;heads.castShadow=false;
+  g.add(lobes,hairs,heads);
+  if(stalks){stalks.castShadow=false;g.add(stalks);}
   g.userData.sparkle=heads.material;g.userData.detail=detail;
   g.scale.setScalar(size);return g;
  }
@@ -132,9 +196,23 @@
  function humidifier(){const g=new T.Group(),m=mat('#d2ccb5');mesh(new T.CylinderGeometry(.14,.19,.35,18),m,g,0,.2);mesh(new T.TorusGeometry(.08,.017,6,20),mat('#79c5b1',{emissive:'#2b7b68',emissiveIntensity:.5}),g,0,.38).rotation.x=Math.PI/2;const mist=mesh(new T.SphereGeometry(.12,10,8),mat('#d1e4e1',{transparent:true,opacity:.18,depthWrite:false}),g,0,.58);mist.scale.set(.8,1.8,.8);g.userData.mist=mist;return g;}
  function loupe(){const g=new T.Group(),m=mat('#c4ac73',{metalness:.7});mesh(new T.TorusGeometry(.18,.023,8,26),m,g);mesh(new T.CircleGeometry(.16,24),mat('#a8d9d0',{transparent:true,opacity:.25,side:T.DoubleSide}),g);tube(g,new T.Vector3(0,-.18,0),new T.Vector3(0,-.48,0),.036,m);g.rotation.x=-Math.PI/2;return g;}
  function dispose(group){const gs=new Set(),ms=new Set();group.traverse(o=>{if(o.geometry&&!o.geometry.userData.shared)gs.add(o.geometry);if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(!m.userData.shared)ms.add(m);});});gs.forEach(g=>g.dispose());ms.forEach(m=>m.dispose());}
+ /* Petit environnement HDR généré à la volée : donne aux résines de vraies réflexions. */
+ function environment(renderer){
+  const env=new T.Scene(),dome=new T.SphereGeometry(12,18,14),position=dome.attributes.position,c=new T.Color(),
+   low=new T.Color('#1a2318'),high=new T.Color('#eef5d8'),colors=[];
+  for(let i=0;i<position.count;i++){const t=(position.getY(i)/12+1)/2;c.copy(low).lerp(high,Math.pow(t,1.35));colors.push(c.r,c.g,c.b);}
+  dome.setAttribute('color',new T.Float32BufferAttribute(colors,3));
+  env.add(new T.Mesh(dome,new T.MeshBasicMaterial({vertexColors:true,side:T.BackSide})));
+  const softbox=(w,h,x,y,z,power)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:new T.Color(power,power,power)}));m.position.set(x,y,z);m.lookAt(0,0,0);env.add(m);};
+  softbox(7,3.5,-4,6,3,3.4);softbox(3,6,5.5,2,-4,1.5);softbox(5,2,0,-3.5,5,.55);
+  const pmrem=new T.PMREMGenerator(renderer),target=pmrem.fromScene(env,.05);
+  pmrem.dispose();env.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});
+  return target.texture;
+ }
  function studio(element,onSelect){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,scene=new T.Scene();scene.background=new T.Color('#303e2d');scene.fog=new T.Fog('#303e2d',12,28);
-  const renderer=new T.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.setClearColor('#303e2d');element.append(renderer.domElement);
+  const renderer=new T.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.setClearColor('#303e2d');element.append(renderer.domElement);
+  try{if(!ENV)ENV=environment(renderer);}catch(e){}
   const camera=new T.PerspectiveCamera(38,1,.1,40);let angle=.15,elevation=4.8,distance=8.6,goalElevation=4.8,goalDistance=8.6,lookHeight=1,auto=false,lit=true,running=true,disposed=false,capture=null;
   const MIN_ZOOM=4.6,MAX_ZOOM=12.5;
   const ambient=new T.HemisphereLight('#edf1d8','#324332',.95);scene.add(ambient);
@@ -142,6 +220,8 @@
   const fill=new T.DirectionalLight('#aecdae',.55);fill.position.set(4,3,-3);scene.add(fill);
   const rim=new T.DirectionalLight('#cfe6ff',.42);rim.position.set(1.5,2.4,-6);scene.add(rim);
   const lampLight=new T.PointLight('#f6ffcf',.85,9,2);lampLight.position.set(0,3.05,-.15);scene.add(lampLight);
+  const closeRim=new T.DirectionalLight('#eaf6ff',0);closeRim.position.set(-2.2,1.4,-3.2);scene.add(closeRim);
+  const closeKey=new T.PointLight('#fff4dd',0,9,2);closeKey.position.set(1.7,1.7,2.1);scene.add(closeKey);
   const fixed=new T.Group();scene.add(fixed);
   const ground=mesh(new T.PlaneGeometry(100,100),mat('#354732'),fixed,0,-.6);ground.rotation.x=-Math.PI/2;
   box(fixed,5.65,.18,3.55,mat('#9f8253'),0,-.12);box(fixed,5.45,.12,3.4,mat('#bc9b64'),0,-.02);
@@ -170,6 +250,12 @@
      if(p.plant.fed){const star=mesh(new T.OctahedronGeometry(.055,0),mat('#ffe9a8',{emissive:'#c9a742',emissiveIntensity:.7}),group,.3,.9+1.3*v.height,0);star.castShadow=false;star.userData.pulse='star';}}
    });
    for(let i=0;i<3;i++){const id=Object.keys(state.buds||{})[i];if(id){const j=jar(catalog[id]);j.position.set(-.65+i*.4,.07,1.48);pots.add(j);}}
+  }
+  /* Changer la définition de l'ombre impose de recréer sa cible de rendu. */
+  function sharpenShadow(size){
+   if(sun.shadow.mapSize.x===size)return;
+   sun.shadow.mapSize.set(size,size);
+   if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}
   }
   function select(index){selected=index;ring.position.set(anchors[index][0],.085,anchors[index][2]);}
   const ray=new T.Raycaster(),mouse=new T.Vector2();let down=null;
@@ -210,7 +296,13 @@
      inspection=new T.Group();const b=bud(v);b.position.y=-.15;inspection.add(b);
      const stand=mesh(new T.CylinderGeometry(.42,.5,.06,28),mat('#22301f',{roughness:.7}),inspection,0,-.19);stand.receiveShadow=true;
      scene.add(inspection);goalDistance=3.4;goalElevation=1.4;
-    }else{scene.remove(inspection);dispose(inspection);inspection=null;goalDistance=8.6;goalElevation=4.8;lastKey='';}
+     closeRim.intensity=.95;closeKey.intensity=.5;sun.intensity=lit?1.35:.3;ambient.intensity=.42;fill.intensity=.2;
+     scene.background.set('#1b231a');scene.fog.near=26;
+     sun.position.set(-1.6,2.6,1.9);sharpenShadow(2048);sun.shadow.camera.left=-1.1;sun.shadow.camera.right=1.1;sun.shadow.camera.top=1.4;sun.shadow.camera.bottom=-1.1;sun.shadow.normalBias=.004;sun.shadow.camera.updateProjectionMatrix();
+    }else{scene.remove(inspection);dispose(inspection);inspection=null;goalDistance=8.6;goalElevation=4.8;lastKey='';
+     closeRim.intensity=0;closeKey.intensity=0;sun.intensity=lit?1.55:.35;ambient.intensity=.95;fill.intensity=.55;
+     scene.background.set('#303e2d');scene.fog.near=12;
+     sun.position.set(-3,7,4);sharpenShadow(1024);sun.shadow.camera.left=-6;sun.shadow.camera.right=6;sun.shadow.camera.top=6;sun.shadow.camera.bottom=-6;sun.shadow.normalBias=.035;sun.shadow.camera.updateProjectionMatrix();}
     return inspecting;},
    zoom(delta){goalDistance=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,goalDistance+delta));return goalDistance;},
    snapshot(){return new Promise(resolve=>{capture=resolve;});},
