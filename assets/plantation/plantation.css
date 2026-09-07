@@ -30,3 +30,19 @@
 #gpSound[aria-pressed="false"]{opacity:.6}
 @media(max-width:800px){.gp-toasts{bottom:52px}.gp-scene-hint kbd{display:none}}
 @media(prefers-reduced-motion:reduce){.gp-toast{animation:none}.gp-pot-tabs button.ready .gp-pot-bar{animation:none}}
+
+/* Raretés : badge, filtre et étiquette du laboratoire */
+.gp-rarity-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:12px 0 0}
+.gp-rarity-bar button{border:1px solid #4a5c3d;background:#1a291f;color:#c6d4b0;border-radius:999px;padding:7px 13px;font-size:11px;min-height:34px}
+.gp-rarity-bar button.active{border-color:#d8ec83;color:#eef6cf;background:#d8ec8314}
+.gp-rarity-bar span{font:10px monospace;color:#8fa080;margin-left:auto}
+.gp-rarity,.gp-tag{--tier:#9fb187}
+.gp-rarity.t0,.gp-tag.t0{--tier:#9fb187}
+.gp-rarity.t1,.gp-tag.t1{--tier:#7fc4e0}
+.gp-rarity.t2,.gp-tag.t2{--tier:#c79bf0}
+.gp-rarity.t3,.gp-tag.t3{--tier:#f3c987}
+.gp-rarity.t4,.gp-tag.t4{--tier:#ff9d6e}
+.gp-rarity{color:var(--tier)!important;border-color:color-mix(in srgb,var(--tier) 45%,transparent)}
+.gp-tag{display:inline-block;color:var(--tier);border:1px solid color-mix(in srgb,var(--tier) 45%,transparent);border-radius:5px;padding:1px 5px;font:8px/1.5 monospace;letter-spacing:.08em;text-transform:uppercase;margin-right:5px}
+.gp-variety.locked .gp-rarity{opacity:.75}
+@media(max-width:480px){.gp-rarity-bar button{padding:6px 10px;font-size:10px}.gp-rarity-bar span{width:100%;margin:2px 0 0}}

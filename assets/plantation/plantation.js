@@ -5,6 +5,9 @@
  let state=null,selected=0,busy=false,serverOffset=0,pending=null,studio=null,alive=true,lightOn=true;
  const now=()=>Date.now()/1000+serverOffset,fmt=n=>Number(n).toLocaleString('fr-FR'),esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const img=v=>config.assetBase+'thumbs/'+v.id+'-bud.webp';
+ const TIER_COST=[60,110,180,280,400],TIER_MASTERY=[1,2,3,5,8],SAVE_VERSION=3;
+ const tierOf=v=>Math.max(0,Math.min(4,v.tier|0));
+ const recipe=(a,b)=>a!==b?cat[[a,b].sort().join('--')]:null;
  const sfx=name=>{try{window.GPSound&&window.GPSound.play(name);}catch{}};
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const buzz=pattern=>{try{if(navigator.vibrate&&!reduced)navigator.vibrate(pattern);}catch{}};
@@ -19,7 +22,7 @@
  function syncSoundButton(){const b=$('gpSound');if(!b||!window.GPSound)return;const on=window.GPSound.enabled();
   b.textContent=on?'Son activé':'Son coupé';b.setAttribute('aria-pressed',String(on));}
  function message(text,error=false,retry=false){const el=$('gpMessage');el.classList.toggle('error',error);el.replaceChildren(document.createTextNode(text));if(retry){const btn=document.createElement('button');btn.textContent='Réessayer';btn.onclick=()=>pending?request(pending.action,pending.params,pending.id,pending.revision):load();el.append(btn);}}
- function thumb(v){return '<div class="gp-thumb" style="--bud:'+esc(v.bud)+'"><img data-id="'+esc(v.id)+'" src="'+esc(img(v))+'" alt="Bud 3D de '+esc(v.name)+'" loading="lazy"><span class="gp-rarity">'+esc(v.rarity.toUpperCase())+'</span></div>';}
+ function thumb(v){return '<div class="gp-thumb" style="--bud:'+esc(v.bud)+'"><img data-id="'+esc(v.id)+'" src="'+esc(img(v))+'" alt="Bud 3D de '+esc(v.name)+'" loading="lazy"><span class="gp-rarity t'+tierOf(v)+'">'+esc(v.rarity.toUpperCase())+'</span></div>';}
  function imageFallbacks(){document.querySelectorAll('.gp img').forEach(im=>{const swap=()=>{const fallback=document.createElement('span');fallback.className='gp-fallback-bud';fallback.style.setProperty('--bud',cat[im.dataset.id]?.bud||'#799258');im.replaceWith(fallback);};
   im.onerror=swap;if(im.complete&&im.naturalWidth===0)swap();});}
  function duration(t){t=Math.max(0,Math.ceil(t));return t>=60?Math.floor(t/60)+' min '+String(t%60).padStart(2,'0')+' s':t+' s';}
@@ -37,8 +40,14 @@
    if(config.demo){
     const key='greenstand-plantation-preview-v1';let local;
     try{local=JSON.parse(localStorage.getItem(key)||'null');}catch{}
-    local=local&&[1,2].includes(local.version)?local:GPDemo.initial(catalog);
-    if(local.version<2){for(const id of ['diesel','peche','pin','orchidee'])local.seeds[id]=(local.seeds[id]||0)+2;local.version=2;local.accessories={};localStorage.setItem(key,JSON.stringify(local));}
+    // Toute sauvegarde d'aperçu antérieure est reprise, jamais jetée.
+    local=local&&Number.isInteger(local.version)&&local.version>=1&&local.version<=SAVE_VERSION?local:GPDemo.initial(catalog);
+    if(local.version<SAVE_VERSION){
+     if(local.version<2){for(const id of ['diesel','peche','pin','orchidee'])local.seeds[id]=(local.seeds[id]||0)+2;local.version=2;local.accessories=local.accessories||{};}
+     if(local.version<3){const legacy=['emeraude','nebuleuse','citron','velours','menthe','ambre','rose','givre','mangue','onyx','diesel','peche','pin','orchidee'];
+      for(const v of bases)if(tierOf(v)===0&&!legacy.includes(v.id))local.seeds[v.id]=(local.seeds[v.id]||0)+1;local.version=3;}
+     localStorage.setItem(key,JSON.stringify(local));
+    }
     if(action!=='state'){
      if(!local.seen.includes(id)){if(local.revision!==revision){adopt({state:local,server_time:Date.now()/1000});pending=null;throw Error('L’aperçu a changé dans un autre onglet. Réessaie.');}local=GPDemo.apply(local,action,params,Math.floor(Date.now()/1000),catalog);local.seen.push(id);local.seen=local.seen.slice(-24);}
      localStorage.setItem(key,JSON.stringify(local));
@@ -92,26 +101,47 @@
   $('gpSeedGrid').innerHTML=bases.map(v=>'<article class="gp-variety" data-variety="'+v.id+'">'+thumb(v)+'<h3>'+esc(v.name)+'</h3><p>'+duration(v.duration)+' · +'+v.reward+' pts<br>'+((state.harvests[v.id]||0)?'✓ Parent étudié':'À récolter pour le laboratoire')+'</p><footer><span>'+fmt(state.seeds[v.id]||0)+' graines</span><button type="button" data-buy="'+v.id+'">+'+1+' · '+v.price+' pts</button></footer></article>').join('');
  }
  function selectedHybrid(){const a=$('gpParentA').value,b=$('gpParentB').value;return a!==b?cat[[a,b].sort().join('--')]:null;}
- function renderLab(){const a=$('gpParentA').value,b=$('gpParentB').value,v=selectedHybrid();$('gpHybridResult').innerHTML=v?'<img src="'+esc(img(v))+'" alt=""><span>'+esc(v.name)+'<small>'+duration(v.duration)+' · '+v.reward+' pts</small></span>':'Deux parents différents';
-  const studied=(state.harvests[a]||0)>0&&(state.harvests[b]||0)>0,owned=(state.seeds[a]||0)>0&&(state.seeds[b]||0)>0;
-  $('gpCross').disabled=busy||!!pending||!v||!studied||!owned||state.credits<60;
-  $('gpLabHint').textContent=!v?'Choisis deux fondatrices différentes.':!studied?'Récolte chaque parent au moins une fois pour l’étudier.':!owned?'Il te faut une graine disponible de chaque parent.':state.credits<60?'Il te faut 60 points de serre.':'Coût : 1 graine de chaque parent + 60 points. Résultat : 1 graine '+v.name+'. Les hybrides se cultivent et redonnent leurs propres graines.';
+ function renderLab(){
+  const a=$('gpParentA').value,b=$('gpParentB').value,v=selectedHybrid();
+  const tier=v?tierOf(v):0,cost=TIER_COST[tier],mastery=TIER_MASTERY[tier];
+  $('gpHybridResult').innerHTML=v
+   ?'<img data-id="'+esc(v.id)+'" src="'+esc(img(v))+'" alt=""><span>'+esc(v.name)+'<small><b class="gp-tag t'+tier+'">'+esc(v.rarity)+'</b> '+duration(v.duration)+' · '+v.reward+' pts</small></span>'
+   :(a===b?'Deux parents différents':'Aucune recette connue');
+  const studied=(state.harvests[a]||0)>=mastery&&(state.harvests[b]||0)>=mastery,
+   owned=(state.seeds[a]||0)>0&&(state.seeds[b]||0)>0;
+  $('gpCross').disabled=busy||!!pending||!v||!studied||!owned||state.credits<cost;
+  $('gpCross').textContent=v?'Créer la graine · '+cost+' pts':'Créer la graine';
+  $('gpLabHint').textContent=a===b?'Choisis deux fondatrices différentes.'
+   :!v?'Ces deux fondatrices ne donnent aucune recette. Sur les 1 225 associations possibles, 500 ont une recette : essaie une autre paire.'
+   :!studied?'Recette '+v.rarity.toLowerCase()+' : récolte '+mastery+' fois chaque parent pour la maîtriser ('+(state.harvests[a]||0)+'/'+mastery+' et '+(state.harvests[b]||0)+'/'+mastery+').'
+   :!owned?'Il te faut une graine disponible de chaque parent.'
+   :state.credits<cost?'Il te faut '+fmt(cost)+' points de serre pour une recette '+v.rarity.toLowerCase()+'.'
+   :'Coût : 1 graine de chaque parent + '+fmt(cost)+' points. Résultat : 1 graine '+v.name+' ('+v.rarity.toLowerCase()+'). Les hybrides se cultivent et redonnent leurs propres graines.';
  }
  function renderCollection(){const collected=catalog.filter(v=>state.buds[v.id]>0);$('gpCollectionGrid').innerHTML=collected.length?collected.map(v=>'<article data-variety="'+v.id+'" class="gp-variety">'+thumb(v)+'<h3>'+esc(v.name)+'</h3><p>'+fmt(state.buds[v.id])+' buds · '+fmt(state.harvests[v.id])+' récolte(s)</p><footer><span>'+fmt(state.seeds[v.id]||0)+' graines</span><button data-inspect="'+v.id+'" type="button">Semer</button></footer></article>').join(''):'<div class="gp-empty">Ta première récolte trouvera sa place ici. Prépare un pot, sème et arrose pour commencer.</div>';
   $('gpHistory').replaceChildren();for(const h of state.history){const li=document.createElement('li'),time=document.createElement('time'),text=document.createElement('span');time.textContent=new Date(h.at*1000).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});text.textContent=h.text;li.append(time,text);$('gpHistory').append(li);}
  }
  function renderSupplies(){document.querySelectorAll('[data-accessory]').forEach(b=>{const owned=!!state.accessories?.[b.dataset.accessory],price={fan:120,humidifier:140,loupe:100}[b.dataset.accessory];b.textContent=owned?'✓ Installé':'Installer · '+price+' pts';b.disabled=owned||busy||!!pending||state.credits<price;});document.querySelectorAll('[data-buy]').forEach(b=>{const cost=b.dataset.buy==='soil'?15:b.dataset.buy==='feed'?20:cat[b.dataset.buy]?.price;b.disabled=busy||!!pending||state.credits<cost;});const n=state.pots.length,cost=150*(n-3);$('gpUnlockPot').textContent=n>=6?'Serre complète':('Pot '+(n+1)+' · '+cost+' pts');$('gpUnlockPot').disabled=busy||!!pending||n>=6||state.credits<cost;$('gpRefill').disabled=busy||!!pending||state.water>=6;}
- function render(){if(!state)return;document.querySelectorAll('.gp-section-tabs button,#gpParentA,#gpParentB,#gpRotate,#gpLight,#gpInspect,#gpSound,#gpPhoto').forEach(e=>e.disabled=false);
-  $('gpScore').textContent=fmt(catalog.filter(v=>(state.harvests[v.id]||0)>0).length*100+hybrids.filter(v=>state.discoveries[v.id]).length*250+Math.min(100,Object.values(state.harvests).reduce((a,b)=>a+Number(b),0)));$('gpCredits').textContent=fmt(state.credits);$('gpHarvestTotal').textContent=fmt(state.total);$('gpDiscovered').textContent=Object.keys(state.discoveries).length+' / 91';$('gpBudTotal').textContent=fmt(Object.values(state.buds).reduce((a,b)=>a+b,0));$('gpSceneCount').textContent=state.pots.length+' POTS';renderSeeds();renderPots();renderCare();
+ function render(){if(!state)return;document.querySelectorAll('.gp-section-tabs button,[data-rarity],#gpParentA,#gpParentB,#gpRotate,#gpLight,#gpInspect,#gpSound,#gpPhoto').forEach(e=>e.disabled=false);
+  $('gpScore').textContent=fmt(catalog.filter(v=>(state.harvests[v.id]||0)>0).length*100+hybrids.filter(v=>state.discoveries[v.id]).length*250+Math.min(100,Object.values(state.harvests).reduce((a,b)=>a+Number(b),0)));$('gpCredits').textContent=fmt(state.credits);$('gpHarvestTotal').textContent=fmt(state.total);$('gpDiscovered').textContent=Object.keys(state.discoveries).length+' / '+hybrids.length;$('gpBudTotal').textContent=fmt(Object.values(state.buds).reduce((a,b)=>a+b,0));$('gpSceneCount').textContent=state.pots.length+' POTS';renderSeeds();renderPots();renderCare();
   $('gpHybridGrid').innerHTML=hybrids.map(v=>'<article data-variety="'+v.id+'" class="gp-variety '+(state.discoveries[v.id]?'':'locked')+'">'+thumb(v)+'<h3>'+esc(v.name)+'</h3><p>'+v.parents.map(id=>esc(cat[id].name)).join(' × ')+'</p><footer><span>'+(state.discoveries[v.id]?'✓ Découvert':'À découvrir')+'</span><span>'+fmt(state.seeds[v.id]||0)+' gr.</span></footer></article>').join('');renderLab();renderCollection();renderSupplies();imageFallbacks();applyFilter();watchReady();studio?.sync(state,cat,now());studio?.select(selected);
   try{window.GPSound&&window.GPSound.scene(state,lightOn);}catch{}
  }
  for(const id of ['gpParentA','gpParentB']){bases.forEach(v=>{const o=document.createElement('option');o.value=v.id;o.textContent=v.name;$(id).append(o);});$(id).onchange=()=>{if(state)renderLab();};}$('gpParentB').selectedIndex=1;
+ let rarityFilter='';
  function applyFilter(){const q=$('gpSearch').value.trim().toLocaleLowerCase('fr'),onlyFound=$('gpOnlyFound')?.checked;
   document.querySelectorAll('[data-variety]').forEach(el=>{const v=cat[el.dataset.variety];
-   const text=!!q&&!(v.name+' '+v.parents.map(p=>cat[p].name).join(' ')).toLocaleLowerCase('fr').includes(q);
-   el.hidden=text||(onlyFound&&el.classList.contains('locked'));});}
+   const text=!!q&&!(v.name+' '+v.rarity+' '+v.parents.map(p=>cat[p].name).join(' ')).toLocaleLowerCase('fr').includes(q);
+   const rarity=rarityFilter!==''&&String(tierOf(v))!==rarityFilter;
+   el.hidden=text||rarity||(onlyFound&&el.classList.contains('locked'));});
+  const label=$('gpFilterCount');
+  if(label){const shown=[...document.querySelectorAll('#gpHybridGrid [data-variety]')].filter(e=>!e.hidden).length;
+   label.textContent=fmt(shown)+' recette'+(shown>1?'s':'')+' affichée'+(shown>1?'s':'');}}
  $('gpSearch').oninput=applyFilter;
+ document.querySelectorAll('[data-rarity]').forEach(b=>{b.onclick=()=>{
+  rarityFilter=b.dataset.rarity;sfx('tab');
+  document.querySelectorAll('[data-rarity]').forEach(o=>{o.classList.toggle('active',o===b);o.setAttribute('aria-pressed',String(o===b));});
+  applyFilter();};});
  if($('gpOnlyFound'))$('gpOnlyFound').onchange=()=>{applyFilter();sfx('ui');};
  $('gpInspect').onclick=()=>{if(!studio||!state)return;const v=cat[state.pots[selected].plant?.id||$('gpSeedSelect').value]||bases[0];const on=studio.inspect(v);$('gpInspect').textContent=on?'Revenir à la serre':'Voir le bud';};
  $('gpSeedSelect').onchange=renderCare;

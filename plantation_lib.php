@@ -9,10 +9,22 @@ function gp_catalog(): array {
     }
     return $data;
 }
+/** Les 14 fondatrices d'origine : repère pour les cadeaux de mise à jour. */
+const GP_LEGACY_FOUNDERS = ['emeraude','nebuleuse','citron','velours','menthe','ambre','rose',
+    'givre','mangue','onyx','diesel','peche','pin','orchidee'];
+/** Plus une recette est rare, plus elle coûte cher et demande de maîtrise. */
+function gp_tier_rules(int $tier): array {
+    $cost    = [60, 110, 180, 280, 400];
+    $mastery = [1, 2, 3, 5, 8];
+    $tier = max(0, min(4, $tier));
+    return ['cost'=>$cost[$tier], 'mastery'=>$mastery[$tier]];
+}
+function gp_tier(array $v): int { return max(0, min(4, (int)($v['tier'] ?? 0))); }
 function gp_initial(): array {
+    // Les fondatrices communes sont offertes ; les plus rares s'achètent.
     $seeds = [];
-    foreach (gp_catalog() as $id=>$v) if (!$v['parents']) $seeds[$id] = 2;
-    return ['version'=>2,'accessories'=>[],'revision'=>0,'credits'=>250,'soil'=>12,'water'=>6,'feed'=>6,
+    foreach (gp_catalog() as $id=>$v) if (!$v['parents'] && gp_tier($v) === 0) $seeds[$id] = 2;
+    return ['version'=>3,'accessories'=>[],'revision'=>0,'credits'=>250,'soil'=>12,'water'=>6,'feed'=>6,
         'seeds'=>$seeds,'pots'=>array_fill(0,4,['soil'=>false,'plant'=>null]),
         'buds'=>[],'harvests'=>[],'discoveries'=>[],'total'=>0,'history'=>[],'seen'=>[]];
 }
@@ -91,15 +103,17 @@ function gp_apply(array $s, string $action, array $p, int $now): array {
         case 'cross':
             $a=(string)($p['a']??'');$b=(string)($p['b']??'');
             gp_check($a!==$b&&isset($catalog[$a],$catalog[$b])&&!$catalog[$a]['parents']&&!$catalog[$b]['parents'],'Choisis deux graines fondatrices différentes.');
-            gp_check(($s['harvests'][$a]??0)>0&&($s['harvests'][$b]??0)>0,'Récolte au moins une fois chacune des deux fondatrices.');
-            gp_check(($s['seeds'][$a]??0)>0&&($s['seeds'][$b]??0)>0,'Il faut une graine de chaque parent.');
-            gp_check($s['credits']>=60,'Le croisement coûte 60 points de serre.');
             $parents=[$a,$b];sort($parents,SORT_STRING);$id=implode('--',$parents);
-            gp_check(isset($catalog[$id]),'Croisement inconnu.');
+            gp_check(isset($catalog[$id]),'Ces deux fondatrices ne donnent aucune recette connue.');
+            $rules=gp_tier_rules(gp_tier($catalog[$id]));
+            gp_check(($s['harvests'][$a]??0)>=$rules['mastery']&&($s['harvests'][$b]??0)>=$rules['mastery'],
+                'Recette '.$catalog[$id]['rarity'].' : récolte '.$rules['mastery'].' fois chaque parent avant de tenter ce croisement.');
+            gp_check(($s['seeds'][$a]??0)>0&&($s['seeds'][$b]??0)>0,'Il faut une graine de chaque parent.');
+            gp_check($s['credits']>=$rules['cost'],'Cette recette coûte '.$rules['cost'].' points de serre.');
             gp_check(($s['seeds'][$id]??0)<9999,'Réserve pleine.');
-            $s['credits']-=60;$s['seeds'][$a]--;$s['seeds'][$b]--;
+            $s['credits']-=$rules['cost'];$s['seeds'][$a]--;$s['seeds'][$b]--;
             $s['seeds'][$id]=($s['seeds'][$id]??0)+1;$s['discoveries'][$id]=true;
-            gp_event($s,'Croisement réussi : '.$catalog[$id]['name'].'.',$now);break;
+            gp_event($s,'Croisement réussi : '.$catalog[$id]['name'].' ('.$catalog[$id]['rarity'].').',$now);break;
         default: throw new DomainException('Action inconnue.');
     }
     unset($pot); // la référence ne doit pas survivre dans le tableau retourné
@@ -115,6 +129,14 @@ function gp_schema(PDO $pdo): void {
 /** One-time upgrade; old seeds, crops, discoveries and counters are preserved. */
 function gp_upgrade(array $s): array {
     if(($s['version']??1)<2){foreach(['diesel','peche','pin','orchidee'] as $id)$s['seeds'][$id]=($s['seeds'][$id]??0)+2;$s['version']=2;}
+    if(($s['version']??1)<3){
+        // La serre passe à 50 fondatrices : une graine offerte pour chaque nouvelle
+        // fondatrice commune. Rien n'est retiré, rien n'est remis à zéro.
+        foreach(gp_catalog() as $id=>$v)
+            if(!$v['parents'] && gp_tier($v)===0 && !in_array($id, GP_LEGACY_FOUNDERS, true))
+                $s['seeds'][$id]=($s['seeds'][$id]??0)+1;
+        $s['version']=3;
+    }
     // Complète uniquement ce qui manque : aucune progression existante n'est réinitialisée.
     $defaults = gp_initial();
     foreach(['revision','credits','soil','water','feed','total'] as $key)

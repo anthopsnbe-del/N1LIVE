@@ -14,6 +14,7 @@
  /* Ressources partagées : jamais libérées par dispose(), réutilisées par tous les buds. */
  const CACHE=new Map();
  let ENV=null; // carte d'environnement partagée, renseignée par studio()
+ let QUALITY=1;  // densité des trichomes et pistils ; l'outil de miniatures l'abaisse
  const cached=(key,make)=>{let o=CACHE.get(key);if(!o){o=make();o.userData=o.userData||{};o.userData.shared=true;CACHE.set(key,o);}return o;};
  const YAXIS=new T.Vector3(0,1,0),ZAXIS=new T.Vector3(0,0,1);
  /* Profil d'une cola : épaules basses larges, pointe effilée. */
@@ -108,26 +109,35 @@
  function bud(v,size=1){
   const g=new T.Group(),r=rnd(v.seed),detail=size>.5,hybrid=(v.parents||[]).length>0;
   const H=1.34,dummy=new T.Object3D(),tone=new T.Color(),spin=new T.Quaternion(),tilt=new T.Quaternion();
-  const base=new T.Color(v.bud),look=traits(v),vivid=base.clone();
-  {const hsl={};vivid.getHSL(hsl);vivid.setHSL(hsl.h,Math.min(1,hsl.s*(1.12+look.anthocyanin*.22)),hsl.l*.92);}
-  const darkTarget=look.violet?'#150920':look.rust?'#1a0d05':'#0a1105',
-   lightTarget=look.violet?'#ecdcf7':look.rust?'#f6e6c4':'#e6efbb',
-   accentTarget=look.violet?'#54206e':look.rust?'#8a3c17':'#7a4423',
-   tintTarget=look.violet?'#c0b0cc':look.rust?'#d3c39b':'#b9c397';
-  const tint=base.clone().lerp(new T.Color(tintTarget),.22),
-   deep=base.clone().lerp(new T.Color(darkTarget),.62+look.anthocyanin*.12),
-   bright=base.clone().lerp(new T.Color(lightTarget),.3),
-   rust=base.clone().lerp(new T.Color(accentTarget),.55),
-   shadowTone=base.clone().lerp(new T.Color(look.violet?'#2a1636':'#243a1c'),.72);
-  const accentChance=.05+look.anthocyanin*.32;
+  const look=traits(v);
+  /* Une variété porte 2 à 4 teintes. Chacune reçoit son propre jeu ombre / vif :
+     les calices piochent dedans, la dominante restant largement majoritaire. */
+  const palette=(Array.isArray(v.tones)&&v.tones.length?v.tones:[v.bud]).map(hex=>{
+   const shade=new T.Color(hex),hsl={};shade.getHSL(hsl);
+   const warm=hsl.h*360>=200&&hsl.h*360<=352,rust=hsl.h*360>=12&&hsl.h*360<=66;
+   const vividTone=shade.clone();
+   vividTone.setHSL(hsl.h,Math.min(1,hsl.s*(1.12+look.anthocyanin*.22)),hsl.l*.92);
+   return {
+    vivid:vividTone,
+    deep:shade.clone().lerp(new T.Color(warm?'#150920':rust?'#1a0d05':'#0a1105'),.62+look.anthocyanin*.12),
+    bright:shade.clone().lerp(new T.Color(warm?'#ecdcf7':rust?'#f6e6c4':'#e6efbb'),.3),
+    tint:shade.clone().lerp(new T.Color(warm?'#c0b0cc':rust?'#d3c39b':'#b9c397'),.22),
+   };
+  });
+  /* Dominante largement majoritaire, l'accent reste une ponctuation. */
+  const shareByCount={1:[1],2:[.72,.28],3:[.6,.26,.14],4:[.52,.24,.15,.09]};
+  const shares=shareByCount[palette.length]||shareByCount[4];
+  const pickTone=t=>{let acc=0;for(let i=0;i<shares.length;i++){acc+=shares[i];if(t<acc)return palette[i];}return palette[0];};
+  const base=new T.Color(v.tones&&v.tones.length?v.tones[0]:v.bud),vivid=palette[0].vivid,deep=palette[0].deep;
+  const shadowTone=base.clone().lerp(new T.Color(look.violet?'#2a1636':'#243a1c'),.72);
   const foliage=new T.Color(v.leaf).lerp(new T.Color('#25401c'),.35);
   const texture=grain();
   /* Résine : un vernis spéculaire par-dessus une surface mate et grenue. */
   const height=H*(.84+look.spire*.4),girth=1.18-look.spire*.34,pack=.62+look.density*.62;
   const nodes=Math.round((detail?15:5)*(.85+look.spire*.5)),
-   calyxCount=Math.round((detail?560:110)*pack),
-   pistilCount=Math.round((detail?430:52)*(.75+look.density*.4)),
-   frostCount=Math.round((detail?(hybrid?3000:2500):(hybrid?100:85))*(.8+look.density*.35)),
+   calyxCount=Math.round((detail?560:88)*pack),
+   pistilCount=Math.round((detail?430:34)*(.75+look.density*.4)*Math.max(.5,QUALITY)),
+   frostCount=Math.round((detail?(hybrid?3000:2500):(hybrid?100:85))*(.8+look.density*.35)*QUALITY),
    leaves=Math.round((detail?7:2)*(1.25-look.density*.5));
   const skin=detail
    ?new T.MeshPhysicalMaterial({color:0xffffff,roughness:.62,metalness:0,
@@ -160,9 +170,10 @@
    dummy.updateMatrix();lobes.setMatrixAt(i,dummy.matrix);
    /* Occlusion simulée : plus un calice est enfoncé, plus il est sombre. */
    const shade=Math.min(1,Math.max(0,(depth-(.42+look.density*.16))/.62));
-   tone.copy(deep).lerp(vivid,Math.pow(shade,.8)*(.55+.33*t));
-   if(shade>.72)tone.lerp(r()<.4?bright:tint,(shade-.72)*1.5*r());
-   const dice=r();if(dice<accentChance)tone.lerp(rust,.3+r()*.45);else if(dice<accentChance+.07)tone.lerp(shadowTone,.4);
+   const hue=pickTone(r());
+   tone.copy(hue.deep).lerp(hue.vivid,Math.pow(shade,.8)*(.55+.33*t));
+   if(shade>.72)tone.lerp(r()<.4?hue.bright:hue.tint,(shade-.72)*1.5*r());
+   if(r()<.07)tone.lerp(shadowTone,.4);
    if(look.anthocyanin&&t<.5)tone.lerp(foliage,(.5-t)*1.15*r());
    tone.convertSRGBToLinear();lobes.setColorAt(i,tone);
   }
@@ -177,7 +188,7 @@
    dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*1)).multiply(tilt.setFromAxisAngle(ZAXIS,-(r()*1.25)));
    dummy.updateMatrix();hairs.setMatrixAt(i,dummy.matrix);
    const dice=r();
-   tone.copy(dice<.25?pistilTip:dice<.62?pistil:pistilDry).lerp(bright,r()*.1).convertSRGBToLinear();
+   tone.copy(dice<.25?pistilTip:dice<.62?pistil:pistilDry).lerp(palette[0].bright,r()*.1).convertSRGBToLinear();
    hairs.setColorAt(i,tone);
   }
   if(hairs.instanceColor)hairs.instanceColor.needsUpdate=true;
@@ -196,11 +207,11 @@
 
   const sugarColor=new T.Color(v.leaf).lerp(new T.Color('#20300f'),.3);
   /* Manteau de feuilles : la couche que l'on voit en premier sur une vraie tête. */
-  const leafCount=Math.round((detail?200:34)*(1.1-look.density*.28));
+  const leafCount=Math.round((detail?200:16)*(1.1-look.density*.28));
   const leafSkin=detail
    ?new T.MeshPhysicalMaterial({color:0xffffff,side:T.DoubleSide,map:budSkin(),bumpMap:texture,bumpScale:.014,
      roughness:.58,clearcoat:.5,clearcoatRoughness:.3,envMap:ENV,envMapIntensity:.22})
-   :mat('#ffffff',{side:T.DoubleSide,map:budSkin(),roughness:.7});
+   :mat('#ffffff',{roughness:.8});
   const leaflets=new T.InstancedMesh(leafletGeo(),leafSkin,leafCount);
   const leafBase=new T.Color(v.leaf).lerp(new T.Color('#1e3312'),.28),
    leafDark=leafBase.clone().lerp(new T.Color('#1d3313'),.3),
@@ -217,7 +228,8 @@
     .multiply(roll.setFromAxisAngle(YAXIS,r()*6.283));
    dummy.updateMatrix();leaflets.setMatrixAt(i,dummy.matrix);
    const dice=r();
-   tone.copy(dice<.24?leafDark:dice<.82?leafBase:leafLight).lerp(vivid,r()*.25*look.anthocyanin);
+   tone.copy(dice<.24?leafDark:dice<.82?leafBase:leafLight)
+    .lerp(pickTone(r()).vivid,r()*(.12+.2*look.anthocyanin));
    tone.convertSRGBToLinear();leaflets.setColorAt(i,tone);
   }
   if(leaflets.instanceColor)leaflets.instanceColor.needsUpdate=true;
@@ -396,5 +408,7 @@
  /* Permet à l'outil de miniatures de construire l'environnement pour son propre rendu :
     une texture PMREM appartient au contexte WebGL qui l'a produite. */
  function setEnvironment(renderer){ENV=environment(renderer);return ENV;}
- root.GPModels={bud,seed,plant,pot,wateringCan,scissors,shovel,sack,jar,flask,studio,dispose,fan,humidifier,loupe,setEnvironment,traits};
+ /* Abaisse la densité des trichomes : invisible en miniature, trois fois plus rapide. */
+ function setQuality(factor){QUALITY=Math.max(.15,Math.min(1,factor));return QUALITY;}
+ root.GPModels={bud,seed,plant,pot,wateringCan,scissors,shovel,sack,jar,flask,studio,dispose,fan,humidifier,loupe,setEnvironment,setQuality,traits};
 })(typeof window==='undefined'?globalThis:window);

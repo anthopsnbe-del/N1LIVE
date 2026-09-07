@@ -1,6 +1,6 @@
 # Plantation — la serre 3D du Botanical Club
 
-Mini-jeu de culture et de croisements : 14 variétés fondatrices, 91 hybrides,
+Mini-jeu de culture et de croisements : 50 variétés fondatrices, 500 hybrides,
 serre en 3D temps réel (three.js r128), état de jeu entièrement serveur (PHP + MySQL).
 
 ## Arborescence attendue en production
@@ -53,26 +53,49 @@ chaque bud sont déduits du catalogue existant.
 | `seed` | densité : cola compacte ou structure aérée qui laisse voir la tige |
 | teinte de `bud` | pigments : anthocyanes violettes (200-352°), rouille (12-66°), sinon vert |
 | `parents` | les hybrides sont plus givrés que les fondatrices |
+| `tones` | les 2 à 4 teintes réparties sur les calices |
 
 Le manteau de feuilles sucrées — petites feuilles dentelées, pliées en gouttière,
 qui percent la silhouette — est ce qui distingue une vraie tête d'un bloc lisse.
 
-## Palette : 105 variétés, 105 couleurs
+## Le catalogue : 50 fondatrices, 500 recettes, cinq raretés
 
-`bud`, `leaf` et `pistil` de `catalog.json` sont générés par
-`tools/palette.py` ; toutes les autres données (prix, durées, parents, rareté)
-sont laissées intactes.
+`tools/catalog.py` génère l'intégralité de `catalog.json`. Il tient trois
+promesses vérifiées par la suite de tests :
 
-- Les 14 fondatrices sont choisies à la main, fidèles à leur nom.
-- Les 91 hybrides héritent de leurs parents : moyenne circulaire des teintes, et
-  quand les deux parents sont quasi opposés sur la roue, l'un domine et l'autre
-  l'infléchit — une moyenne donnerait une couleur étrangère aux deux.
-- Une passe d'écartement en espace Lab garantit qu'aucune paire de variétés
-  n'est confondable : **ΔE minimum 7**, contre 28 paires sous 5 auparavant.
+- les 14 fondatrices d'origine gardent identifiant, nom, statistiques, graine
+  **et couleur** : les joueurs les reconnaissent et leurs sauvegardes restent
+  valides ;
+- les 91 croisements d'origine figurent toujours parmi les 500 recettes ;
+- aucune variété ne partage sa combinaison de teintes avec une autre.
+
+Sur les 1 225 associations possibles entre 50 fondatrices, 500 ont une recette.
+Elles sont réparties pour que chaque fondatrice serve dans 19 à 21 croisements.
+
+| Rareté | Hybrides | Teintes | Coût du croisement | Récoltes exigées par parent |
+|---|---|---|---|---|
+| Commune | 230 | 2 | 60 pts | 1 |
+| Rare | 150 | 3 | 110 pts | 2 |
+| Épique | 85 | 3 | 180 pts | 3 |
+| Légendaire | 30 | 4 | 280 pts | 5 |
+| Mythique | 5 | 4 | 400 pts | 8 |
+
+Une légendaire ne s'achète donc pas : il faut avoir réellement cultivé ses deux
+parents. Le classement suit la même échelle (250 à 2 000 points selon la rareté).
+
+### Les couleurs
+
+Chaque variété porte 2 à 4 teintes, réparties sur les calices : dominante
+largement majoritaire, puis une nuance sombre, une nuance claire, et pour les
+légendaires un accent anthocyane ou rouille. Les hybrides héritent de leurs
+parents (moyenne circulaire des teintes, traitement à part quand les parents
+sont opposés sur la roue), puis une passe d'écartement en espace Lab garantit
+qu'aucune paire de variétés n'est confondable — **ΔE minimum 5 sur 550
+variétés**.
 
 ```bash
-python3 tools/palette.py            # aperçu, n'écrit rien
-python3 tools/palette.py --write    # met à jour catalog.json
+python3 tools/catalog.py            # rapport, n'écrit rien
+python3 tools/catalog.py --write    # met à jour catalog.json
 ```
 
 ## Régénérer les miniatures
@@ -86,7 +109,8 @@ php -S localhost:8146 &                      # sert la racine du dépôt
 GP_BASE=http://localhost:8146 node tools/render-thumbs.js
 ```
 
-Sans argument, l'outil rend les 105 variétés ; on peut aussi lui passer des
+Sans argument, l'outil rend les 550 variétés (une vingtaine de minutes) ; on
+peut aussi lui passer des
 identifiants (`node tools/render-thumbs.js emeraude velours`).
 
 La densité pilote aussi le nombre de calices, de pistils, de trichomes et de

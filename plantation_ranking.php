@@ -3,14 +3,16 @@ declare(strict_types=1);
 require_once __DIR__.'/plantation_lib.php';
 /** A collection score. Spending points or buds never reduces it. */
 function gp_metrics(array $s): array {
-    $varieties=0;$hybrids=0;$harvests=0;
+    // Une recette rare vaut plus cher qu'une commune : la difficulté se voit au classement.
+    $weight=[250,400,650,1100,2000];
+    $varieties=0;$hybrids=0;$harvests=0;$collection=0;
     foreach(gp_catalog() as $id=>$v){
         $n=max(0,min(100000000,(int)($s['harvests'][$id]??0)));
         if($n>0)$varieties++;
         $harvests+=$n;
-        if($v['parents']&&!empty($s['discoveries'][$id]))$hybrids++;
+        if($v['parents']&&!empty($s['discoveries'][$id])){$hybrids++;$collection+=$weight[gp_tier($v)];}
     }
-    return ['score'=>$varieties*100+$hybrids*250+min(100,$harvests),
+    return ['score'=>$varieties*100+$collection+min(100,$harvests),
         'varieties'=>$varieties,'hybrids'=>$hybrids,'harvests'=>$harvests];
 }
 function gp_rank_rows(array $rows,string $viewer,int $limit=20): array {
