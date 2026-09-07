@@ -1,0 +1,57 @@
+<!doctype html><meta charset="utf-8"><title>Miniatures de buds</title>
+<!-- Outil de développement : régénère assets/plantation/thumbs/<id>-bud.webp
+     à partir du modèle 3D et des couleurs de catalog.json.
+     Lancer avec « node tools/render-thumbs.js » depuis la racine du dépôt. -->
+<style>body{margin:0;background:#111;display:grid;place-items:center;height:100vh}</style>
+<body>
+<script src="../assets/plantation/three.min.js"></script>
+<script src="../assets/plantation/models.js"></script>
+<script>
+const SIZE = 320;
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, preserveDrawingBuffer:true});
+renderer.setPixelRatio(1);
+renderer.setSize(SIZE, SIZE, false);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x000000, 0);
+document.body.append(renderer.domElement);
+
+GPModels.setEnvironment(renderer);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, 1, .05, 30);
+scene.add(new THREE.HemisphereLight('#edf1d8', '#33402f', .42));
+const sun = new THREE.DirectionalLight('#fff4d6', 1.25);
+sun.position.set(-1.7, 2.6, 2.1);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+Object.assign(sun.shadow.camera, {left:-1.2, right:1.2, top:1.4, bottom:-1.2});
+sun.shadow.normalBias = .004;
+sun.shadow.camera.updateProjectionMatrix();
+scene.add(sun);
+const rim = new THREE.DirectionalLight('#eaf6ff', .75); rim.position.set(-2.2, 1.4, -3.2); scene.add(rim);
+const key = new THREE.PointLight('#fff4dd', .5, 9, 2); key.position.set(1.7, 1.7, 2.1); scene.add(key);
+
+/* Rend un bud cadré de la même façon pour toutes les variétés. */
+window.gpThumb = variety => {
+  const bud = GPModels.bud(variety, 1);
+  scene.add(bud);
+  const box = new THREE.Box3().setFromObject(bud);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const radius = Math.max(size.y * .58, size.x * .82, size.z * .82);
+  const distance = radius / Math.tan(camera.fov * Math.PI / 360) * .97;
+  camera.position.set(distance * .32, center.y + radius * .12, distance * .95);
+  camera.lookAt(center.x, center.y, center.z);
+  camera.updateProjectionMatrix();
+  renderer.render(scene, camera);
+  const data = renderer.domElement.toDataURL('image/webp', .9);
+  scene.remove(bud);
+  GPModels.dispose(bud);
+  return data;
+};
+window.gpReady = true;
+</script>

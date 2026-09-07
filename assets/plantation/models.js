@@ -90,6 +90,18 @@
  const stalkGeo=()=>cached('stalk',()=>new T.CylinderGeometry(.0011,.0018,.013,4));
  const headGeo=()=>cached('head',()=>new T.SphereGeometry(.0034,5,4));
  const sugarGeo=()=>cached('sugar',()=>{const s=new T.Shape();s.moveTo(0,0);s.lineTo(.05,.09);s.lineTo(.028,.13);s.lineTo(.055,.19);s.lineTo(0,.44);s.lineTo(-.055,.19);s.lineTo(-.028,.13);s.lineTo(-.05,.09);s.closePath();return new T.ShapeGeometry(s);});
+ /* Feuille sucrée : bord denté, pliée en gouttière le long de la nervure, pointe recourbée. */
+ const leafletGeo=()=>cached('leaflet',()=>{
+  const shape=new T.Shape(),teeth=7;
+  shape.moveTo(0,0);
+  for(let i=1;i<=teeth;i++){const t=i/(teeth+1),w=Math.sin(t*Math.PI)*.46;shape.lineTo(w*(i%2?.62:1),t);}
+  shape.lineTo(0,1);
+  for(let i=teeth;i>=1;i--){const t=i/(teeth+1),w=Math.sin(t*Math.PI)*.46;shape.lineTo(-w*(i%2?.62:1),t);}
+  shape.closePath();
+  const geo=new T.ShapeGeometry(shape),p=geo.attributes.position;
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i);p.setXYZ(i,x,y,-Math.abs(x)*1.05-y*y*.62);}
+  p.needsUpdate=true;geo.computeVertexNormals();return geo;
+ });
  const frost=(color,extra={})=>{const m=new T.MeshPhysicalMaterial({color,roughness:.09,metalness:0,clearcoat:1,clearcoatRoughness:.04,envMap:ENV,envMapIntensity:2.4,...extra});m.color.convertSRGBToLinear();m.emissive.convertSRGBToLinear();return m;};
 
  /** Bud procédural : calices en verticilles résinés, pistils recourbés, tapis de trichomes. */
@@ -113,10 +125,10 @@
   /* Résine : un vernis spéculaire par-dessus une surface mate et grenue. */
   const height=H*(.84+look.spire*.4),girth=1.18-look.spire*.34,pack=.62+look.density*.62;
   const nodes=Math.round((detail?15:5)*(.85+look.spire*.5)),
-   calyxCount=Math.round((detail?680:130)*pack),
+   calyxCount=Math.round((detail?560:110)*pack),
    pistilCount=Math.round((detail?430:52)*(.75+look.density*.4)),
-   frostCount=Math.round((detail?(hybrid?2400:1900):(hybrid?90:75))*(.8+look.density*.35)),
-   leaves=Math.round((detail?15:5)*(1.25-look.density*.5));
+   frostCount=Math.round((detail?(hybrid?3000:2500):(hybrid?100:85))*(.8+look.density*.35)),
+   leaves=Math.round((detail?7:2)*(1.25-look.density*.5));
   const skin=detail
    ?new T.MeshPhysicalMaterial({color:0xffffff,roughness:.62,metalness:0,
      map:budSkin(),bumpMap:texture,bumpScale:.022,clearcoat:.42,clearcoatRoughness:.34,
@@ -173,7 +185,7 @@
   /* Tapis de trichomes : dense, plus fourni vers la pointe, orienté vers l'extérieur. */
   const dir=new T.Vector3(),pos=new T.Vector3();
   for(let i=0;i<frostCount;i++){
-   const t=Math.pow(r(),.72),y=t*height,w=(.088+cola(t)*.245)*girth*(.9+r()*.22),a=r()*6.283,lean=.15+r()*1.25;
+   const t=Math.pow(r(),.72),y=t*height,w=(.088+cola(t)*.245)*girth*(.88+r()*.5),a=r()*6.283,lean=.15+r()*1.25;
    dir.set(Math.cos(a)*Math.cos(lean),Math.sin(lean),Math.sin(a)*Math.cos(lean)).normalize();
    pos.set(Math.cos(a)*w,y,Math.sin(a)*w);
    dummy.quaternion.setFromUnitVectors(YAXIS,dir);
@@ -183,6 +195,34 @@
   }
 
   const sugarColor=new T.Color(v.leaf).lerp(new T.Color('#20300f'),.3);
+  /* Manteau de feuilles : la couche que l'on voit en premier sur une vraie tête. */
+  const leafCount=Math.round((detail?200:34)*(1.1-look.density*.28));
+  const leafSkin=detail
+   ?new T.MeshPhysicalMaterial({color:0xffffff,side:T.DoubleSide,map:budSkin(),bumpMap:texture,bumpScale:.014,
+     roughness:.58,clearcoat:.5,clearcoatRoughness:.3,envMap:ENV,envMapIntensity:.22})
+   :mat('#ffffff',{side:T.DoubleSide,map:budSkin(),roughness:.7});
+  const leaflets=new T.InstancedMesh(leafletGeo(),leafSkin,leafCount);
+  const leafBase=new T.Color(v.leaf).lerp(new T.Color('#1e3312'),.28),
+   leafDark=leafBase.clone().lerp(new T.Color('#1d3313'),.3),
+   leafLight=leafBase.clone().lerp(new T.Color('#cadb9a'),.25);
+  const roll=new T.Quaternion();
+  for(let i=0;i<leafCount;i++){
+   const t=.04+Math.pow(r(),.82)*.94,y=t*height,w=(.085+cola(t)*.24)*girth;
+   const a=i*2.39996+r()*.7,reach=w*(.88+r()*.32);
+   dummy.position.set(Math.cos(a)*reach,y+(r()-.5)*.06,Math.sin(a)*reach);
+   const size=(.085+r()*.06)*(.72+cola(t)*.5);
+   dummy.scale.set(size*(.95+r()*.4),size*(.72+r()*.45),size);
+   dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*.7))
+    .multiply(tilt.setFromAxisAngle(ZAXIS,-(.55+(1-t)*.5+r()*.55)))
+    .multiply(roll.setFromAxisAngle(YAXIS,r()*6.283));
+   dummy.updateMatrix();leaflets.setMatrixAt(i,dummy.matrix);
+   const dice=r();
+   tone.copy(dice<.24?leafDark:dice<.82?leafBase:leafLight).lerp(vivid,r()*.25*look.anthocyanin);
+   tone.convertSRGBToLinear();leaflets.setColorAt(i,tone);
+  }
+  if(leaflets.instanceColor)leaflets.instanceColor.needsUpdate=true;
+  leaflets.castShadow=detail;
+
   const sugar=detail
    ?new T.MeshPhysicalMaterial({color:sugarColor,side:T.DoubleSide,map:budSkin(),bumpMap:texture,bumpScale:.006,
      roughness:.66,clearcoat:.3,clearcoatRoughness:.4,envMap:ENV,envMapIntensity:.5})
@@ -194,7 +234,7 @@
    l.rotation.set(.4+r()*.5,a,-.5+r());l.scale.setScalar(.2+r()*.26);l.receiveShadow=false;
   }
   lobes.castShadow=true;hairs.castShadow=false;heads.castShadow=false;
-  g.add(lobes,hairs,heads);
+  g.add(lobes,leaflets,hairs,heads);
   if(stalks){stalks.castShadow=false;g.add(stalks);}
   g.userData.sparkle=heads.material;g.userData.detail=detail;
   g.scale.setScalar(size);return g;
@@ -339,7 +379,7 @@
      inspection=new T.Group();const b=bud(v);b.position.y=-.15;inspection.add(b);
      const stand=mesh(new T.CylinderGeometry(.42,.5,.06,28),mat('#22301f',{roughness:.7}),inspection,0,-.19);stand.receiveShadow=true;
      scene.add(inspection);goalDistance=3.4;goalElevation=1.4;
-     closeRim.intensity=.62;closeKey.intensity=.34;sun.intensity=lit?.95:.28;ambient.intensity=.26;fill.intensity=.14;
+     closeRim.intensity=.7;closeKey.intensity=.45;sun.intensity=lit?1.15:.3;ambient.intensity=.34;fill.intensity=.18;
      scene.background.set('#1b231a');scene.fog.near=26;
      sun.position.set(-1.6,2.6,1.9);sharpenShadow(2048);sun.shadow.camera.left=-1.1;sun.shadow.camera.right=1.1;sun.shadow.camera.top=1.4;sun.shadow.camera.bottom=-1.1;sun.shadow.normalBias=.004;sun.shadow.camera.updateProjectionMatrix();
     }else{scene.remove(inspection);dispose(inspection);inspection=null;goalDistance=8.6;goalElevation=4.8;lastKey='';
@@ -353,5 +393,8 @@
    light(){lit=!lit;sun.intensity=lit?1.55:.35;rim.intensity=lit?.42:.2;lampLight.intensity=lit?.85:.05;ambient.intensity=lit?.95:.5;glow.material.emissiveIntensity=lit?1:0;return lit;},
    dispose(){disposed=true;observer.disconnect();window.removeEventListener('pointermove',onMove);window.removeEventListener('pointerup',onUp);renderer.dispose();dispose(scene);}};
  }
- root.GPModels={bud,seed,plant,pot,wateringCan,scissors,shovel,sack,jar,flask,studio,dispose,fan,humidifier,loupe};
+ /* Permet à l'outil de miniatures de construire l'environnement pour son propre rendu :
+    une texture PMREM appartient au contexte WebGL qui l'a produite. */
+ function setEnvironment(renderer){ENV=environment(renderer);return ENV;}
+ root.GPModels={bud,seed,plant,pot,wateringCan,scissors,shovel,sack,jar,flask,studio,dispose,fan,humidifier,loupe,setEnvironment,traits};
 })(typeof window==='undefined'?globalThis:window);

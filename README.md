@@ -54,6 +54,41 @@ chaque bud sont déduits du catalogue existant.
 | teinte de `bud` | pigments : anthocyanes violettes (200-352°), rouille (12-66°), sinon vert |
 | `parents` | les hybrides sont plus givrés que les fondatrices |
 
+Le manteau de feuilles sucrées — petites feuilles dentelées, pliées en gouttière,
+qui percent la silhouette — est ce qui distingue une vraie tête d'un bloc lisse.
+
+## Palette : 105 variétés, 105 couleurs
+
+`bud`, `leaf` et `pistil` de `catalog.json` sont générés par
+`tools/palette.py` ; toutes les autres données (prix, durées, parents, rareté)
+sont laissées intactes.
+
+- Les 14 fondatrices sont choisies à la main, fidèles à leur nom.
+- Les 91 hybrides héritent de leurs parents : moyenne circulaire des teintes, et
+  quand les deux parents sont quasi opposés sur la roue, l'un domine et l'autre
+  l'infléchit — une moyenne donnerait une couleur étrangère aux deux.
+- Une passe d'écartement en espace Lab garantit qu'aucune paire de variétés
+  n'est confondable : **ΔE minimum 7**, contre 28 paires sous 5 auparavant.
+
+```bash
+python3 tools/palette.py            # aperçu, n'écrit rien
+python3 tools/palette.py --write    # met à jour catalog.json
+```
+
+## Régénérer les miniatures
+
+Les cartes de la grainothèque et de la collection utilisent
+`assets/plantation/thumbs/<id>-bud.webp`. Après un changement de couleurs ou de
+modèle, on les régénère depuis le vrai modèle 3D :
+
+```bash
+php -S localhost:8146 &                      # sert la racine du dépôt
+GP_BASE=http://localhost:8146 node tools/render-thumbs.js
+```
+
+Sans argument, l'outil rend les 105 variétés ; on peut aussi lui passer des
+identifiants (`node tools/render-thumbs.js emeraude velours`).
+
 La densité pilote aussi le nombre de calices, de pistils, de trichomes et de
 feuilles sucrées ; une variété aérée porte plus de feuilles et moins de calices.
 
