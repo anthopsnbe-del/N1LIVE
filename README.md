@@ -42,6 +42,21 @@ La suite couvre le cycle de culture, le laboratoire, la boutique, le classement
 et surtout la **non-régression des sauvegardes existantes** : points, graines,
 récoltes, buds, découvertes, pots débloqués et révision sont conservés tels quels.
 
+## Une morphologie par variété
+
+`models.js` ne stocke aucune donnée supplémentaire : la forme et les pigments de
+chaque bud sont déduits du catalogue existant.
+
+| Donnée du catalogue | Effet sur le bud |
+|---|---|
+| `height / width` | épi effilé (Onyx, 2.6) ou tête large et trapue (Ambre, 0.85) |
+| `seed` | densité : cola compacte ou structure aérée qui laisse voir la tige |
+| teinte de `bud` | pigments : anthocyanes violettes (200-352°), rouille (12-66°), sinon vert |
+| `parents` | les hybrides sont plus givrés que les fondatrices |
+
+La densité pilote aussi le nombre de calices, de pistils, de trichomes et de
+feuilles sucrées ; une variété aérée porte plus de feuilles et moins de calices.
+
 ## Sons
 
 `assets/plantation/sfx.js` synthétise tout en Web Audio : aucun fichier audio à

@@ -19,6 +19,17 @@
  /* Profil d'une cola : épaules basses larges, pointe effilée. */
  const cola=t=>{t=Math.min(1,Math.max(0,t));return Math.pow(Math.sin(Math.PI*Math.pow(t,.74)),.8);};
  const a0=n=>n*2.7+Math.sin(n*4.3)*3.1;
+ /* Chaque variété a sa morphologie et ses pigments, déduits du catalogue :
+    rapport hauteur/largeur → épi ou tête large ; graine → densité ; teinte → anthocyanes. */
+ function traits(v){
+  const color=new T.Color(v.bud),hsl={};color.getHSL(hsl);
+  const hue=hsl.h*360,ratio=(v.height||1)/(v.width||1),pick=rnd((v.seed|0)+7);
+  const spire=Math.min(1,Math.max(0,(ratio-.85)/1.8));
+  const density=.28+pick()*.72;
+  const violet=hue>=200&&hue<=352,rust=hue>=12&&hue<=66;
+  const anthocyanin=(violet||rust)?Math.min(1,Math.max(0,(hsl.s-.09)*2.6)):0;
+  return {spire,density,anthocyanin,violet,rust};
+ }
 
  /* Grain fin généré une fois : casse l'aspect lisse des surfaces sans fichier externe. */
  const grain=()=>cached('grain',()=>{
@@ -35,8 +46,28 @@
   tex.userData={shared:true};return tex;
  });
 
- /* La photo de surface, répétée plus finement : c'est elle qui donne la matière. */
- const budSkin=()=>cached('budSkin',()=>{const t=surface.clone();t.needsUpdate=true;t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(.42,.42);return t;});
+ /* La photo de surface donne le grain, mais en luminance : sinon son olive écrase
+    la couleur de la variété et tous les buds finissent gris. */
+ const budSkin=()=>cached('budSkin',()=>{
+  const size=512,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#b4b4b4';ctx.fillRect(0,0,size,size);
+  const tex=new T.CanvasTexture(canvas);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.repeat.set(.42,.42);
+  const desaturate=()=>{
+   const image=surface.image;if(!image||!image.width)return;
+   try{
+    ctx.drawImage(image,0,0,size,size);
+    const data=ctx.getImageData(0,0,size,size),d=data.data;
+    for(let i=0;i<d.length;i+=4){
+     const luma=(d[i]*.3+d[i+1]*.59+d[i+2]*.11)/255;
+     const value=Math.round(Math.max(0,Math.min(1,.46+(luma-.55)*1.75))*255);
+     d[i]=d[i+1]=d[i+2]=value;
+    }
+    ctx.putImageData(data,0,0);tex.needsUpdate=true;
+   }catch(e){}
+  };
+  desaturate();root.GPTexturesReady.then(desaturate);
+  return tex;
+ });
  /* Calice : lentille renflée à la base, pointe effilée, légère quille — pas une bille. */
  const calyxGeo=()=>cached('calyx',()=>{
   const pts=[],N=13;
@@ -65,38 +96,49 @@
  function bud(v,size=1){
   const g=new T.Group(),r=rnd(v.seed),detail=size>.5,hybrid=(v.parents||[]).length>0;
   const H=1.34,dummy=new T.Object3D(),tone=new T.Color(),spin=new T.Quaternion(),tilt=new T.Quaternion();
-  const base=new T.Color(v.bud);
-  const tint=base.clone().lerp(new T.Color('#b9c397'),.22),
-   deep=base.clone().lerp(new T.Color('#0a1105'),.7),
-   bright=base.clone().lerp(new T.Color('#e6efbb'),.3),
-   rust=base.clone().lerp(new T.Color('#7a4423'),.6),
-   shadowTone=base.clone().lerp(new T.Color('#243a1c'),.72);
+  const base=new T.Color(v.bud),look=traits(v),vivid=base.clone();
+  {const hsl={};vivid.getHSL(hsl);vivid.setHSL(hsl.h,Math.min(1,hsl.s*(1.12+look.anthocyanin*.22)),hsl.l*.92);}
+  const darkTarget=look.violet?'#150920':look.rust?'#1a0d05':'#0a1105',
+   lightTarget=look.violet?'#ecdcf7':look.rust?'#f6e6c4':'#e6efbb',
+   accentTarget=look.violet?'#54206e':look.rust?'#8a3c17':'#7a4423',
+   tintTarget=look.violet?'#c0b0cc':look.rust?'#d3c39b':'#b9c397';
+  const tint=base.clone().lerp(new T.Color(tintTarget),.22),
+   deep=base.clone().lerp(new T.Color(darkTarget),.62+look.anthocyanin*.12),
+   bright=base.clone().lerp(new T.Color(lightTarget),.3),
+   rust=base.clone().lerp(new T.Color(accentTarget),.55),
+   shadowTone=base.clone().lerp(new T.Color(look.violet?'#2a1636':'#243a1c'),.72);
+  const accentChance=.05+look.anthocyanin*.32;
+  const foliage=new T.Color(v.leaf).lerp(new T.Color('#25401c'),.35);
   const texture=grain();
   /* Résine : un vernis spéculaire par-dessus une surface mate et grenue. */
+  const height=H*(.84+look.spire*.4),girth=1.18-look.spire*.34,pack=.62+look.density*.62;
+  const nodes=Math.round((detail?15:5)*(.85+look.spire*.5)),
+   calyxCount=Math.round((detail?680:130)*pack),
+   pistilCount=Math.round((detail?430:52)*(.75+look.density*.4)),
+   frostCount=Math.round((detail?(hybrid?2400:1900):(hybrid?90:75))*(.8+look.density*.35)),
+   leaves=Math.round((detail?15:5)*(1.25-look.density*.5));
   const skin=detail
    ?new T.MeshPhysicalMaterial({color:0xffffff,roughness:.62,metalness:0,
      map:budSkin(),bumpMap:texture,bumpScale:.022,clearcoat:.42,clearcoatRoughness:.34,
-     envMap:ENV,envMapIntensity:.55,sheen:new T.Color(hybrid?'#dbe8b4':'#c9d79c')})
+     envMap:ENV,envMapIntensity:.22,sheen:vivid.clone().lerp(new T.Color('#f2f6df'),hybrid?.42:.3)})
    :mat('#ffffff',{map:budSkin(),roughness:.72});
   if(skin.sheen)skin.sheen.convertSRGBToLinear();
-  const core=mesh(new T.SphereGeometry(1,14,12),mat(deep.getStyle(),{map:surface,roughness:.98}),g,0,.64,0);
-  core.scale.set(.3,.74,.29);core.receiveShadow=false;
+  const core=mesh(new T.SphereGeometry(1,14,12),mat(deep.getStyle(),{map:surface,roughness:.98}),g,0,height*.48,0);
+  core.scale.set(.3*girth,height*.55,.29*girth);core.receiveShadow=false;
   tube(g,new T.Vector3(0,-.09,0),new T.Vector3(0,.18,0),.022,mat('#586f31',{bumpMap:texture,bumpScale:.01}));
 
-  const nodes=detail?18:6,calyxCount=detail?680:130,pistilCount=detail?430:52,
-   frostCount=detail?(hybrid?2400:1900):(hybrid?90:75),leaves=detail?15:5;
   const lobes=new T.InstancedMesh(detail?calyxGeo():calyxLowGeo(),skin,calyxCount);
   const hairs=new T.InstancedMesh(pistilGeo(),new T.MeshStandardMaterial({color:0xffffff,roughness:.62,envMapIntensity:.6}),pistilCount);
   const stalks=detail?new T.InstancedMesh(stalkGeo(),mat('#e6ead2',{roughness:.4}),frostCount):null;
   const heads=new T.InstancedMesh(headGeo(),detail
-   ?frost('#fdfef6',{emissive:'#4d5a33',emissiveIntensity:.05})
+   ?frost(new T.Color('#fdfef6').lerp(base,.06).getStyle(),{emissive:'#4d5a33',emissiveIntensity:.035})
    :mat('#fdfef6',{roughness:.35,emissive:'#4d5a33',emissiveIntensity:.05}),frostCount);
 
   for(let i=0;i<calyxCount;i++){
-   const n=i%nodes,t=(n+.6)/nodes+(r()-.5)*.1,y=t*H,
+   const n=i%nodes,t=(n+.6)/nodes+(r()-.5)*(.07+(1-look.density)*.12),y=t*height,
     bump=1+.2*Math.sin(y*5.6+n*1.9)+.11*Math.sin(y*14.7+n*.7)+.06*Math.sin(a0(n));
-   const w=(.08+cola(t)*.235)*bump*(1-.42*Math.max(0,t-.8)/.2);
-   const a=i*2.39996+n*.91+r()*.5,depth=.52+Math.pow(r(),.7)*.56,out=w*depth;
+   const w=(.08+cola(t)*.235)*girth*bump*(1-.42*Math.max(0,t-.8)/.2);
+   const a=i*2.39996+n*.91+r()*.5,depth=(.42+look.density*.16)+Math.pow(r(),.7)*.62,out=w*depth;
    const drift=.055*cola(t);
    dummy.position.set(Math.cos(a)*out+Math.cos(a0(n))*drift,y+(r()-.5)*.075,Math.sin(a)*out+Math.sin(a0(n))*drift);
    const filler=r()<.32;
@@ -105,10 +147,11 @@
    dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*.6)).multiply(tilt.setFromAxisAngle(ZAXIS,-(.18+(1-t)*.62+r()*.5)));
    dummy.updateMatrix();lobes.setMatrixAt(i,dummy.matrix);
    /* Occlusion simulée : plus un calice est enfoncé, plus il est sombre. */
-   const shade=Math.min(1,Math.max(0,(depth-.52)/.56));
-   tone.copy(deep).lerp(base,Math.pow(shade,.75)*(.62+.34*t));
+   const shade=Math.min(1,Math.max(0,(depth-(.42+look.density*.16))/.62));
+   tone.copy(deep).lerp(vivid,Math.pow(shade,.8)*(.55+.33*t));
    if(shade>.72)tone.lerp(r()<.4?bright:tint,(shade-.72)*1.5*r());
-   const dice=r();if(dice<.09)tone.lerp(rust,.35+r()*.3);else if(dice<.15)tone.lerp(shadowTone,.4);
+   const dice=r();if(dice<accentChance)tone.lerp(rust,.3+r()*.45);else if(dice<accentChance+.07)tone.lerp(shadowTone,.4);
+   if(look.anthocyanin&&t<.5)tone.lerp(foliage,(.5-t)*1.15*r());
    tone.convertSRGBToLinear();lobes.setColorAt(i,tone);
   }
   if(lobes.instanceColor)lobes.instanceColor.needsUpdate=true;
@@ -116,7 +159,7 @@
   const pistil=new T.Color(v.pistil),pistilTip=pistil.clone().lerp(new T.Color('#fff1d6'),.5),
    pistilDry=pistil.clone().lerp(new T.Color('#7d3b1c'),.55);
   for(let i=0;i<pistilCount;i++){
-   const t=.06+Math.pow(r(),.55)*.92,y=t*H,w=.1+cola(t)*.245,a=r()*6.283;
+   const t=.06+Math.pow(r(),.55)*.92,y=t*height,w=(.1+cola(t)*.245)*girth,a=r()*6.283;
    dummy.position.set(Math.cos(a)*w*.68,y,Math.sin(a)*w*.68);
    dummy.scale.set(.8+r()*.5,.7+r()*1.2,.8+r()*.5);
    dummy.quaternion.copy(spin.setFromAxisAngle(YAXIS,-a+(r()-.5)*1)).multiply(tilt.setFromAxisAngle(ZAXIS,-(r()*1.25)));
@@ -130,7 +173,7 @@
   /* Tapis de trichomes : dense, plus fourni vers la pointe, orienté vers l'extérieur. */
   const dir=new T.Vector3(),pos=new T.Vector3();
   for(let i=0;i<frostCount;i++){
-   const t=Math.pow(r(),.72),y=t*H,w=(.088+cola(t)*.245)*(.9+r()*.22),a=r()*6.283,lean=.15+r()*1.25;
+   const t=Math.pow(r(),.72),y=t*height,w=(.088+cola(t)*.245)*girth*(.9+r()*.22),a=r()*6.283,lean=.15+r()*1.25;
    dir.set(Math.cos(a)*Math.cos(lean),Math.sin(lean),Math.sin(a)*Math.cos(lean)).normalize();
    pos.set(Math.cos(a)*w,y,Math.sin(a)*w);
    dummy.quaternion.setFromUnitVectors(YAXIS,dir);
@@ -146,8 +189,8 @@
    :mat(sugarColor.getStyle(),{side:T.DoubleSide,map:budSkin(),roughness:.75});
   if(detail)sugar.color.convertSRGBToLinear();
   for(let i=0;i<leaves;i++){
-   const t=.1+r()*.85,a=r()*6.283,w=.11+cola(t)*.2;
-   const l=mesh(sugarGeo(),sugar,g,Math.cos(a)*w,t*H,Math.sin(a)*w);
+   const t=.1+r()*.85,a=r()*6.283,w=(.11+cola(t)*.2)*girth;
+   const l=mesh(sugarGeo(),sugar,g,Math.cos(a)*w,t*height,Math.sin(a)*w);
    l.rotation.set(.4+r()*.5,a,-.5+r());l.scale.setScalar(.2+r()*.26);l.receiveShadow=false;
   }
   lobes.castShadow=true;hairs.castShadow=false;heads.castShadow=false;
@@ -204,7 +247,7 @@
   dome.setAttribute('color',new T.Float32BufferAttribute(colors,3));
   env.add(new T.Mesh(dome,new T.MeshBasicMaterial({vertexColors:true,side:T.BackSide})));
   const softbox=(w,h,x,y,z,power)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:new T.Color(power,power,power)}));m.position.set(x,y,z);m.lookAt(0,0,0);env.add(m);};
-  softbox(7,3.5,-4,6,3,3.4);softbox(3,6,5.5,2,-4,1.5);softbox(5,2,0,-3.5,5,.55);
+  softbox(7,3.5,-4,6,3,2.6);softbox(3,6,5.5,2,-4,1.1);softbox(5,2,0,-3.5,5,.4);
   const pmrem=new T.PMREMGenerator(renderer),target=pmrem.fromScene(env,.05);
   pmrem.dispose();env.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});
   return target.texture;
@@ -296,7 +339,7 @@
      inspection=new T.Group();const b=bud(v);b.position.y=-.15;inspection.add(b);
      const stand=mesh(new T.CylinderGeometry(.42,.5,.06,28),mat('#22301f',{roughness:.7}),inspection,0,-.19);stand.receiveShadow=true;
      scene.add(inspection);goalDistance=3.4;goalElevation=1.4;
-     closeRim.intensity=.95;closeKey.intensity=.5;sun.intensity=lit?1.35:.3;ambient.intensity=.42;fill.intensity=.2;
+     closeRim.intensity=.62;closeKey.intensity=.34;sun.intensity=lit?.95:.28;ambient.intensity=.26;fill.intensity=.14;
      scene.background.set('#1b231a');scene.fog.near=26;
      sun.position.set(-1.6,2.6,1.9);sharpenShadow(2048);sun.shadow.camera.left=-1.1;sun.shadow.camera.right=1.1;sun.shadow.camera.top=1.4;sun.shadow.camera.bottom=-1.1;sun.shadow.normalBias=.004;sun.shadow.camera.updateProjectionMatrix();
     }else{scene.remove(inspection);dispose(inspection);inspection=null;goalDistance=8.6;goalElevation=4.8;lastKey='';
