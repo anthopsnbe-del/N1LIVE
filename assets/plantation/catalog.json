@@ -1,0 +1,1878 @@
+[
+  {
+    "id": "emeraude",
+    "name": "Émeraude OG",
+    "leaf": "#4f9840",
+    "bud": "#79ad42",
+    "pistil": "#e3a55d",
+    "height": 1.15,
+    "width": 0.78,
+    "duration": 120,
+    "price": 25,
+    "reward": 45,
+    "seed": 731,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Émeraude",
+    "suffix": "Verte"
+  },
+  {
+    "id": "nebuleuse",
+    "name": "Nébuleuse Kush",
+    "leaf": "#426e60",
+    "bud": "#705486",
+    "pistil": "#d8bedd",
+    "height": 1.3,
+    "width": 0.65,
+    "duration": 150,
+    "price": 29,
+    "reward": 48,
+    "seed": 858,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Nébuleuse",
+    "suffix": "Cosmique"
+  },
+  {
+    "id": "citron",
+    "name": "Citron Comète",
+    "leaf": "#75a843",
+    "bud": "#bad958",
+    "pistil": "#e5b542",
+    "height": 0.95,
+    "width": 0.9,
+    "duration": 130,
+    "price": 33,
+    "reward": 51,
+    "seed": 985,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Comète",
+    "suffix": "Citronnée"
+  },
+  {
+    "id": "velours",
+    "name": "Velours Violet",
+    "leaf": "#476c43",
+    "bud": "#87569e",
+    "pistil": "#e6a0c2",
+    "height": 1.05,
+    "width": 0.83,
+    "duration": 160,
+    "price": 37,
+    "reward": 54,
+    "seed": 1112,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Velours",
+    "suffix": "Pourpre"
+  },
+  {
+    "id": "menthe",
+    "name": "Menthe Fantôme",
+    "leaf": "#3e9580",
+    "bud": "#73bda1",
+    "pistil": "#c3efd5",
+    "height": 1.4,
+    "width": 0.6,
+    "duration": 140,
+    "price": 41,
+    "reward": 57,
+    "seed": 1239,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Fantôme",
+    "suffix": "Mentholé"
+  },
+  {
+    "id": "ambre",
+    "name": "Ambre Solaire",
+    "leaf": "#587b36",
+    "bud": "#ac9544",
+    "pistil": "#ef8743",
+    "height": 0.85,
+    "width": 1,
+    "duration": 170,
+    "price": 45,
+    "reward": 60,
+    "seed": 1366,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Soleil",
+    "suffix": "Ambré"
+  },
+  {
+    "id": "rose",
+    "name": "Rose Boréale",
+    "leaf": "#3e8662",
+    "bud": "#b76c8c",
+    "pistil": "#ffc0c9",
+    "height": 1.2,
+    "width": 0.75,
+    "duration": 155,
+    "price": 49,
+    "reward": 63,
+    "seed": 1493,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Aurore",
+    "suffix": "Rosée"
+  },
+  {
+    "id": "givre",
+    "name": "Givre Lunaire",
+    "leaf": "#648f70",
+    "bud": "#a3bab0",
+    "pistil": "#edf6f2",
+    "height": 1.1,
+    "width": 0.7,
+    "duration": 180,
+    "price": 53,
+    "reward": 66,
+    "seed": 1620,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Lune",
+    "suffix": "Givrée"
+  },
+  {
+    "id": "mangue",
+    "name": "Mangue Mirage",
+    "leaf": "#679439",
+    "bud": "#b0a74c",
+    "pistil": "#ffbb61",
+    "height": 1,
+    "width": 0.92,
+    "duration": 145,
+    "price": 57,
+    "reward": 69,
+    "seed": 1747,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Mirage",
+    "suffix": "Tropical"
+  },
+  {
+    "id": "onyx",
+    "name": "Onyx Sauvage",
+    "leaf": "#395b47",
+    "bud": "#494c72",
+    "pistil": "#bb88d3",
+    "height": 1.45,
+    "width": 0.55,
+    "duration": 195,
+    "price": 61,
+    "reward": 72,
+    "seed": 1874,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Onyx",
+    "suffix": "Sauvage"
+  },
+  {
+    "id": "diesel",
+    "name": "Diesel Nocturne",
+    "leaf": "#305337",
+    "bud": "#637347",
+    "pistil": "#c1743b",
+    "height": 1.25,
+    "width": 0.8,
+    "duration": 205,
+    "price": 65,
+    "reward": 75,
+    "seed": 2001,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Diesel",
+    "suffix": "Nocturne"
+  },
+  {
+    "id": "peche",
+    "name": "Pêche Polaire",
+    "leaf": "#638344",
+    "bud": "#8a9060",
+    "pistil": "#f1bb82",
+    "height": 1.05,
+    "width": 0.86,
+    "duration": 175,
+    "price": 69,
+    "reward": 78,
+    "seed": 2128,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Pêche",
+    "suffix": "Polaire"
+  },
+  {
+    "id": "pin",
+    "name": "Pin Océan",
+    "leaf": "#285b49",
+    "bud": "#588568",
+    "pistil": "#c6ae6d",
+    "height": 1.42,
+    "width": 0.65,
+    "duration": 190,
+    "price": 73,
+    "reward": 81,
+    "seed": 2255,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Pin",
+    "suffix": "Océan"
+  },
+  {
+    "id": "orchidee",
+    "name": "Orchidée Brume",
+    "leaf": "#425c3c",
+    "bud": "#765471",
+    "pistil": "#cca099",
+    "height": 1.1,
+    "width": 0.8,
+    "duration": 210,
+    "price": 77,
+    "reward": 84,
+    "seed": 2382,
+    "parents": [],
+    "rarity": "Fondatrice",
+    "prefix": "Orchidée",
+    "suffix": "Brume"
+  },
+  {
+    "id": "emeraude--nebuleuse",
+    "name": "Émeraude Cosmique",
+    "leaf": "#498350",
+    "bud": "#758164",
+    "pistil": "#d8bedd",
+    "height": 1.2850000000000001,
+    "width": 0.7150000000000001,
+    "duration": 165,
+    "price": 0,
+    "reward": 72,
+    "seed": 3064,
+    "parents": [
+      "emeraude",
+      "nebuleuse"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--emeraude",
+    "name": "Émeraude Citronnée",
+    "leaf": "#62a042",
+    "bud": "#9ac34d",
+    "pistil": "#e5b542",
+    "height": 1.1099999999999999,
+    "width": 0.8400000000000001,
+    "duration": 155,
+    "price": 0,
+    "reward": 73,
+    "seed": 3117,
+    "parents": [
+      "emeraude",
+      "citron"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--velours",
+    "name": "Émeraude Pourpre",
+    "leaf": "#4b8242",
+    "bud": "#808270",
+    "pistil": "#e6a0c2",
+    "height": 1.1600000000000001,
+    "width": 0.8049999999999999,
+    "duration": 170,
+    "price": 0,
+    "reward": 75,
+    "seed": 3170,
+    "parents": [
+      "emeraude",
+      "velours"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--menthe",
+    "name": "Émeraude Mentholé",
+    "leaf": "#479760",
+    "bud": "#76b572",
+    "pistil": "#c3efd5",
+    "height": 1.335,
+    "width": 0.69,
+    "duration": 160,
+    "price": 0,
+    "reward": 76,
+    "seed": 3223,
+    "parents": [
+      "emeraude",
+      "menthe"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--emeraude",
+    "name": "Émeraude Ambré",
+    "leaf": "#548a3b",
+    "bud": "#93a143",
+    "pistil": "#ef8743",
+    "height": 1.06,
+    "width": 0.89,
+    "duration": 175,
+    "price": 0,
+    "reward": 78,
+    "seed": 3276,
+    "parents": [
+      "emeraude",
+      "ambre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--rose",
+    "name": "Émeraude Rosée",
+    "leaf": "#478f51",
+    "bud": "#988d67",
+    "pistil": "#ffc0c9",
+    "height": 1.2349999999999999,
+    "width": 0.765,
+    "duration": 168,
+    "price": 0,
+    "reward": 79,
+    "seed": 3329,
+    "parents": [
+      "emeraude",
+      "rose"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--givre",
+    "name": "Émeraude Givrée",
+    "leaf": "#5a9458",
+    "bud": "#8eb479",
+    "pistil": "#edf6f2",
+    "height": 1.185,
+    "width": 0.74,
+    "duration": 180,
+    "price": 0,
+    "reward": 81,
+    "seed": 3382,
+    "parents": [
+      "emeraude",
+      "givre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--mangue",
+    "name": "Émeraude Tropical",
+    "leaf": "#5b963d",
+    "bud": "#95aa47",
+    "pistil": "#ffbb61",
+    "height": 1.135,
+    "width": 0.8500000000000001,
+    "duration": 163,
+    "price": 0,
+    "reward": 82,
+    "seed": 3435,
+    "parents": [
+      "emeraude",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--onyx",
+    "name": "Émeraude Sauvage",
+    "leaf": "#447a44",
+    "bud": "#617d5a",
+    "pistil": "#bb88d3",
+    "height": 1.3599999999999999,
+    "width": 0.665,
+    "duration": 188,
+    "price": 0,
+    "reward": 84,
+    "seed": 3488,
+    "parents": [
+      "emeraude",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--emeraude",
+    "name": "Émeraude Nocturne",
+    "leaf": "#40763c",
+    "bud": "#6e9045",
+    "pistil": "#c1743b",
+    "height": 1.26,
+    "width": 0.79,
+    "duration": 193,
+    "price": 0,
+    "reward": 85,
+    "seed": 3541,
+    "parents": [
+      "emeraude",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--peche",
+    "name": "Émeraude Polaire",
+    "leaf": "#598e42",
+    "bud": "#829f51",
+    "pistil": "#f1bb82",
+    "height": 1.1600000000000001,
+    "width": 0.8200000000000001,
+    "duration": 178,
+    "price": 0,
+    "reward": 87,
+    "seed": 3594,
+    "parents": [
+      "emeraude",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--pin",
+    "name": "Émeraude Océan",
+    "leaf": "#3c7a45",
+    "bud": "#699955",
+    "pistil": "#c6ae6d",
+    "height": 1.345,
+    "width": 0.7150000000000001,
+    "duration": 185,
+    "price": 0,
+    "reward": 88,
+    "seed": 3647,
+    "parents": [
+      "emeraude",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "emeraude--orchidee",
+    "name": "Émeraude Brume",
+    "leaf": "#497a3e",
+    "bud": "#78815a",
+    "pistil": "#cca099",
+    "height": 1.185,
+    "width": 0.79,
+    "duration": 195,
+    "price": 0,
+    "reward": 90,
+    "seed": 3700,
+    "parents": [
+      "emeraude",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--nebuleuse",
+    "name": "Nébuleuse Citronnée",
+    "leaf": "#5c8b52",
+    "bud": "#95976f",
+    "pistil": "#e5b542",
+    "height": 1.185,
+    "width": 0.775,
+    "duration": 170,
+    "price": 0,
+    "reward": 75,
+    "seed": 3328,
+    "parents": [
+      "nebuleuse",
+      "citron"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "nebuleuse--velours",
+    "name": "Nébuleuse Pourpre",
+    "leaf": "#456d52",
+    "bud": "#7c5592",
+    "pistil": "#e6a0c2",
+    "height": 1.235,
+    "width": 0.74,
+    "duration": 185,
+    "price": 0,
+    "reward": 76,
+    "seed": 3381,
+    "parents": [
+      "nebuleuse",
+      "velours"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "menthe--nebuleuse",
+    "name": "Nébuleuse Mentholé",
+    "leaf": "#408270",
+    "bud": "#728994",
+    "pistil": "#c3efd5",
+    "height": 1.4100000000000001,
+    "width": 0.625,
+    "duration": 175,
+    "price": 0,
+    "reward": 78,
+    "seed": 3434,
+    "parents": [
+      "nebuleuse",
+      "menthe"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--nebuleuse",
+    "name": "Nébuleuse Ambré",
+    "leaf": "#4d754b",
+    "bud": "#8e7565",
+    "pistil": "#ef8743",
+    "height": 1.135,
+    "width": 0.825,
+    "duration": 190,
+    "price": 0,
+    "reward": 79,
+    "seed": 3487,
+    "parents": [
+      "nebuleuse",
+      "ambre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "nebuleuse--rose",
+    "name": "Nébuleuse Rosée",
+    "leaf": "#407a61",
+    "bud": "#946089",
+    "pistil": "#ffc0c9",
+    "height": 1.31,
+    "width": 0.7,
+    "duration": 183,
+    "price": 0,
+    "reward": 81,
+    "seed": 3540,
+    "parents": [
+      "nebuleuse",
+      "rose"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--nebuleuse",
+    "name": "Nébuleuse Givrée",
+    "leaf": "#537f68",
+    "bud": "#8a879b",
+    "pistil": "#edf6f2",
+    "height": 1.2600000000000002,
+    "width": 0.675,
+    "duration": 195,
+    "price": 0,
+    "reward": 82,
+    "seed": 3593,
+    "parents": [
+      "nebuleuse",
+      "givre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--nebuleuse",
+    "name": "Nébuleuse Tropical",
+    "leaf": "#55814d",
+    "bud": "#907e69",
+    "pistil": "#ffbb61",
+    "height": 1.21,
+    "width": 0.785,
+    "duration": 178,
+    "price": 0,
+    "reward": 84,
+    "seed": 3646,
+    "parents": [
+      "nebuleuse",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "nebuleuse--onyx",
+    "name": "Nébuleuse Sauvage",
+    "leaf": "#3e6554",
+    "bud": "#5d507c",
+    "pistil": "#bb88d3",
+    "height": 1.435,
+    "width": 0.6000000000000001,
+    "duration": 203,
+    "price": 0,
+    "reward": 85,
+    "seed": 3699,
+    "parents": [
+      "nebuleuse",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--nebuleuse",
+    "name": "Nébuleuse Nocturne",
+    "leaf": "#39614c",
+    "bud": "#6a6467",
+    "pistil": "#c1743b",
+    "height": 1.335,
+    "width": 0.7250000000000001,
+    "duration": 208,
+    "price": 0,
+    "reward": 87,
+    "seed": 3752,
+    "parents": [
+      "nebuleuse",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "nebuleuse--peche",
+    "name": "Nébuleuse Polaire",
+    "leaf": "#537952",
+    "bud": "#7d7273",
+    "pistil": "#f1bb82",
+    "height": 1.235,
+    "width": 0.755,
+    "duration": 193,
+    "price": 0,
+    "reward": 88,
+    "seed": 3805,
+    "parents": [
+      "nebuleuse",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "nebuleuse--pin",
+    "name": "Nébuleuse Océan",
+    "leaf": "#356555",
+    "bud": "#646d77",
+    "pistil": "#c6ae6d",
+    "height": 1.42,
+    "width": 0.65,
+    "duration": 200,
+    "price": 0,
+    "reward": 90,
+    "seed": 3858,
+    "parents": [
+      "nebuleuse",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "nebuleuse--orchidee",
+    "name": "Nébuleuse Brume",
+    "leaf": "#42654e",
+    "bud": "#73547c",
+    "pistil": "#cca099",
+    "height": 1.2600000000000002,
+    "width": 0.7250000000000001,
+    "duration": 210,
+    "price": 0,
+    "reward": 91,
+    "seed": 3911,
+    "parents": [
+      "nebuleuse",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--velours",
+    "name": "Comète Pourpre",
+    "leaf": "#5e8a43",
+    "bud": "#a1987b",
+    "pistil": "#e6a0c2",
+    "height": 1.06,
+    "width": 0.865,
+    "duration": 175,
+    "price": 0,
+    "reward": 78,
+    "seed": 3592,
+    "parents": [
+      "citron",
+      "velours"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--menthe",
+    "name": "Comète Mentholé",
+    "leaf": "#5a9f62",
+    "bud": "#97cb7d",
+    "pistil": "#c3efd5",
+    "height": 1.2349999999999999,
+    "width": 0.75,
+    "duration": 165,
+    "price": 0,
+    "reward": 79,
+    "seed": 3645,
+    "parents": [
+      "citron",
+      "menthe"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--citron",
+    "name": "Comète Ambré",
+    "leaf": "#67923d",
+    "bud": "#b3b74e",
+    "pistil": "#ef8743",
+    "height": 0.96,
+    "width": 0.95,
+    "duration": 180,
+    "price": 0,
+    "reward": 81,
+    "seed": 3698,
+    "parents": [
+      "citron",
+      "ambre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--rose",
+    "name": "Comète Rosée",
+    "leaf": "#5a9753",
+    "bud": "#b9a372",
+    "pistil": "#ffc0c9",
+    "height": 1.135,
+    "width": 0.825,
+    "duration": 173,
+    "price": 0,
+    "reward": 82,
+    "seed": 3751,
+    "parents": [
+      "citron",
+      "rose"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--givre",
+    "name": "Comète Givrée",
+    "leaf": "#6d9c5a",
+    "bud": "#afca84",
+    "pistil": "#edf6f2",
+    "height": 1.085,
+    "width": 0.8,
+    "duration": 185,
+    "price": 0,
+    "reward": 84,
+    "seed": 3804,
+    "parents": [
+      "citron",
+      "givre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--mangue",
+    "name": "Comète Tropical",
+    "leaf": "#6e9e3e",
+    "bud": "#b5c052",
+    "pistil": "#ffbb61",
+    "height": 1.035,
+    "width": 0.91,
+    "duration": 168,
+    "price": 0,
+    "reward": 85,
+    "seed": 3857,
+    "parents": [
+      "citron",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--onyx",
+    "name": "Comète Sauvage",
+    "leaf": "#578245",
+    "bud": "#829365",
+    "pistil": "#bb88d3",
+    "height": 1.26,
+    "width": 0.7250000000000001,
+    "duration": 193,
+    "price": 0,
+    "reward": 87,
+    "seed": 3910,
+    "parents": [
+      "citron",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--diesel",
+    "name": "Comète Nocturne",
+    "leaf": "#537e3d",
+    "bud": "#8fa650",
+    "pistil": "#c1743b",
+    "height": 1.1600000000000001,
+    "width": 0.8500000000000001,
+    "duration": 198,
+    "price": 0,
+    "reward": 88,
+    "seed": 3963,
+    "parents": [
+      "citron",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--peche",
+    "name": "Comète Polaire",
+    "leaf": "#6c9644",
+    "bud": "#a2b55c",
+    "pistil": "#f1bb82",
+    "height": 1.06,
+    "width": 0.88,
+    "duration": 183,
+    "price": 0,
+    "reward": 90,
+    "seed": 4016,
+    "parents": [
+      "citron",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--pin",
+    "name": "Comète Océan",
+    "leaf": "#4f8246",
+    "bud": "#89af60",
+    "pistil": "#c6ae6d",
+    "height": 1.245,
+    "width": 0.775,
+    "duration": 190,
+    "price": 0,
+    "reward": 91,
+    "seed": 4069,
+    "parents": [
+      "citron",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "citron--orchidee",
+    "name": "Comète Brume",
+    "leaf": "#5c8240",
+    "bud": "#989765",
+    "pistil": "#cca099",
+    "height": 1.085,
+    "width": 0.8500000000000001,
+    "duration": 200,
+    "price": 0,
+    "reward": 93,
+    "seed": 4122,
+    "parents": [
+      "citron",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "menthe--velours",
+    "name": "Velours Mentholé",
+    "leaf": "#438162",
+    "bud": "#7d8aa0",
+    "pistil": "#c3efd5",
+    "height": 1.2850000000000001,
+    "width": 0.715,
+    "duration": 180,
+    "price": 0,
+    "reward": 81,
+    "seed": 3856,
+    "parents": [
+      "velours",
+      "menthe"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--velours",
+    "name": "Velours Ambré",
+    "leaf": "#50743d",
+    "bud": "#9a7671",
+    "pistil": "#ef8743",
+    "height": 1.01,
+    "width": 0.915,
+    "duration": 195,
+    "price": 0,
+    "reward": 82,
+    "seed": 3909,
+    "parents": [
+      "velours",
+      "ambre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "rose--velours",
+    "name": "Velours Rosée",
+    "leaf": "#437953",
+    "bud": "#9f6195",
+    "pistil": "#ffc0c9",
+    "height": 1.185,
+    "width": 0.79,
+    "duration": 188,
+    "price": 0,
+    "reward": 84,
+    "seed": 3962,
+    "parents": [
+      "velours",
+      "rose"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--velours",
+    "name": "Velours Givrée",
+    "leaf": "#567e5a",
+    "bud": "#9588a7",
+    "pistil": "#edf6f2",
+    "height": 1.1350000000000002,
+    "width": 0.7649999999999999,
+    "duration": 200,
+    "price": 0,
+    "reward": 85,
+    "seed": 4015,
+    "parents": [
+      "velours",
+      "givre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--velours",
+    "name": "Velours Tropical",
+    "leaf": "#57803e",
+    "bud": "#9c7f75",
+    "pistil": "#ffbb61",
+    "height": 1.085,
+    "width": 0.875,
+    "duration": 183,
+    "price": 0,
+    "reward": 87,
+    "seed": 4068,
+    "parents": [
+      "velours",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "onyx--velours",
+    "name": "Velours Sauvage",
+    "leaf": "#406445",
+    "bud": "#685188",
+    "pistil": "#bb88d3",
+    "height": 1.31,
+    "width": 0.69,
+    "duration": 208,
+    "price": 0,
+    "reward": 88,
+    "seed": 4121,
+    "parents": [
+      "velours",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--velours",
+    "name": "Velours Nocturne",
+    "leaf": "#3c603d",
+    "bud": "#756573",
+    "pistil": "#c1743b",
+    "height": 1.21,
+    "width": 0.815,
+    "duration": 213,
+    "price": 0,
+    "reward": 90,
+    "seed": 4174,
+    "parents": [
+      "velours",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "peche--velours",
+    "name": "Velours Polaire",
+    "leaf": "#557844",
+    "bud": "#89737f",
+    "pistil": "#f1bb82",
+    "height": 1.11,
+    "width": 0.845,
+    "duration": 198,
+    "price": 0,
+    "reward": 91,
+    "seed": 4227,
+    "parents": [
+      "velours",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "pin--velours",
+    "name": "Velours Océan",
+    "leaf": "#386446",
+    "bud": "#706e83",
+    "pistil": "#c6ae6d",
+    "height": 1.295,
+    "width": 0.74,
+    "duration": 205,
+    "price": 0,
+    "reward": 93,
+    "seed": 4280,
+    "parents": [
+      "velours",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "orchidee--velours",
+    "name": "Velours Brume",
+    "leaf": "#456440",
+    "bud": "#7f5588",
+    "pistil": "#cca099",
+    "height": 1.1350000000000002,
+    "width": 0.815,
+    "duration": 215,
+    "price": 0,
+    "reward": 94,
+    "seed": 4333,
+    "parents": [
+      "velours",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--menthe",
+    "name": "Fantôme Ambré",
+    "leaf": "#4b885b",
+    "bud": "#90a973",
+    "pistil": "#ef8743",
+    "height": 1.185,
+    "width": 0.8,
+    "duration": 185,
+    "price": 0,
+    "reward": 84,
+    "seed": 4120,
+    "parents": [
+      "menthe",
+      "ambre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "menthe--rose",
+    "name": "Fantôme Rosée",
+    "leaf": "#3e8e71",
+    "bud": "#959597",
+    "pistil": "#ffc0c9",
+    "height": 1.3599999999999999,
+    "width": 0.675,
+    "duration": 178,
+    "price": 0,
+    "reward": 85,
+    "seed": 4173,
+    "parents": [
+      "menthe",
+      "rose"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--menthe",
+    "name": "Fantôme Givrée",
+    "leaf": "#519278",
+    "bud": "#8bbca9",
+    "pistil": "#edf6f2",
+    "height": 1.31,
+    "width": 0.6499999999999999,
+    "duration": 190,
+    "price": 0,
+    "reward": 87,
+    "seed": 4226,
+    "parents": [
+      "menthe",
+      "givre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--menthe",
+    "name": "Fantôme Tropical",
+    "leaf": "#53955d",
+    "bud": "#92b277",
+    "pistil": "#ffbb61",
+    "height": 1.26,
+    "width": 0.76,
+    "duration": 173,
+    "price": 0,
+    "reward": 88,
+    "seed": 4279,
+    "parents": [
+      "menthe",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "menthe--onyx",
+    "name": "Fantôme Sauvage",
+    "leaf": "#3c7864",
+    "bud": "#5e858a",
+    "pistil": "#bb88d3",
+    "height": 1.4849999999999999,
+    "width": 0.575,
+    "duration": 198,
+    "price": 0,
+    "reward": 90,
+    "seed": 4332,
+    "parents": [
+      "menthe",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--menthe",
+    "name": "Fantôme Nocturne",
+    "leaf": "#37745c",
+    "bud": "#6b9874",
+    "pistil": "#c1743b",
+    "height": 1.385,
+    "width": 0.7,
+    "duration": 203,
+    "price": 0,
+    "reward": 91,
+    "seed": 4385,
+    "parents": [
+      "menthe",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "menthe--peche",
+    "name": "Fantôme Polaire",
+    "leaf": "#518c62",
+    "bud": "#7fa781",
+    "pistil": "#f1bb82",
+    "height": 1.2850000000000001,
+    "width": 0.73,
+    "duration": 188,
+    "price": 0,
+    "reward": 93,
+    "seed": 4438,
+    "parents": [
+      "menthe",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "menthe--pin",
+    "name": "Fantôme Océan",
+    "leaf": "#337865",
+    "bud": "#66a185",
+    "pistil": "#c6ae6d",
+    "height": 1.47,
+    "width": 0.625,
+    "duration": 195,
+    "price": 0,
+    "reward": 94,
+    "seed": 4491,
+    "parents": [
+      "menthe",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "menthe--orchidee",
+    "name": "Fantôme Brume",
+    "leaf": "#40795e",
+    "bud": "#758989",
+    "pistil": "#cca099",
+    "height": 1.31,
+    "width": 0.7,
+    "duration": 205,
+    "price": 0,
+    "reward": 96,
+    "seed": 4544,
+    "parents": [
+      "menthe",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--rose",
+    "name": "Soleil Rosée",
+    "leaf": "#4b814c",
+    "bud": "#b28168",
+    "pistil": "#ffc0c9",
+    "height": 1.085,
+    "width": 0.875,
+    "duration": 193,
+    "price": 0,
+    "reward": 87,
+    "seed": 4384,
+    "parents": [
+      "ambre",
+      "rose"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--givre",
+    "name": "Soleil Givrée",
+    "leaf": "#5e8553",
+    "bud": "#a8a87a",
+    "pistil": "#edf6f2",
+    "height": 1.0350000000000001,
+    "width": 0.85,
+    "duration": 205,
+    "price": 0,
+    "reward": 88,
+    "seed": 4437,
+    "parents": [
+      "ambre",
+      "givre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--mangue",
+    "name": "Soleil Tropical",
+    "leaf": "#608838",
+    "bud": "#ae9e48",
+    "pistil": "#ffbb61",
+    "height": 0.9850000000000001,
+    "width": 0.96,
+    "duration": 188,
+    "price": 0,
+    "reward": 90,
+    "seed": 4490,
+    "parents": [
+      "ambre",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--onyx",
+    "name": "Soleil Sauvage",
+    "leaf": "#496b3f",
+    "bud": "#7b715b",
+    "pistil": "#bb88d3",
+    "height": 1.21,
+    "width": 0.775,
+    "duration": 213,
+    "price": 0,
+    "reward": 91,
+    "seed": 4543,
+    "parents": [
+      "ambre",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--diesel",
+    "name": "Soleil Nocturne",
+    "leaf": "#446737",
+    "bud": "#888446",
+    "pistil": "#c1743b",
+    "height": 1.11,
+    "width": 0.9,
+    "duration": 218,
+    "price": 0,
+    "reward": 93,
+    "seed": 4596,
+    "parents": [
+      "ambre",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--peche",
+    "name": "Soleil Polaire",
+    "leaf": "#5e7f3d",
+    "bud": "#9b9352",
+    "pistil": "#f1bb82",
+    "height": 1.01,
+    "width": 0.9299999999999999,
+    "duration": 203,
+    "price": 0,
+    "reward": 94,
+    "seed": 4649,
+    "parents": [
+      "ambre",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--pin",
+    "name": "Soleil Océan",
+    "leaf": "#406b40",
+    "bud": "#828d56",
+    "pistil": "#c6ae6d",
+    "height": 1.195,
+    "width": 0.825,
+    "duration": 210,
+    "price": 0,
+    "reward": 96,
+    "seed": 4702,
+    "parents": [
+      "ambre",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "ambre--orchidee",
+    "name": "Soleil Brume",
+    "leaf": "#4d6c39",
+    "bud": "#91755b",
+    "pistil": "#cca099",
+    "height": 1.0350000000000001,
+    "width": 0.9,
+    "duration": 220,
+    "price": 0,
+    "reward": 97,
+    "seed": 4755,
+    "parents": [
+      "ambre",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--rose",
+    "name": "Aurore Givrée",
+    "leaf": "#518b69",
+    "bud": "#ad939e",
+    "pistil": "#edf6f2",
+    "height": 1.21,
+    "width": 0.725,
+    "duration": 198,
+    "price": 0,
+    "reward": 90,
+    "seed": 4648,
+    "parents": [
+      "rose",
+      "givre"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--rose",
+    "name": "Aurore Tropical",
+    "leaf": "#538d4e",
+    "bud": "#b48a6c",
+    "pistil": "#ffbb61",
+    "height": 1.1600000000000001,
+    "width": 0.835,
+    "duration": 180,
+    "price": 0,
+    "reward": 91,
+    "seed": 4701,
+    "parents": [
+      "rose",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "onyx--rose",
+    "name": "Aurore Sauvage",
+    "leaf": "#3c7155",
+    "bud": "#805c7f",
+    "pistil": "#bb88d3",
+    "height": 1.385,
+    "width": 0.65,
+    "duration": 205,
+    "price": 0,
+    "reward": 93,
+    "seed": 4754,
+    "parents": [
+      "rose",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--rose",
+    "name": "Aurore Nocturne",
+    "leaf": "#376d4d",
+    "bud": "#8d706a",
+    "pistil": "#c1743b",
+    "height": 1.2850000000000001,
+    "width": 0.775,
+    "duration": 210,
+    "price": 0,
+    "reward": 94,
+    "seed": 4807,
+    "parents": [
+      "rose",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "peche--rose",
+    "name": "Aurore Polaire",
+    "leaf": "#518553",
+    "bud": "#a17e76",
+    "pistil": "#f1bb82",
+    "height": 1.185,
+    "width": 0.8049999999999999,
+    "duration": 195,
+    "price": 0,
+    "reward": 96,
+    "seed": 4860,
+    "parents": [
+      "rose",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "pin--rose",
+    "name": "Aurore Océan",
+    "leaf": "#337156",
+    "bud": "#88797a",
+    "pistil": "#c6ae6d",
+    "height": 1.37,
+    "width": 0.7,
+    "duration": 203,
+    "price": 0,
+    "reward": 97,
+    "seed": 4913,
+    "parents": [
+      "rose",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "orchidee--rose",
+    "name": "Aurore Brume",
+    "leaf": "#40714f",
+    "bud": "#97607f",
+    "pistil": "#cca099",
+    "height": 1.21,
+    "width": 0.775,
+    "duration": 213,
+    "price": 0,
+    "reward": 99,
+    "seed": 4966,
+    "parents": [
+      "rose",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--mangue",
+    "name": "Lune Tropical",
+    "leaf": "#669255",
+    "bud": "#aab17e",
+    "pistil": "#ffbb61",
+    "height": 1.11,
+    "width": 0.81,
+    "duration": 193,
+    "price": 0,
+    "reward": 93,
+    "seed": 4912,
+    "parents": [
+      "givre",
+      "mangue"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--onyx",
+    "name": "Lune Sauvage",
+    "leaf": "#4f755c",
+    "bud": "#768391",
+    "pistil": "#bb88d3",
+    "height": 1.335,
+    "width": 0.625,
+    "duration": 218,
+    "price": 0,
+    "reward": 94,
+    "seed": 4965,
+    "parents": [
+      "givre",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--givre",
+    "name": "Lune Nocturne",
+    "leaf": "#4a7154",
+    "bud": "#83977c",
+    "pistil": "#c1743b",
+    "height": 1.235,
+    "width": 0.75,
+    "duration": 223,
+    "price": 0,
+    "reward": 96,
+    "seed": 5018,
+    "parents": [
+      "givre",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--peche",
+    "name": "Lune Polaire",
+    "leaf": "#64895a",
+    "bud": "#97a588",
+    "pistil": "#f1bb82",
+    "height": 1.1350000000000002,
+    "width": 0.78,
+    "duration": 208,
+    "price": 0,
+    "reward": 97,
+    "seed": 5071,
+    "parents": [
+      "givre",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--pin",
+    "name": "Lune Océan",
+    "leaf": "#46755d",
+    "bud": "#7ea08c",
+    "pistil": "#c6ae6d",
+    "height": 1.32,
+    "width": 0.675,
+    "duration": 215,
+    "price": 0,
+    "reward": 99,
+    "seed": 5124,
+    "parents": [
+      "givre",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "givre--orchidee",
+    "name": "Lune Brume",
+    "leaf": "#537656",
+    "bud": "#8d8791",
+    "pistil": "#cca099",
+    "height": 1.1600000000000001,
+    "width": 0.75,
+    "duration": 225,
+    "price": 0,
+    "reward": 100,
+    "seed": 5177,
+    "parents": [
+      "givre",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--onyx",
+    "name": "Mirage Sauvage",
+    "leaf": "#507840",
+    "bud": "#7d7a5f",
+    "pistil": "#bb88d3",
+    "height": 1.2850000000000001,
+    "width": 0.7350000000000001,
+    "duration": 200,
+    "price": 0,
+    "reward": 96,
+    "seed": 5176,
+    "parents": [
+      "mangue",
+      "onyx"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--mangue",
+    "name": "Mirage Nocturne",
+    "leaf": "#4c7438",
+    "bud": "#8a8d4a",
+    "pistil": "#c1743b",
+    "height": 1.185,
+    "width": 0.8600000000000001,
+    "duration": 205,
+    "price": 0,
+    "reward": 97,
+    "seed": 5229,
+    "parents": [
+      "mangue",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--peche",
+    "name": "Mirage Polaire",
+    "leaf": "#658c3f",
+    "bud": "#9d9c56",
+    "pistil": "#f1bb82",
+    "height": 1.085,
+    "width": 0.89,
+    "duration": 190,
+    "price": 0,
+    "reward": 99,
+    "seed": 5282,
+    "parents": [
+      "mangue",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--pin",
+    "name": "Mirage Océan",
+    "leaf": "#487841",
+    "bud": "#84965a",
+    "pistil": "#c6ae6d",
+    "height": 1.27,
+    "width": 0.785,
+    "duration": 198,
+    "price": 0,
+    "reward": 100,
+    "seed": 5335,
+    "parents": [
+      "mangue",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "mangue--orchidee",
+    "name": "Mirage Brume",
+    "leaf": "#55783b",
+    "bud": "#937e5f",
+    "pistil": "#cca099",
+    "height": 1.11,
+    "width": 0.8600000000000001,
+    "duration": 208,
+    "price": 0,
+    "reward": 102,
+    "seed": 5388,
+    "parents": [
+      "mangue",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--onyx",
+    "name": "Onyx Nocturne",
+    "leaf": "#35573f",
+    "bud": "#56605d",
+    "pistil": "#c1743b",
+    "height": 1.4100000000000001,
+    "width": 0.675,
+    "duration": 230,
+    "price": 0,
+    "reward": 99,
+    "seed": 5440,
+    "parents": [
+      "onyx",
+      "diesel"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "onyx--peche",
+    "name": "Onyx Polaire",
+    "leaf": "#4e6f46",
+    "bud": "#6a6e69",
+    "pistil": "#f1bb82",
+    "height": 1.31,
+    "width": 0.7050000000000001,
+    "duration": 215,
+    "price": 0,
+    "reward": 100,
+    "seed": 5493,
+    "parents": [
+      "onyx",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "onyx--pin",
+    "name": "Onyx Océan",
+    "leaf": "#315b48",
+    "bud": "#51696d",
+    "pistil": "#c6ae6d",
+    "height": 1.495,
+    "width": 0.6000000000000001,
+    "duration": 223,
+    "price": 0,
+    "reward": 102,
+    "seed": 5546,
+    "parents": [
+      "onyx",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "onyx--orchidee",
+    "name": "Onyx Brume",
+    "leaf": "#3e5c42",
+    "bud": "#605072",
+    "pistil": "#cca099",
+    "height": 1.335,
+    "width": 0.675,
+    "duration": 233,
+    "price": 0,
+    "reward": 103,
+    "seed": 5599,
+    "parents": [
+      "onyx",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--peche",
+    "name": "Diesel Polaire",
+    "leaf": "#4a6b3e",
+    "bud": "#778254",
+    "pistil": "#f1bb82",
+    "height": 1.21,
+    "width": 0.8300000000000001,
+    "duration": 220,
+    "price": 0,
+    "reward": 102,
+    "seed": 5704,
+    "parents": [
+      "diesel",
+      "peche"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--pin",
+    "name": "Diesel Océan",
+    "leaf": "#2c5740",
+    "bud": "#5e7c58",
+    "pistil": "#c6ae6d",
+    "height": 1.395,
+    "width": 0.7250000000000001,
+    "duration": 228,
+    "price": 0,
+    "reward": 103,
+    "seed": 5757,
+    "parents": [
+      "diesel",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "diesel--orchidee",
+    "name": "Diesel Brume",
+    "leaf": "#39583a",
+    "bud": "#6d645c",
+    "pistil": "#cca099",
+    "height": 1.235,
+    "width": 0.8,
+    "duration": 238,
+    "price": 0,
+    "reward": 105,
+    "seed": 5810,
+    "parents": [
+      "diesel",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "peche--pin",
+    "name": "Pêche Océan",
+    "leaf": "#466f47",
+    "bud": "#718b64",
+    "pistil": "#c6ae6d",
+    "height": 1.295,
+    "width": 0.755,
+    "duration": 213,
+    "price": 0,
+    "reward": 105,
+    "seed": 5968,
+    "parents": [
+      "peche",
+      "pin"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "orchidee--peche",
+    "name": "Pêche Brume",
+    "leaf": "#537040",
+    "bud": "#807269",
+    "pistil": "#cca099",
+    "height": 1.1350000000000002,
+    "width": 0.8300000000000001,
+    "duration": 223,
+    "price": 0,
+    "reward": 106,
+    "seed": 6021,
+    "parents": [
+      "peche",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  },
+  {
+    "id": "orchidee--pin",
+    "name": "Pin Brume",
+    "leaf": "#355c43",
+    "bud": "#676d6d",
+    "pistil": "#cca099",
+    "height": 1.32,
+    "width": 0.7250000000000001,
+    "duration": 230,
+    "price": 0,
+    "reward": 108,
+    "seed": 6232,
+    "parents": [
+      "pin",
+      "orchidee"
+    ],
+    "rarity": "Hybride"
+  }
+]
