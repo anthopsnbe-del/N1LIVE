@@ -9,8 +9,11 @@ from dreamteam_mail.core import (  # noqa: E402
     Adresse,
     GestionnaireAdresses,
     Message,
+    DUREES,
+    TTL_MAX_SECONDS,
     domaine_configure,
     generer_local_part,
+    valider_ttl,
     valider_domaine,
     valider_local_part,
 )
@@ -89,6 +92,45 @@ class TestCycleDeVie(unittest.TestCase):
     def test_compte_a_rebours(self):
         adresse = Adresse(local="test")
         self.assertEqual(adresse.compte_a_rebours(adresse.cree_a + 3600 - 65), "01:05")
+
+
+class TestDuree(unittest.TestCase):
+    def test_plafond_24h(self):
+        self.assertEqual(TTL_MAX_SECONDS, 24 * 3600)
+        self.assertEqual(valider_ttl(TTL_MAX_SECONDS), TTL_MAX_SECONDS)
+        with self.assertRaises(ValueError):
+            valider_ttl(TTL_MAX_SECONDS + 1)
+
+    def test_plancher_et_valeurs_invalides(self):
+        with self.assertRaises(ValueError):
+            valider_ttl(60)
+        with self.assertRaises(ValueError):
+            valider_ttl("abc")
+
+    def test_durees_proposees_toutes_valides(self):
+        self.assertTrue(DUREES)
+        for libelle, secondes in DUREES:
+            self.assertEqual(valider_ttl(secondes), secondes, libelle)
+            self.assertLessEqual(secondes, TTL_MAX_SECONDS)
+
+    def test_creation_avec_duree_choisie(self):
+        g = GestionnaireAdresses(persister=False)
+        adresse = g.creer(ttl=6 * 3600)
+        self.assertEqual(adresse.ttl, 6 * 3600)
+        self.assertFalse(adresse.est_expiree(adresse.cree_a + 6 * 3600 - 1))
+        self.assertTrue(adresse.est_expiree(adresse.cree_a + 6 * 3600))
+
+    def test_creation_refuse_au_dela_de_24h(self):
+        g = GestionnaireAdresses(persister=False)
+        with self.assertRaises(ValueError):
+            g.creer(ttl=48 * 3600)
+
+    def test_compte_a_rebours_avec_heures(self):
+        adresse = Adresse(local="test", ttl=TTL_MAX_SECONDS)
+        self.assertEqual(adresse.compte_a_rebours(adresse.cree_a), "24:00:00")
+        self.assertEqual(
+            adresse.compte_a_rebours(adresse.cree_a + TTL_MAX_SECONDS - 3725), "1:02:05"
+        )
 
 
 class TestPersistance(unittest.TestCase):

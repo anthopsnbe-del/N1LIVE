@@ -1,8 +1,9 @@
 # DreamTeam Mail — adresses jetables `@asylum-games.fr`
 
 Application Windows (`.exe`) qui génère des adresses email temporaires en
-`@asylum-games.fr` et **les détruit automatiquement au bout d'1 heure**, avec
-leurs messages, pour limiter le phishing, le spam et la revente d'adresses.
+`@asylum-games.fr` et **les détruit automatiquement au bout d'une durée choisie
+(24 h maximum)**, avec leurs messages, pour limiter le phishing, le spam et la
+revente d'adresses.
 
 ## À lire avant tout : ce qui est technique, ce qui est administratif
 
@@ -47,7 +48,8 @@ messages destinés à l'alias sélectionné s'affichent.
 
 - Génération d'adresses imprévisibles (module `secrets`), deux styles : `mots`
   (`vif.nuage042@asylum-games.fr`) ou `aleatoire` (12 caractères).
-- **Compte à rebours d'1 heure** par adresse, visible dans la liste.
+- **Compte à rebours** par adresse, visible dans la liste (format `h:mm:ss`
+  au-delà d'une heure).
 - **Auto-destruction** : un thread purge chaque seconde ; à l'expiration
   l'adresse *et* ses messages sont effacés de la mémoire et du disque.
 - Suppression manuelle immédiate, ou « Tout détruire ».
@@ -55,6 +57,13 @@ messages destinés à l'alias sélectionné s'affichent.
 - Limite de 5 adresses actives (garde-fou anti-abus).
 - Les adresses expirées ne sont jamais rechargées au démarrage.
 - Domaine paramétrable (`asylum-games.fr` par défaut).
+- **Durée de vie réglable** dans la barre d'outils : 5 min, 15 min, 30 min, 1 h,
+  3 h, 6 h, 12 h, **24 h maximum** (plafond imposé par le code, non contournable
+  depuis l'interface).
+- **Suppression côté serveur** : à l'expiration, les messages de l'alias sont
+  aussi effacés de la boîte catch-all (IMAP `STORE \Deleted` + `EXPUNGE`), pour
+  éviter que la boîte ne gonfle indéfiniment. Décochable dans « Serveur… ».
+- Interface sombre orange/rouge à chasse fixe, dans l'esprit d'un terminal.
 
 ## Construire le `.exe`
 
@@ -90,16 +99,29 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-17 tests couvrent la durée de vie d'1 h, la purge, l'effacement des messages,
-la limite d'adresses, la validation du domaine et la non-réhydratation des
-adresses expirées.
+32 tests couvrent la durée de vie et son plafond de 24 h, la purge,
+l'effacement des messages, la limite d'adresses, la validation du domaine, la
+non-réhydratation des adresses expirées et la suppression côté serveur (cible
+restreinte à l'alias, relevé en lecture seule).
 
-## Données locales
+## Où sont stockés les mails
 
-- État : `%LOCALAPPDATA%\DreamTeamMail\etat.json` (Windows).
-- Config serveur : `config.json` dans le même dossier (hôte, port, utilisateur,
-  dossier, domaine). **Le mot de passe n'est pas écrit sur le disque** sauf si
-  tu coches la case ; sinon utilise `DREAMTEAM_IMAP_PASSWORD`.
+Deux endroits, à ne pas confondre :
+
+1. **Sur le PC** — `%LOCALAPPDATA%\DreamTeamMail\etat.json`, en clair :
+   adresses actives et messages relevés. C'est ce que la purge efface à
+   l'expiration (adresse *et* messages).
+2. **Sur le serveur** — la boîte catch-all qui reçoit tout le domaine. L'app
+   relève en lecture seule, puis, à l'expiration, supprime définitivement les
+   messages de l'alias concerné si l'option est active (elle l'est par défaut).
+   La recherche IMAP porte sur l'en-tête `To` de l'alias jetable : les boîtes
+   nominatives du domaine ne sont jamais touchées.
+
+Autres fichiers :
+
+- `config.json` (même dossier) : hôte, port, utilisateur, dossier, domaine,
+  option de suppression serveur. **Le mot de passe n'est pas écrit sur le
+  disque** sauf si tu coches la case ; sinon utilise `DREAMTEAM_IMAP_PASSWORD`.
 - Variables d'environnement : `DREAMTEAM_DOMAIN`, `DREAMTEAM_IMAP_PASSWORD`,
   `DREAMTEAM_MAIL_HOME` (déplacer le dossier de données).
 

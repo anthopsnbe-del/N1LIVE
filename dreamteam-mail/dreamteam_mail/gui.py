@@ -16,7 +16,9 @@ from .backends import (
     charger_config,
     sauver_config,
 )
+from . import theme
 from .core import (
+    DUREES,
     MAX_ACTIVE,
     TTL_SECONDS,
     GestionnaireAdresses,
@@ -33,10 +35,11 @@ def titre(domaine: str) -> str:
 class Application(tk.Tk):
     def __init__(self, gestionnaire: GestionnaireAdresses | None = None) -> None:
         super().__init__()
+        theme.appliquer(self)
         self.gestionnaire = gestionnaire or GestionnaireAdresses()
         self.title(titre(self.gestionnaire.domaine))
-        self.geometry("980x600")
-        self.minsize(820, 520)
+        self.geometry("1040x620")
+        self.minsize(880, 540)
 
         self.backend: Backend = backend_par_defaut()
         self.file_evenements: queue.Queue = queue.Queue()
@@ -68,6 +71,15 @@ class Application(tk.Tk):
             width=10, state="readonly",
         ).pack(side=tk.RIGHT)
 
+        self.durees = dict(DUREES)
+        defaut = next(lib for lib, sec in DUREES if sec == TTL_SECONDS)
+        self.var_duree = tk.StringVar(value=defaut)
+        ttk.Label(barre, text="Duree :").pack(side=tk.RIGHT, padx=(12, 4))
+        ttk.Combobox(
+            barre, textvariable=self.var_duree, values=[lib for lib, _ in DUREES],
+            width=12, state="readonly",
+        ).pack(side=tk.RIGHT)
+
         corps = ttk.Panedwindow(self, orient=tk.HORIZONTAL)
         corps.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 8))
 
@@ -77,8 +89,8 @@ class Application(tk.Tk):
         self.liste.heading("email", text="Adresse")
         self.liste.heading("restant", text="Expire dans")
         self.liste.heading("messages", text="Msg")
-        self.liste.column("email", width=290)
-        self.liste.column("restant", width=90, anchor=tk.CENTER)
+        self.liste.column("email", width=300)
+        self.liste.column("restant", width=100, anchor=tk.CENTER)
         self.liste.column("messages", width=50, anchor=tk.CENTER)
         self.liste.pack(fill=tk.BOTH, expand=True, side=tk.LEFT)
         defilement = ttk.Scrollbar(gauche, orient=tk.VERTICAL, command=self.liste.yview)
@@ -88,29 +100,34 @@ class Application(tk.Tk):
         corps.add(gauche, weight=1)
 
         droite = ttk.Frame(corps)
-        ttk.Label(droite, text="Boite de reception", padding=(0, 0, 0, 4)).pack(anchor=tk.W)
+        ttk.Label(droite, text="Boite de reception", style="Titre.TLabel",
+                  padding=(0, 0, 0, 6)).pack(anchor=tk.W)
         self.zone = tk.Text(droite, wrap=tk.WORD, state=tk.DISABLED, height=20)
+        theme.habiller_texte(self.zone)
         self.zone.pack(fill=tk.BOTH, expand=True)
         corps.add(droite, weight=2)
 
         self.var_statut = tk.StringVar()
-        ttk.Label(self, textvariable=self.var_statut, relief=tk.SUNKEN, anchor=tk.W,
-                  padding=(8, 4)).pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Label(self, textvariable=self.var_statut, style="Statut.TLabel",
+                  anchor=tk.W).pack(fill=tk.X, side=tk.BOTTOM)
         self._statut(
-            f"Domaine : @{self.gestionnaire.domaine} — duree de vie {TTL_SECONDS // 60} min — "
+            f"Domaine : @{self.gestionnaire.domaine} — duree reglable jusqu'a 24 h — "
             f"{MAX_ACTIVE} adresses max — source : {self.backend.nom}"
         )
 
     # ------------------------------------------------------------------ actions
     def creer_adresse(self) -> None:
+        libelle = self.var_duree.get()
         try:
-            adresse = self.gestionnaire.creer(style=self.var_style.get())
+            adresse = self.gestionnaire.creer(
+                style=self.var_style.get(), ttl=self.durees.get(libelle, TTL_SECONDS)
+            )
         except (RuntimeError, ValueError) as err:
             messagebox.showwarning("Creation impossible", str(err), parent=self)
             return
         self._rafraichir_liste(selection=adresse.email)
         self._copier_presse_papier(adresse.email)
-        self._statut(f"{adresse.email} creee et copiee — auto-destruction dans {TTL_SECONDS // 60} min.")
+        self._statut(f"{adresse.email} creee et copiee — auto-destruction dans {libelle}.")
 
     def copier_adresse(self) -> None:
         email = self._selection()
@@ -125,13 +142,16 @@ class Application(tk.Tk):
         if self.gestionnaire.supprimer(email):
             self._rafraichir_liste()
             self._statut(f"{email} detruite immediatement.")
+            self._effacer_du_serveur([email])
 
     def tout_supprimer(self) -> None:
         if not messagebox.askyesno("Tout detruire", "Detruire toutes les adresses actives ?", parent=self):
             return
+        emails = [a.email for a in self.gestionnaire.actives()]
         n = self.gestionnaire.tout_supprimer()
         self._rafraichir_liste()
         self._statut(f"{n} adresse(s) detruite(s).")
+        self._effacer_du_serveur(emails)
 
     def relever(self) -> None:
         email = self._selection()
@@ -153,6 +173,29 @@ class Application(tk.Tk):
         """Change le domaine des futures adresses ; les adresses en cours restent valides."""
         self.gestionnaire.domaine = valider_domaine(domaine)
         self.title(titre(self.gestionnaire.domaine))
+
+    def _effacer_du_serveur(self, emails: list[str]) -> None:
+        """Vide la boite catch-all des messages de ces alias, sans bloquer l'IHM."""
+        if not emails or not getattr(self.backend, "reel", False):
+            return
+        backend = self.backend
+
+        def travail() -> None:
+            total = 0
+            for email in emails:
+                try:
+                    total += backend.supprimer_du_serveur(email)
+                except Exception as err:
+                    self.file_evenements.put(
+                        ("erreur", f"Effacement serveur impossible pour {email} : {err}")
+                    )
+                    return
+            if total:
+                self.file_evenements.put(
+                    ("info", f"{total} message(s) supprime(s) definitivement du serveur.")
+                )
+
+        threading.Thread(target=travail, daemon=True).start()
 
     def configurer_imap(self) -> None:
         DialogueIMAP(self)
@@ -185,23 +228,23 @@ class Application(tk.Tk):
         self.zone.configure(state=tk.NORMAL)
         self.zone.delete("1.0", tk.END)
         if adresse is None:
-            self.zone.insert(tk.END, "Aucune adresse selectionnee.\n")
+            self.zone.insert(tk.END, "Aucune adresse selectionnee.\n", "discret")
         elif not adresse.messages:
-            self.zone.insert(
-                tk.END,
-                f"{adresse.email}\nExpire dans {adresse.compte_a_rebours()}.\n\n"
-                "Boite vide. Clique sur « Relever ».\n",
-            )
+            self.zone.insert(tk.END, f"{adresse.email}\n", "titre")
+            self.zone.insert(tk.END, f"Expire dans {adresse.compte_a_rebours()}.\n\n", "accent")
+            self.zone.insert(tk.END, "Boite vide. Clique sur « Relever ».\n", "discret")
         else:
-            self.zone.insert(tk.END, f"{adresse.email} — expire dans {adresse.compte_a_rebours()}\n")
+            self.zone.insert(tk.END, f"{adresse.email}\n", "titre")
+            self.zone.insert(tk.END, f"Expire dans {adresse.compte_a_rebours()}\n", "accent")
             for msg in reversed(adresse.messages):
-                self.zone.insert(
-                    tk.END,
-                    "\n" + "-" * 68 + "\n"
-                    f"De     : {msg.expediteur}\n"
-                    f"Date   : {msg.date}\n"
-                    f"Objet  : {msg.sujet}\n\n{msg.corps}\n",
-                )
+                self.zone.insert(tk.END, "\n" + "─" * 60 + "\n", "separateur")
+                self.zone.insert(tk.END, "De     : ", "accent")
+                self.zone.insert(tk.END, f"{msg.expediteur}\n")
+                self.zone.insert(tk.END, "Date   : ", "accent")
+                self.zone.insert(tk.END, f"{msg.date}\n")
+                self.zone.insert(tk.END, "Objet  : ", "accent")
+                self.zone.insert(tk.END, f"{msg.sujet}\n\n", "titre")
+                self.zone.insert(tk.END, f"{msg.corps}\n")
         self.zone.configure(state=tk.DISABLED)
 
     def _copier_presse_papier(self, texte: str) -> None:
@@ -229,7 +272,7 @@ class Application(tk.Tk):
                         f"{ajoutes} nouveau(x) message(s) pour {email}."
                         if ajoutes else f"Aucun nouveau message pour {email}."
                     )
-                elif genre == "erreur":
+                elif genre in ("erreur", "info"):
                     self._statut(charge)
         except queue.Empty:
             pass
@@ -237,6 +280,7 @@ class Application(tk.Tk):
             self._statut(
                 f"Auto-destruction : {', '.join(purge_signalee)} — adresse et messages effaces."
             )
+            self._effacer_du_serveur(purge_signalee)
         self._rafraichir_liste()
         self.after(1000, self._vider_file)
 
@@ -252,6 +296,7 @@ class DialogueIMAP(tk.Toplevel):
         super().__init__(parent)
         self.parent = parent
         self.title("Serveur de reception")
+        self.configure(background=theme.FOND)
         self.resizable(False, False)
         self.transient(parent)
         self.grab_set()
@@ -267,6 +312,7 @@ class DialogueIMAP(tk.Toplevel):
         }
         self.var_ssl = tk.BooleanVar(value=config.ssl)
         self.var_enregistrer_mdp = tk.BooleanVar(value=False)
+        self.var_supprimer_serveur = tk.BooleanVar(value=config.supprimer_serveur)
 
         cadre = ttk.Frame(self, padding=12)
         cadre.pack(fill=tk.BOTH, expand=True)
@@ -298,9 +344,13 @@ class DialogueIMAP(tk.Toplevel):
             cadre, text="Enregistrer le mot de passe sur ce poste",
             variable=self.var_enregistrer_mdp,
         ).grid(row=8, column=1, sticky=tk.W)
+        ttk.Checkbutton(
+            cadre, text="Supprimer aussi les mails du serveur a l'expiration",
+            variable=self.var_supprimer_serveur,
+        ).grid(row=9, column=1, sticky=tk.W)
 
         boutons = ttk.Frame(cadre)
-        boutons.grid(row=9, column=0, columnspan=2, sticky=tk.E, pady=(12, 0))
+        boutons.grid(row=10, column=0, columnspan=2, sticky=tk.E, pady=(12, 0))
         ttk.Button(boutons, text="Tester", command=self.tester).pack(side=tk.LEFT)
         ttk.Button(boutons, text="Mode demo", command=self.mode_demo).pack(side=tk.LEFT, padx=6)
         ttk.Button(boutons, text="Enregistrer", command=self.enregistrer).pack(side=tk.LEFT)
@@ -318,6 +368,7 @@ class DialogueIMAP(tk.Toplevel):
             dossier=self.vars["dossier"].get().strip() or "INBOX",
             ssl=self.var_ssl.get(),
             domaine=self.vars["domaine"].get().strip().lower(),
+            supprimer_serveur=self.var_supprimer_serveur.get(),
         )
 
     def tester(self) -> None:

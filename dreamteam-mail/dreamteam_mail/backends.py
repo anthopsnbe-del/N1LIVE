@@ -24,6 +24,10 @@ class Backend:
     def relever(self, email_adresse: str) -> list[Message]:
         raise NotImplementedError
 
+    def supprimer_du_serveur(self, email_adresse: str) -> int:
+        """Efface les messages de l'alias cote serveur. 0 quand il n'y a pas de serveur."""
+        return 0
+
 
 class BackendDemo(Backend):
     """Aucun serveur : fabrique des messages factices pour tester l'application.
@@ -70,6 +74,7 @@ class ConfigIMAP:
     dossier: str = "INBOX"
     ssl: bool = True
     domaine: str = DOMAIN
+    supprimer_serveur: bool = True  # vider la boite catch-all a l'expiration
 
     def est_complete(self) -> bool:
         return bool(self.hote and self.utilisateur and self.mot_de_passe)
@@ -92,6 +97,7 @@ def charger_config() -> ConfigIMAP:
         dossier=donnees.get("dossier", "INBOX"),
         ssl=bool(donnees.get("ssl", True)),
         domaine=domaine_configure(),
+        supprimer_serveur=bool(donnees.get("supprimer_serveur", True)),
     )
     depuis_env = os.environ.get("DREAMTEAM_IMAP_PASSWORD")
     if depuis_env:
@@ -109,6 +115,7 @@ def sauver_config(config: ConfigIMAP, avec_mot_de_passe: bool = False) -> Path:
         "dossier": config.dossier,
         "ssl": config.ssl,
         "domaine": valider_domaine(config.domaine or DOMAIN),
+        "supprimer_serveur": config.supprimer_serveur,
     }
     if avec_mot_de_passe:
         donnees["mot_de_passe"] = config.mot_de_passe
@@ -185,6 +192,27 @@ class BackendIMAP(Backend):
                     )
                 )
         return messages
+
+    def supprimer_du_serveur(self, email_adresse: str) -> int:
+        """Supprime definitivement les messages adresses a cet alias (IMAP EXPUNGE).
+
+        Ne touche qu'aux messages dont l'en-tete To porte l'alias jetable : les
+        boites nominatives du domaine ne sont jamais concernees.
+        """
+        if not self.config.supprimer_serveur:
+            return 0
+        with self._connexion() as imap:
+            statut, _ = imap.select(self.config.dossier)  # ouverture en ecriture
+            if statut != "OK":
+                return 0
+            statut, donnees = imap.search(None, f'(TO "{email_adresse}")')
+            if statut != "OK" or not donnees or not donnees[0]:
+                return 0
+            identifiants = donnees[0].split()
+            for ident in identifiants:
+                imap.store(ident, "+FLAGS", "\\Deleted")
+            imap.expunge()
+            return len(identifiants)
 
     class _Session:
         def __init__(self, imap: imaplib.IMAP4) -> None:

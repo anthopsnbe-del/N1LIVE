@@ -14,8 +14,22 @@ from pathlib import Path
 from typing import Callable, Iterable
 
 DOMAIN = "asylum-games.fr"  # domaine par defaut ; modifiable dans l'application
-TTL_SECONDS = 3600  # 1 heure
-MAX_ACTIVE = 5      # garde-fou anti-abus
+TTL_SECONDS = 3600        # duree de vie par defaut : 1 heure
+TTL_MIN_SECONDS = 300     # plancher : 5 minutes
+TTL_MAX_SECONDS = 86400   # plafond impose : 24 heures
+MAX_ACTIVE = 5            # garde-fou anti-abus
+
+# Durees proposees dans l'interface (libelle -> secondes), 24 h au maximum.
+DUREES = (
+    ("5 minutes", 300),
+    ("15 minutes", 900),
+    ("30 minutes", 1800),
+    ("1 heure", 3600),
+    ("3 heures", 10800),
+    ("6 heures", 21600),
+    ("12 heures", 43200),
+    ("24 heures", 86400),
+)
 
 _ADJECTIFS = (
     "vif", "calme", "clair", "doux", "franc", "leger", "malin", "net",
@@ -41,6 +55,23 @@ def generer_local_part(style: str = "mots") -> str:
     return "{}.{}{:03d}".format(
         secrets.choice(_ADJECTIFS), secrets.choice(_NOMS), secrets.randbelow(1000)
     )
+
+
+def valider_ttl(ttl: int | None) -> int:
+    """Ramene une duree de vie dans les bornes autorisees (5 min a 24 h)."""
+    if ttl is None:
+        return TTL_SECONDS
+    try:
+        ttl = int(ttl)
+    except (TypeError, ValueError):
+        raise ValueError("Duree de vie invalide.") from None
+    if ttl < TTL_MIN_SECONDS:
+        raise ValueError(f"Duree de vie trop courte (minimum {TTL_MIN_SECONDS // 60} minutes).")
+    if ttl > TTL_MAX_SECONDS:
+        raise ValueError(
+            f"Duree de vie trop longue (maximum {TTL_MAX_SECONDS // 3600} heures)."
+        )
+    return ttl
 
 
 def valider_local_part(local: str) -> str:
@@ -86,7 +117,11 @@ class Adresse:
 
     def compte_a_rebours(self, maintenant: float | None = None) -> str:
         restant = self.secondes_restantes(maintenant)
-        return f"{restant // 60:02d}:{restant % 60:02d}"
+        heures, reste = divmod(restant, 3600)
+        minutes, secondes = divmod(reste, 60)
+        if heures:
+            return f"{heures}:{minutes:02d}:{secondes:02d}"
+        return f"{minutes:02d}:{secondes:02d}"
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -100,7 +135,7 @@ class Adresse:
             local=d["local"],
             domaine=d.get("domaine", DOMAIN),
             cree_a=float(d.get("cree_a", _now())),
-            ttl=int(d.get("ttl", TTL_SECONDS)),
+            ttl=valider_ttl(int(d.get("ttl", TTL_SECONDS))),
             messages=msgs,
         )
 
@@ -171,7 +206,7 @@ class GestionnaireAdresses:
         fichier: Path | None = None,
         persister: bool = True,
     ) -> None:
-        self.ttl = ttl
+        self.ttl = valider_ttl(ttl)
         self.max_actives = max_actives
         self.domaine = valider_domaine(domaine) if domaine else domaine_configure()
         self.fichier = fichier or chemin_etat()
@@ -191,8 +226,11 @@ class GestionnaireAdresses:
             return self._adresses.get(email.lower())
 
     # ---------------------------------------------------------------- ecriture
-    def creer(self, local: str | None = None, style: str = "mots") -> Adresse:
+    def creer(
+        self, local: str | None = None, style: str = "mots", ttl: int | None = None
+    ) -> Adresse:
         with self._verrou:
+            duree = valider_ttl(ttl if ttl is not None else self.ttl)
             self.purger()
             if len(self._adresses) >= self.max_actives:
                 raise RuntimeError(
@@ -201,7 +239,7 @@ class GestionnaireAdresses:
                 )
             for _ in range(50):
                 part = valider_local_part(local) if local else generer_local_part(style)
-                adresse = Adresse(local=part, domaine=self.domaine, ttl=self.ttl)
+                adresse = Adresse(local=part, domaine=self.domaine, ttl=duree)
                 if adresse.email not in self._adresses:
                     self._adresses[adresse.email] = adresse
                     self._sauver()
