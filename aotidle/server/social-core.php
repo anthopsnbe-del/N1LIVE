@@ -163,5 +163,8 @@ function social_handle(PDO $db,array $in): array {
     // Boss mondial et guerres de clans : actions ajoutées par boss-core.php et war-core.php.
     if(function_exists('boss_handle')){$boss=boss_handle($db,$in,$p,$world,$clan,$now);if($boss!==null)return $boss;}
     if(function_exists('war_handle')){$war=war_handle($db,$in,$p,$world,$clan,$now);if($war!==null)return $war;}
+    if(function_exists('season_handle')){$season=season_handle($db,$in,$p,$world,$now);if($season!==null)return $season;}
+    if(function_exists('market_handle')){$market=market_handle($db,$in,$p,$world,$now);if($market!==null)return $market;}
+    if(function_exists('wallet_handle')){$wallet=wallet_handle($db,$in,$p,$now);if($wallet!==null)return $wallet;}
     social_error('Action inconnue.');return [];
 }

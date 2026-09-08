@@ -339,3 +339,32 @@ body.reduced #tower-weak { animation: none; }
 #war-notice:not(:empty) { padding: 9px 12px; border-radius: 9px; background: #33261a; color: #ffe1a0; }
 #war-strike, #war-claim, #war-enroll { width: 100%; margin-top: 10px; }
 body.reduced .war-bar i { transition: none; }
+
+/* ---------- dépôt, marché et saison ---------- */
+
+.market-destination { background: linear-gradient(120deg, #23394a, #14212a); border-color: #57798c; }
+.market-destination h2, .destination-grid h2 { display: flex; align-items: center; gap: 8px; }
+.tower-heading h1 b { color: var(--crystal); }
+.market-nav { display: flex; gap: 6px; margin: 16px 0 4px; }
+.market-nav button {
+  flex: 1;
+  padding: 10px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+}
+.market-nav button.selected { color: var(--text); border-color: var(--gold); background: var(--panel-2); }
+.market-card .bag-actions { min-width: 108px; }
+.market-seller { margin-top: 6px; color: var(--gold) !important; font-size: 11px; }
+#market-withdraw, #season-claim { width: 100%; }
+#market-notice, #season-notice { font-size: 12px; text-align: center; color: var(--muted); margin: 10px 0; }
+#market-notice:not(:empty), #season-notice:not(:empty) {
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: #33261a;
+  color: #ffe1a0;
+}
+#market-earned, #season-timer { font-size: 12px; color: var(--muted); }
+#season-mine { text-align: center; }

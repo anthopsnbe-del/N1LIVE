@@ -57,14 +57,15 @@
 
   function claim() {
     run('war_claim', function (r) {
-      var gained = r.crystals || 0;
-      window.__game.state.crystals += gained;
-      window.__game.save();
+      var gained = r.credited || 0;
       if (window.Fx) {
         window.Fx.sound('loot');
-        window.Fx.banner('+' + gained + ' cristaux', 'GUERRE DE CLANS', 'loot');
+        window.Fx.banner('+' + gained + ' cristaux', 'VERSÉ AU DÉPÔT', 'loot');
       }
-      notice = 'Récompense versée : ' + gained + ' cristaux.';
+      notice = gained + ' cristaux versés au dépôt'
+        + (r.item ? ', plus une pièce : ' + r.item.name + ' (' + r.item.rarity + ')' : '')
+        + '. Récupérez-les dans « Dépôt et marché ».';
+      if (window.Market) window.Market.refresh(true);
     });
   }
 
@@ -252,9 +253,10 @@
     render();
 
     setInterval(function () {
-      if (document.hidden || !connected()) return;
+      if (document.hidden) return;
       var active = $('tab-war').classList.contains('active');
       var home = $('tab-home') && $('tab-home').classList.contains('active');
+      if (!connected()) { if (active || home) render(); return; }
       if (active || home || Date.now() - lastPoll > 120000) window.War.refresh(false);
       if (active) render();
     }, 3000);

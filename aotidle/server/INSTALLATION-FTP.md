@@ -1,4 +1,4 @@
-# Publier la version 6.2 avec FileZilla
+# Publier la version 6.3 avec FileZilla
 
 Ce dossier est prêt à transférer. **Il n'a pas été publié.**
 
@@ -27,15 +27,16 @@ elle-même sur l'hébergement.
 3. Dans la racine publique de `asylum-games.fr`, ouvrir le dossier distant
    `aotidle` existant. Conserver ses fichiers `config.php`, `db.php`,
    `google.php` et sa configuration serveur : ils ne sont pas dans ce paquet.
-4. Envoyer d'abord `aotidle/releases/aot-idle-6.2.apk`, puis `social-core.php`,
-   **`boss-core.php`** et **`war-core.php`** (nouveaux), `social.php`, `index.php`, `release-lib.php`,
+4. Envoyer d'abord `aotidle/releases/aot-idle-6.3.apk`, puis `social-core.php`,
+   **`wallet-core.php`**, **`boss-core.php`**, **`war-core.php`**, **`season-core.php`** et
+   **`market-core.php`**, `social.php`, `index.php`, `release-lib.php`,
    `release.php`, `telecharger.php` et les deux fichiers `download-widget.*`.
 5. Envoyer **release.json en dernier**, une fois l'APK entièrement transféré.
    C'est ce fichier qui annonce la nouvelle version aux joueurs.
 6. Le fragment `BOUTON-A-COLLER.html` n'a pas changé depuis la v5 : rien à
    refaire si le bouton est déjà en place.
 7. Vérifier `https://asylum-games.fr/aotidle/release.php` : versionName doit
-   valoir 6.2 et versionCode 10. Installer ensuite sur un téléphone de test.
+   valoir 6.3 et versionCode 11. Installer ensuite sur un téléphone de test.
 
 ## Nouveau service : le boss mondial
 
@@ -73,6 +74,36 @@ serveur, un assaut par minute, 120 assauts par joueur, récompense versée une
 seule fois — plus généreuse pour le camp vainqueur, sans laisser le camp battu
 les mains vides.
 
+## Nouveau service : dépôt, marché et saisons
+
+Trois fichiers de plus, et six tables créées automatiquement au premier appel :
+`social_wallet`, `social_wallet_log`, `social_items` (dépôt), `social_market`
+(annonces), `social_seasons` et `social_season_rewards` (saisons).
+
+**Le dépôt** (`wallet-core.php`) est la part d'économie tenue par le serveur.
+Il n'est alimenté que par ce que le serveur a lui-même accordé : boss mondial,
+guerres de clans, fins de saison. Les récompenses de ces trois contenus ne
+tombent donc plus directement dans la sauvegarde du joueur — elles arrivent au
+dépôt, et le joueur les rapatrie quand il veut. Le sens est unique : dépôt vers
+sauvegarde, jamais l'inverse, puisque des cristaux locaux ne sont pas
+vérifiables.
+
+**Le marché** (`market-core.php`) échange l'équipement émis par le serveur,
+payé en cristaux du dépôt. Prix entre 5 et 5 000 cristaux, six annonces
+simultanées par joueur, 10 % prélevés sur chaque vente. Une pièce rapatriée
+dans le sac quitte définitivement le marché. L'or et l'équipement de campagne,
+eux, n'y entrent jamais : c'est ce qui rend la duplication impossible.
+
+**Les saisons** (`season-core.php`) durent quatorze jours par monde. À la
+clôture, le serveur fige le classement, prépare les récompenses (podium 120 /
+80 / 60 cristaux, top 10 : 35, top 50 : 15, cinq pour toute victoire) et
+rapproche chaque cote de 1000 de moitié — une remise à niveau, pas un
+effacement.
+
+**Important : publiez le serveur et l'APK ensemble.** Un client 6.2 parlant à
+un serveur 6.3 afficherait « 0 cristal » à la récupération d'une récompense de
+boss ou de guerre, puisque celle-ci part désormais au dépôt.
+
 ## Vérifications après mise en ligne
 
 1. Ouvrir le jeu, se connecter, aller sur **Accueil → Boss mondial** : le titan
@@ -87,7 +118,14 @@ les mains vides.
    même monde, faire engager les deux chefs. L'appariement doit être immédiat
    pour le second, le front commun s'affiche et chaque assaut alimente le score
    du bon camp.
-6. Tester aussi les fonctions v5 qui n'ont pas bougé : recherche classée dans
+6. **Accueil → Dépôt et marché** : après une récompense de boss ou de guerre,
+   le solde du dépôt doit augmenter ; « Retirer » l'ajoute à la partie et
+   « Rapatrier » range une pièce dans le sac (onglet Soldat). Mettre une pièce
+   en vente depuis un compte, l'acheter depuis un autre du même monde.
+7. **Accueil → Saison** : le numéro de saison, le compte à rebours et le
+   classement doivent s'afficher ; les récompenses n'apparaissent qu'après une
+   clôture.
+8. Tester aussi les fonctions v5 qui n'ont pas bougé : recherche classée dans
    l'arène, demande d'ami, défi, chat global et de clan.
 
 ## Rappels

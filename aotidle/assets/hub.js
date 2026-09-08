@@ -76,7 +76,10 @@
     var missions = MISSIONS.filter(function (m) {
       return !j.claimed[m.id] && progress[m.id] >= m.goal;
     }).length;
-    return missions + (window.Boss ? window.Boss.pending() : 0) + (window.War ? window.War.pending() : 0);
+    return missions
+      + (window.Boss ? window.Boss.pending() : 0)
+      + (window.War ? window.War.pending() : 0)
+      + (window.Season ? window.Season.pending() : 0);
   }
 
   // ------------------------------------------------------------------
@@ -240,6 +243,16 @@
       if (window.War) window.War.refresh(true);
       return;
     }
+    if (where === 'market') {
+      show('tab-market');
+      if (window.Market) window.Market.refresh(true);
+      return;
+    }
+    if (where === 'season') {
+      show('tab-season');
+      if (window.Season) window.Season.refresh(true);
+      return;
+    }
     var tab = where === 'campaign' ? 'tab-combat' : 'tab-world';
     document.querySelector('[data-tab="' + tab + '"]').click();
     if (where === 'arena' || where === 'rank') {
@@ -343,8 +356,13 @@
       + '<div class="destination-grid">'
       + '<button class="destination" data-destination="arena">' + Art.icon('abilities', 6)
       + '<h2>Arène</h2><p>Duels en temps réel</p><span>Affronter un joueur →</span></button>'
-      + '<button class="destination" data-destination="rank">' + Art.icon('abilities', 20)
-      + '<h2>Classement</h2><p>Les meilleurs du monde</p><span>Voir les rangs →</span></button></div>'
+      + '<button class="destination" data-destination="season">' + Art.icon('abilities', 20)
+      + '<h2>Saison <b id="home-season-badge" class="badge hidden">0</b></h2>'
+      + '<p id="home-season-note">Arène classée</p><span>Voir la saison →</span></button></div>'
+      + '<button class="destination market-destination" data-destination="market">'
+      + '<small>DÉPÔT DU BATAILLON</small>'
+      + '<h2>Dépôt et marché <b id="home-market-badge" class="badge hidden">0</b></h2>'
+      + '<p id="home-market-note"></p><span>Ouvrir le dépôt →</span></button>'
       + '<button class="destination boss-destination" data-destination="boss">'
       + '<small>ASSAUT MONDIAL · COOPÉRATIF</small>'
       + '<h2>Boss mondial <b id="home-boss-badge" class="badge hidden">0</b></h2>'

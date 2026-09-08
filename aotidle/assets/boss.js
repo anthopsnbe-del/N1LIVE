@@ -23,18 +23,20 @@
     return !!(s && s.online && s.online.token);
   }
 
-  function call(action) {
+  function call(action, payload) {
     var s = state();
     if (!connected()) return Promise.reject(new Error('Connectez-vous pour rejoindre l\'assaut mondial.'));
     var base = (s.online.url || 'https://asylum-games.fr/aotidle').replace(/\/+$/, '');
     var controller = new AbortController();
     var timer = setTimeout(function () { controller.abort(); }, 8000);
+    var body = { action: action, token: s.online.token };
+    Object.keys(payload || {}).forEach(function (key) { body[key] = payload[key]; });
     return fetch(base + '/social.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'omit',
       signal: controller.signal,
-      body: JSON.stringify({ action: action, token: s.online.token })
+      body: JSON.stringify(body)
     }).then(function (r) { return r.json(); }).then(function (r) {
       if (!r.ok) throw new Error(r.error || 'Service indisponible.');
       return r;
@@ -75,14 +77,17 @@
 
   function claim() {
     run('boss_claim', function (r) {
-      var gained = r.crystals || 0;
-      window.__game.state.crystals += gained;
-      window.__game.save();
+      // Le versement se fait au dépôt du bataillon : c'est de là qu'il devient
+      // échangeable au marché, et le joueur le rapatrie quand il veut.
+      var gained = r.credited || 0;
       if (window.Fx) {
         window.Fx.sound('loot');
-        window.Fx.banner('+' + gained + ' cristaux', 'ASSAUT MONDIAL', 'loot');
+        window.Fx.banner('+' + gained + ' cristaux', 'VERSÉ AU DÉPÔT', 'loot');
       }
-      notice = 'Récompense versée : ' + gained + ' cristaux.';
+      notice = gained + ' cristaux versés au dépôt'
+        + (r.item ? ', plus une pièce : ' + r.item.name + ' (' + r.item.rarity + ')' : '')
+        + '. Récupérez-les dans « Dépôt et marché ».';
+      if (window.Market) window.Market.refresh(true);
     });
   }
 
@@ -256,9 +261,12 @@
 
     // Rafraîchissement : à l'ouverture de l'écran, puis toutes les 15 s.
     setInterval(function () {
-      if (document.hidden || !connected()) return;
+      if (document.hidden) return;
       var active = $('tab-boss').classList.contains('active');
       var home = $('tab-home') && $('tab-home').classList.contains('active');
+      // Hors connexion aussi : la carte d'accueil doit dire pourquoi elle est
+      // vide, et elle n'existe pas encore au premier rendu.
+      if (!connected()) { if (active || home) render(); return; }
       if (active || home || Date.now() - lastPoll > 120000) window.Boss.refresh(false);
       if (active) render();
     }, 3000);

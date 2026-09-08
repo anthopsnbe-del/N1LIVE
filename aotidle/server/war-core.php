@@ -318,11 +318,22 @@ function war_handle(PDO $db, array $in, array $player, string $world, int $clanI
         if ((int) $mine['claimed'] === 1) {
             social_error('Récompense déjà versée pour cette guerre.');
         }
-        $reward = war_reward($war, $mine, war_side($war, $clanId));
+        $side = war_side($war, $clanId);
+        $reward = war_reward($war, $mine, $side);
         sq($db, 'UPDATE social_war_damage SET claimed = 1 WHERE war_id = ? AND user_id = ?',
             [$war['id'], $user]);
+        // Comme pour le boss mondial : versement au dépôt, butin éventuel.
+        wallet_install($db);
+        wallet_add($db, $user, $reward, 'guerre de clans', $now);
+        $score = $side === 1 ? (int) $war['score_a'] : (int) $war['score_b'];
+        $share = $score > 0 ? (int) $mine['damage'] / max(1, (int) $war['max_hp']) : 0;
+        $item = item_grant($db, $player, $share, (int) $war['winner'] === $side, 'guerre de clans', $now);
         $view = war_view($db, $war, $player, $clanId, $now);
-        $view['crystals'] = $reward;
+        $view['credited'] = $reward;
+        $view['wallet'] = wallet_view($db, $user)['wallet'];
+        if ($item) {
+            $view['item'] = item_public($item);
+        }
         return $view;
     }
 

@@ -1703,6 +1703,28 @@
     power: currentPower,
     travel: function(n) { n = Math.floor(Number(n)); if (!Number.isFinite(n) || n < 1 || n > state.bestChapter || n > 1000) return false; state.chapter=n; state.fight=0; spawnEnemy(); renderCombat(); dirty.panels=true; save(); return true; },
     setPortrait: function(n) { state.portrait = n; save(); },
+    modal: showModal,
+    /* Rapatriement d'une pièce du dépôt en ligne vers le sac. Le serveur en
+       est l'émetteur ; on ne fait que la ranger et vérifier sa forme. */
+    addGear: function (item) {
+      if (!item || !GEAR_NAMES[item.slot]) return false;
+      storeGear({
+        slot: item.slot,
+        name: String(item.name).slice(0, 48),
+        rarity: RARITY_ORDER.indexOf(item.rarity) >= 0 ? item.rarity : 'commun',
+        power: Math.max(1, Math.floor(Number(item.power) || 1))
+      });
+      dirty.panels = true;
+      save();
+      return true;
+    },
+    addCrystals: function (amount) {
+      var value = Math.max(0, Math.floor(Number(amount) || 0));
+      state.crystals += value;
+      dirty.panels = true;
+      save();
+      return value;
+    },
     start: function () { running = true; }
   };
 

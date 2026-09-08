@@ -1,4 +1,4 @@
-# AOT IDLE — v6.2
+# AOT IDLE — v6.3
 
 Idle RPG de fan (non officiel) : une application Android qui est une coquille
 WebView autour d'un jeu web sans dépendance. Le dépôt contient tout ce qu'il
@@ -15,7 +15,7 @@ build/         sortie de compilation (non versionnée)
 ## Construire l'APK
 
 ```bash
-python3 tools/build_apk.py build/AOTIDLE-v6.2.apk
+python3 tools/build_apk.py build/AOTIDLE-v6.3.apk
 ```
 
 Le script assemble `shell/` + `assets/`, garde `resources.arsc` non compressé et
@@ -74,6 +74,28 @@ même impossibilité pour le client d'annoncer ses propres dégâts.
 Côté jeu, `assets/war.js` tient l'écran : engagement du clan, front commun,
 deux barres de score, classement de chaque camp et récompense de fin.
 
+## Le dépôt, le marché et les saisons
+
+Le jeu reste hors ligne d'abord : or, cristaux et équipement de campagne vivent
+dans la sauvegarde locale. Tout déplacer côté serveur casserait le jeu sans
+réseau et invaliderait les sauvegardes — alors le serveur tient **un dépôt
+séparé** (`server/wallet-core.php`), alimenté uniquement par ce qu'il a
+lui-même accordé : boss mondial, guerres de clans, fins de saison.
+
+C'est ce qui rend le marché possible. `server/market-core.php` échange
+l'équipement émis par le serveur contre les cristaux du dépôt : prix bornés,
+six annonces par joueur, 10 % prélevés sur chaque vente. Rien de ce qui
+s'échange ne peut avoir été fabriqué par un client, et une pièce rapatriée dans
+le sac quitte définitivement le marché. Les mouvements sont à sens unique —
+dépôt vers sauvegarde, jamais l'inverse.
+
+`server/season-core.php` fait vivre l'arène : quatorze jours par monde, puis
+récompenses de fin de saison versées au dépôt et cotes rapprochées de 1000 de
+moitié.
+
+Côté jeu, `assets/market.js` tient le dépôt et le marché, `assets/season.js` la
+saison en cours et son classement.
+
 ## Optimiser les images
 
 `tools/optimize_assets.py` est une passe unique, déjà appliquée. Elle détoure
@@ -104,6 +126,8 @@ au serveur (classement, clans, arène).
 | `hub.js` | accueil, ordres du jour, Tour de combat |
 | `boss.js` | boss mondial coopératif (assauts, classements, récompense) |
 | `war.js` | guerres de clans : appariement, front commun, scores par camp |
+| `market.js` | dépôt du bataillon, marché entre joueurs, mouvements |
+| `season.js` | saisons de l'arène : classement, clôture, récompenses |
 | `social.js` / `net.js` | comptes, mondes, chat, amis, arène classée, clans |
 | `content.js` / `campaign.js` | 1 000 chapitres, boutique, arcs narratifs |
 | `art.js` | découpe des planches d'icônes (bornes en demi-définition) |
