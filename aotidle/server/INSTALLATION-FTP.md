@@ -1,4 +1,4 @@
-# Publier la version 6.6 avec FileZilla
+# Publier la version 6.7 avec FileZilla
 
 Ce dossier est prêt à transférer. **Il n'a pas été publié.**
 
@@ -27,7 +27,7 @@ elle-même sur l'hébergement.
 3. Dans la racine publique de `asylum-games.fr`, ouvrir le dossier distant
    `aotidle` existant. Conserver ses fichiers `config.php`, `db.php`,
    `google.php` et sa configuration serveur : ils ne sont pas dans ce paquet.
-4. Envoyer d'abord `aotidle/releases/aot-idle-6.6.apk`, puis `social-core.php`,
+4. Envoyer d'abord `aotidle/releases/aot-idle-6.7.apk`, puis `social-core.php`,
    **`wallet-core.php`**, **`boss-core.php`**, **`war-core.php`**, **`season-core.php`** et
    **`market-core.php`**, **`clan-core.php`**, `social.php`, `index.php`, `release-lib.php`,
    `release.php`, `telecharger.php` et les deux fichiers `download-widget.*`.
@@ -36,7 +36,7 @@ elle-même sur l'hébergement.
 6. Le fragment `BOUTON-A-COLLER.html` n'a pas changé depuis la v5 : rien à
    refaire si le bouton est déjà en place.
 7. Vérifier `https://asylum-games.fr/aotidle/release.php` : versionName doit
-   valoir 6.6 et versionCode 14. Installer ensuite sur un téléphone de test.
+   valoir 6.7 et versionCode 15. Installer ensuite sur un téléphone de test.
 8. Vérifier le service multijoueur d'un seul appel, sans compte :
 
    ```bash
@@ -44,7 +44,7 @@ elle-même sur l'hébergement.
         -d '{"action":"ping"}' https://asylum-games.fr/aotidle/social.php
    ```
 
-   La réponse doit annoncer `"version":"6.6"`, tous les modules à `true` et
+   La réponse doit annoncer `"version":"6.7"`, tous les modules à `true` et
    toutes les tables à `true`. Une table à `false` signifie qu'un fichier PHP
    manque ; `"version"` absente ou différente signifie que `social-core.php`
    n'a pas été remplacé.
@@ -118,7 +118,7 @@ de présentation et un message expliquant que la mise à jour du serveur manque.
 C'est le comportement attendu — ces modes s'allument à la seconde où le
 transfert est fait.
 
-## Correctif 6.6 : « Service multijoueur indisponible »
+## Correctif : « Service multijoueur indisponible »
 
 Les versions 6.5 et antérieures des modules créaient leurs tables **à
 l'intérieur** de la transaction ouverte par `social.php`. Sur MySQL et MariaDB,
@@ -129,11 +129,25 @@ suivaient : la colonne `rank` de `social_season_rewards` (mot réservé depuis
 MySQL 8, renommée `place`) et un `OFFSET` passé en paramètre lié, que MySQL
 refuse.
 
-C'est corrigé dans ce paquet, mais **les fichiers PHP doivent être renvoyés
-tous ensemble** : `social.php` crée désormais les tables avant d'ouvrir la
+C'est corrigé depuis la 6.6 du paquet, mais **les fichiers PHP doivent être
+renvoyés tous ensemble** : `social.php` crée désormais les tables avant d'ouvrir la
 transaction, et les modules ne le font plus eux-mêmes. Un mélange d'anciens et
 de nouveaux fichiers reproduirait l'erreur. L'appel `ping` ci-dessus le
-confirme en une commande.
+confirme en une commande — et le jeu lui-même le fait désormais tout seul :
+**Monde → Diagnostic du serveur** interroge `ping`, compare les versions et
+nomme le fichier PHP à renvoyer quand une table manque.
+
+## Correctif : « Version 6.6 disponible » en boucle
+
+Le numéro de version vivait à trois endroits : `assets/build-info.js` (ce que
+l'application croit être), le manifeste Android (ce qu'Android installe) et le
+script d'empaquetage (ce que le site annonce). `build-info.js` était resté en
+6.5 : l'APK 6.6 se croyait donc en 6.5, comparait 13 à 14 et proposait sa
+propre mise à jour indéfiniment.
+
+`tools/version.py` est désormais la source unique, appliquée automatiquement à
+la construction. Après installation de la 6.7, la bannière doit disparaître et
+l'onglet Monde afficher « Votre version 6.7 est à jour ».
 
 ## Nouveau service : journal de clan et emotes
 

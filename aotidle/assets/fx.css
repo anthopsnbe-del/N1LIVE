@@ -749,3 +749,23 @@ body.reduced .cos::before { animation: none; }
 .clan-emote b { font-size: 16px; }
 .clan-emote span { min-width: 0; overflow-wrap: anywhere; }
 .clan-emote:disabled { opacity: .5; }
+
+/* Diagnostic du serveur (onglet Monde) */
+.diag-block { margin-top: 18px; }
+#diag-output:not(:empty) { margin-top: 10px; }
+.diag-line {
+  margin: 0 0 7px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.diag-line.good { border-color: #4d7f5e; color: #b9e6c9; }
+.diag-line.warn { border-color: #7f6a3a; color: #f0dda6; }
+.diag-line.bad { border-color: #8a4b45; color: #ffc4b8; }
+/* Les résultats du diagnostic terminent l'onglet Monde : de l'air sous la
+   dernière ligne, sinon la barre d'onglets la recouvre. */
+.diag-block { padding-bottom: 34px; }

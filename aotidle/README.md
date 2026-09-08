@@ -1,4 +1,4 @@
-# AOT IDLE — v6.6
+# AOT IDLE — v6.7
 
 Idle RPG de fan (non officiel) : une application Android qui est une coquille
 WebView autour d'un jeu web sans dépendance. Le dépôt contient tout ce qu'il
@@ -16,7 +16,7 @@ build/         sortie de compilation (non versionnée)
 ## Construire l'APK
 
 ```bash
-python3 tools/build_apk.py build/AOTIDLE-v6.6.apk
+python3 tools/build_apk.py build/AOTIDLE-v6.7.apk
 ```
 
 Le script assemble `shell/` + `assets/`, garde `resources.arsc` non compressé et
@@ -45,6 +45,24 @@ vérifications à faire ensuite.
 
 `server/` ne contient volontairement ni `config.php`, ni `db.php`, ni
 `google.php` : les identifiants restent sur l'hébergement.
+
+## La version, à un seul endroit
+
+`tools/version.py` tient le numéro de version et l'applique : il réécrit
+`assets/build-info.js` et corrige le manifeste binaire avant chaque
+construction (`build_apk.py` l'appelle en premier). C'est la réponse à un bug
+réel : `build-info.js` était resté en 6.5 dans un APK 6.6, qui proposait donc sa
+propre mise à jour en boucle. Le numéro affiché en bas des écrans vient lui
+aussi de là, plus d'un texte écrit dans `index.html`.
+
+## Diagnostic du serveur
+
+`assets/diagnostic.js` (onglet Monde) interroge l'action `ping` — sans compte —
+et traduit la réponse : version du service en ligne, tables présentes, et le
+nom du fichier PHP à renvoyer quand il en manque un. Il compare aussi
+`release.php` à la version installée, ce qui explique une bannière de mise à
+jour qui reviendrait sans fin. « Service multijoueur indisponible » renvoie
+maintenant vers cet écran.
 
 ## Le boss mondial
 
@@ -207,6 +225,7 @@ au serveur (classement, clans, arène).
 | `achievements.js` | hauts faits et leurs récompenses |
 | `story.js` | ouverture et cartes de dialogue aux jalons |
 | `notify.js` | rappels système, si la coquille Android les expose |
+| `diagnostic.js` | test du service en ligne et des versions |
 | `social.js` / `net.js` | comptes, mondes, chat, amis, arène classée, clans |
 | `content.js` / `campaign.js` | 1 000 chapitres, boutique, arcs narratifs |
 | `art.js` | découpe des planches d'icônes (bornes en demi-définition) |

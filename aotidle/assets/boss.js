@@ -45,6 +45,13 @@
           throw new Error('Le serveur du jeu n\'a pas encore la mise à jour : ces écrans '
             + 's\'activeront dès que les fichiers PHP de la v6 seront en ligne.');
         }
+        if (/indisponible/i.test(r.error || '')) {
+          // Le message générique du serveur ne dit pas ce qui cloche : renvoyer
+          // vers le diagnostic, qui interroge le service et nomme le fichier
+          // manquant.
+          throw new Error(r.error + ' Ouvrez Monde → Diagnostic du serveur pour '
+            + 'savoir ce qui manque côté hébergement.');
+        }
         throw new Error(r.error || 'Service indisponible.');
       }
       return r;

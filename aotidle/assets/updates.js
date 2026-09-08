@@ -28,7 +28,9 @@
   }
   document.addEventListener('DOMContentLoaded',function(){
     var section=document.createElement('section');section.className='update-settings';section.innerHTML='<h2>Mises à jour</h2><p>Version installée : <b></b></p><p id="update-status" role="status">Vérification au lancement du jeu.</p><button class="ghost-btn" id="update-check">Vérifier maintenant</button>';
-    section.querySelector('b').textContent=build.versionName;document.getElementById('tab-world').append(section);
+    section.querySelector('b').textContent=build.versionName;
+    // Le numéro affiché vient toujours de build-info.js : plus de version écrite en dur dans la page.
+    document.querySelectorAll('[data-version]').forEach(function(el){el.textContent='AOT IDLE — v'+build.versionName+' · '+el.textContent.replace('AOT IDLE · ','');});document.getElementById('tab-world').append(section);
     var banner=document.createElement('aside');banner.id='update-banner';banner.className='hidden';banner.setAttribute('aria-label','Mise à jour du jeu');banner.innerHTML='<div role="status"><strong id="update-message"></strong><p id="update-notes"></p></div><div class="update-actions"><a id="update-download" class="big-btn">Télécharger la mise à jour</a><button id="update-later" class="ghost-btn">Plus tard</button></div><small>Le navigateur ouvre le téléchargement. Android vous demandera de confirmer l’installation.</small>';
     banner.querySelector('a').href=build.downloadUrl;banner.querySelector('a').rel='noopener';document.body.append(banner);
     document.getElementById('update-check').onclick=function(){check(true);};

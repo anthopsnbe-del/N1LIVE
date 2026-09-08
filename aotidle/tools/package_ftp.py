@@ -19,23 +19,20 @@ import shutil
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import version   # noqa: E402  (source unique de la version, cf. tools/version.py)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, "build")
-VERSION_NAME = "6.6"
-VERSION_CODE = 14
+VERSION_NAME = version.VERSION_NAME
+VERSION_CODE = version.VERSION_CODE
 SERVER_FILES = [
     "index.php", "social.php", "social-core.php", "wallet-core.php", "boss-core.php",
     "war-core.php", "season-core.php", "market-core.php", "clan-core.php",
     "release.php", "release-lib.php", "telecharger.php",
     "download-widget.js", "download-widget.css"
 ]
-NOTES = ("Retour en mode portrait. Cosmétiques (cape, harnais, cadre) débloqués par vos exploits, "
-         "journal de clan et emotes. Fiche de soldat complète (portrait, pseudo, titres, registre, "
-         "limite d'images), Archives du bataillon en cartes de R à LR, hauts faits, ouverture "
-         "narrative et décors sur les écrans en ligne. Dépôt du bataillon, marché entre joueurs et "
-         "saisons de l'arène. Guerres de clans sur 24 heures, boss mondial coopératif, combats qui "
-         "montent en difficulté, élites, sac et fusion d'équipement, panoplies, passifs de recrues, "
-         "arbre des âmes, missions quotidiennes, Tour à modificateurs, jeu dix fois plus léger.")
+NOTES = version.NOTES
 
 
 def main():
@@ -53,9 +50,9 @@ def main():
     release = {
         "versionCode": VERSION_CODE,
         "versionName": VERSION_NAME,
-        "packageName": "com.n1live.aotidl3",
-        "releaseEndpoint": "https://asylum-games.fr/aotidle/release.php",
-        "downloadUrl": "https://asylum-games.fr/aotidle/telecharger.php",
+        "packageName": version.PACKAGE,
+        "releaseEndpoint": version.RELEASE_ENDPOINT,
+        "downloadUrl": version.DOWNLOAD_URL,
         "notes": NOTES,
         "file": apk_name,
         "size": len(data),

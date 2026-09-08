@@ -19,6 +19,9 @@ import sys
 import urllib.request
 import zipfile
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import version   # noqa: E402  (source unique de la version, cf. tools/version.py)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, "build")
 APKSIG_URL = ("https://repo1.maven.org/maven2/com/android/tools/build/"
@@ -93,6 +96,9 @@ def signer_jar():
 
 
 def main():
+    # La version est écrite dans assets/ et dans le manifeste avant l'assemblage :
+    # l'APK ne peut plus embarquer un build-info.js décalé.
+    version.sync()
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(BUILD, "AOTIDLE-v6.0.apk")
     os.makedirs(BUILD, exist_ok=True)
     unsigned = os.path.join(BUILD, "unsigned.apk")

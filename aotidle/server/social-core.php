@@ -27,7 +27,7 @@ function social_ping(PDO $db): array {
     foreach($tables as $name){
         try{$db->query('SELECT 1 FROM '.$name.' LIMIT 1');$found[$name]=true;}catch(Throwable $e){$found[$name]=false;}
     }
-    return ['service'=>'AOT IDLE','version'=>'6.6','modules'=>[
+    return ['service'=>'AOT IDLE','version'=>'6.7','modules'=>[
         'boss'=>function_exists('boss_handle'),'war'=>function_exists('war_handle'),
         'wallet'=>function_exists('wallet_handle'),'season'=>function_exists('season_handle'),
         'market'=>function_exists('market_handle'),
