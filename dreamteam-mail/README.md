@@ -1,14 +1,15 @@
-# DreamTeam Mail — adresses jetables `@dreamteam.fr`
+# DreamTeam Mail — adresses jetables `@asylum-games.fr`
 
 Application Windows (`.exe`) qui génère des adresses email temporaires en
-`@dreamteam.fr` et **les détruit automatiquement au bout d'1 heure**, avec leurs
-messages, pour limiter le phishing, le spam et la revente d'adresses.
+`@asylum-games.fr` et **les détruit automatiquement au bout d'1 heure**, avec
+leurs messages, pour limiter le phishing, le spam et la revente d'adresses.
 
 ## À lire avant tout : ce qui est technique, ce qui est administratif
 
-Le logiciel est complet, mais **recevoir de vrais courriels en `@dreamteam.fr`
-ne dépend pas du code** : il faut que tu possèdes le domaine `dreamteam.fr` et
-que le courrier y arrive. L'application fonctionne donc en deux modes :
+Le logiciel est complet, mais **recevoir de vrais courriels ne dépend pas du
+code** : il faut que le courrier arrive réellement sur le domaine. Le domaine
+par défaut est `asylum-games.fr`, celui que tu possèdes ; il reste à y activer
+un catch-all (étapes ci-dessous). L'application fonctionne donc en deux modes :
 
 | Mode | Prérequis | Ce que ça fait |
 | --- | --- | --- |
@@ -16,11 +17,11 @@ que le courrier y arrive. L'application fonctionne donc en deux modes :
 | **IMAP catch-all** (réel) | un domaine à toi + boîte catch-all | L'app relève une vraie boîte et n'affiche que les messages adressés à l'alias en cours. |
 
 **Le domaine est configurable** (bouton « Serveur… », champ *Domaine*, ou
-variable d'environnement `DREAMTEAM_DOMAIN`). `dreamteam.fr` est le défaut,
-mais si tu ne le possèdes pas, aucun courriel n'y arrivera jamais : mets le
-domaine dont tu es réellement propriétaire.
+variable d'environnement `DREAMTEAM_DOMAIN`). Le défaut est `asylum-games.fr` ;
+pour tout autre domaine, il faut en être propriétaire, sinon aucun courriel n'y
+arrivera jamais.
 
-### Mise en route avec un domaine que tu possèdes (ex. `asylum-games.fr`)
+### Mise en route sur `asylum-games.fr`
 
 1. **Catch-all.** Le plus simple et gratuit : Cloudflare → ajoute
    `asylum-games.fr` → **Email → Email Routing** → active-le, ajoute les
@@ -45,7 +46,7 @@ messages destinés à l'alias sélectionné s'affichent.
 ## Fonctions
 
 - Génération d'adresses imprévisibles (module `secrets`), deux styles : `mots`
-  (`vif.nuage042@dreamteam.fr`) ou `aleatoire` (12 caractères).
+  (`vif.nuage042@asylum-games.fr`) ou `aleatoire` (12 caractères).
 - **Compte à rebours d'1 heure** par adresse, visible dans la liste.
 - **Auto-destruction** : un thread purge chaque seconde ; à l'expiration
   l'adresse *et* ses messages sont effacés de la mémoire et du disque.
@@ -53,7 +54,7 @@ messages destinés à l'alias sélectionné s'affichent.
 - Copie automatique de l'adresse dans le presse-papier à la création.
 - Limite de 5 adresses actives (garde-fou anti-abus).
 - Les adresses expirées ne sont jamais rechargées au démarrage.
-- Domaine paramétrable (`dreamteam.fr` par défaut, `asylum-games.fr` ou autre).
+- Domaine paramétrable (`asylum-games.fr` par défaut).
 
 ## Construire le `.exe`
 
@@ -89,7 +90,7 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-16 tests couvrent la durée de vie d'1 h, la purge, l'effacement des messages,
+17 tests couvrent la durée de vie d'1 h, la purge, l'effacement des messages,
 la limite d'adresses, la validation du domaine et la non-réhydratation des
 adresses expirées.
 

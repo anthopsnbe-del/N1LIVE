@@ -145,8 +145,8 @@ def _corps_texte(msg: email.message.Message) -> str:
 class BackendIMAP(Backend):
     """Releve une boite catch-all et ne garde que les messages adresses a l'alias.
 
-    Prerequis : tu possedes dreamteam.fr et tu as configure une redirection
-    catch-all (*@dreamteam.fr) vers une boite IMAP dont tu donnes les acces.
+    Prerequis : tu possedes le domaine et tu as configure une redirection
+    catch-all (*@domaine) vers une boite IMAP dont tu donnes les acces.
     """
 
     nom = "IMAP catch-all (reel)"

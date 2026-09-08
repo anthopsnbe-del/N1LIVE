@@ -110,6 +110,10 @@ class TestPersistance(unittest.TestCase):
 
 
 class TestDomaine(unittest.TestCase):
+    def test_domaine_par_defaut(self):
+        self.assertEqual(DOMAIN, "asylum-games.fr")
+        self.assertEqual(valider_domaine(DOMAIN), DOMAIN)
+
     def test_normalisation(self):
         self.assertEqual(valider_domaine("  Asylum-Games.FR. "), "asylum-games.fr")
 
@@ -119,8 +123,8 @@ class TestDomaine(unittest.TestCase):
                 valider_domaine(mauvais)
 
     def test_domaine_personnalise_dans_les_adresses(self):
-        g = GestionnaireAdresses(persister=False, domaine="asylum-games.fr")
-        self.assertTrue(g.creer().email.endswith("@asylum-games.fr"))
+        g = GestionnaireAdresses(persister=False, domaine="autre-domaine.fr")
+        self.assertTrue(g.creer().email.endswith("@autre-domaine.fr"))
 
     def test_domaine_lu_depuis_la_config(self):
         import json
@@ -132,11 +136,11 @@ class TestDomaine(unittest.TestCase):
             os.environ["DREAMTEAM_MAIL_HOME"] = dossier
             try:
                 (Path(dossier) / "config.json").write_text(
-                    json.dumps({"domaine": "asylum-games.fr"}), encoding="utf-8"
+                    json.dumps({"domaine": "autre-domaine.fr"}), encoding="utf-8"
                 )
-                self.assertEqual(domaine_configure(), "asylum-games.fr")
+                self.assertEqual(domaine_configure(), "autre-domaine.fr")
                 g = GestionnaireAdresses(persister=False)
-                self.assertEqual(g.domaine, "asylum-games.fr")
+                self.assertEqual(g.domaine, "autre-domaine.fr")
                 (Path(dossier) / "config.json").write_text(
                     json.dumps({"domaine": "pas valide"}), encoding="utf-8"
                 )

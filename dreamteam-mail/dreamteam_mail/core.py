@@ -13,7 +13,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Callable, Iterable
 
-DOMAIN = "dreamteam.fr"
+DOMAIN = "asylum-games.fr"  # domaine par defaut ; modifiable dans l'application
 TTL_SECONDS = 3600  # 1 heure
 MAX_ACTIVE = 5      # garde-fou anti-abus
 
