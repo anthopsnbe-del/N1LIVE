@@ -1,0 +1,123 @@
+/* Contenu du jeu : chapitres, ennemis, boutique. Projet de fan, non officiel. */
+(function () {
+  'use strict';
+
+  /* Chaque chapitre : nom, palette des sprites, ennemis courants, boss final,
+     et nombre de combats (20 à 25, le dernier étant le boss). */
+  var CHAPTERS = [
+    { name: 'La brèche de Shiganshina', pal: 'chair', fights: 20, sky: ['#3a2a24', '#17110f'],
+      mobs: [['Titan de 3 m', 'titan'], ['Titan de 5 m', 'titan'], ['Titan errant', 'rampant']],
+      boss: ['Titan Colossal', 'colossal', 'brulee'] },
+    { name: 'Les réfugiés du mur Maria', pal: 'pale', fights: 21, sky: ['#33302a', '#151312'],
+      mobs: [['Titan affamé', 'titan'], ['Titan boiteux', 'rampant'], ['Titan hagard', 'anormal']],
+      boss: ['Titan Anormal', 'anormal', 'sang'] },
+    { name: 'Le 104e bataillon', pal: 'chair', fights: 22, sky: ['#2c3a2c', '#131a13'],
+      mobs: [['Titan de 4 m', 'titan'], ['Titan rieur', 'anormal'], ['Titan rampant', 'rampant']],
+      boss: ['Titan Difforme', 'rampant', 'cendre'] },
+    { name: 'La bataille de Trost', pal: 'pale', fights: 23, sky: ['#3b2f26', '#17120e'],
+      mobs: [['Titan de 7 m', 'titan'], ['Titan sauteur', 'anormal'], ['Titan traînard', 'rampant']],
+      boss: ['Titan Barbu', 'titan', 'sang'] },
+    { name: 'La reprise de Trost', pal: 'sang', fights: 24, sky: ['#40241f', '#180d0b'],
+      mobs: [['Titan de 10 m', 'titan'], ['Titan vorace', 'anormal'], ['Titan brisé', 'rampant']],
+      boss: ['Titan Anormal Géant', 'anormal', 'brulee'] },
+    { name: 'Le procès du bataillon', pal: 'cendre', fights: 20, sky: ['#2a2a33', '#111117'],
+      mobs: [['Titan capturé', 'titan'], ['Titan cobaye', 'rampant'], ['Titan muet', 'anormal']],
+      boss: ['Titan Déviant', 'anormal', 'ombre'] },
+    { name: 'La forêt des arbres géants', pal: 'chair', fights: 21, sky: ['#233020', '#0f150e'],
+      mobs: [['Titan grimpeur', 'anormal'], ['Titan de 12 m', 'titan'], ['Titan traqueur', 'anormal']],
+      boss: ['Titan Féminin', 'feminin', 'pale'] },
+    { name: 'La poursuite du Titan Féminin', pal: 'pale', fights: 22, sky: ['#2b3340', '#111419'],
+      mobs: [['Titan attiré', 'titan'], ['Titan hurleur', 'anormal'], ['Titan enragé', 'titan']],
+      boss: ['Titan Féminin Cristallisé', 'feminin', 'givre'] },
+    { name: 'Le château d\'Utgard', pal: 'ombre', fights: 23, sky: ['#1e1f2c', '#0c0d13'],
+      mobs: [['Titan nocturne', 'titan'], ['Titan tapi', 'rampant'], ['Titan buveur', 'anormal']],
+      boss: ['Titan Nocturne', 'anormal', 'ombre'] },
+    { name: 'Le mur Rose', pal: 'chair', fights: 24, sky: ['#33301f', '#14130c'],
+      mobs: [['Titan de 15 m', 'titan'], ['Titan galopant', 'anormal'], ['Titan rampant', 'rampant']],
+      boss: ['Titan Bestial', 'bestial', 'chair'] },
+    { name: 'Le complot des Reiss', pal: 'cendre', fights: 25, sky: ['#2a2333', '#100e16'],
+      mobs: [['Titan converti', 'titan'], ['Titan fanatique', 'anormal'], ['Titan difforme', 'rampant']],
+      boss: ['Titan de Rod Reiss', 'rampant', 'sang'] },
+    { name: 'La reprise de Shiganshina', pal: 'sang', fights: 25, sky: ['#3d2620', '#170e0c'],
+      mobs: [['Titan des ruines', 'titan'], ['Titan embusqué', 'anormal'], ['Titan éclaireur', 'titan']],
+      boss: ['Titan Blindé', 'blinde', 'cendre'] },
+    { name: 'Le sous-sol de Grisha', pal: 'pale', fights: 20, sky: ['#26262e', '#0f0f13'],
+      mobs: [['Titan gardien', 'titan'], ['Titan scellé', 'blinde'], ['Titan oublié', 'rampant']],
+      boss: ['Titan Colossal Éveillé', 'colossal', 'sang'] },
+    { name: 'La mer et l\'horizon', pal: 'givre', fights: 21, sky: ['#1f3340', '#0c1419'],
+      mobs: [['Titan échoué', 'rampant'], ['Titan des dunes', 'titan'], ['Titan côtier', 'anormal']],
+      boss: ['Titan Charrette', 'charrette', 'chair'] },
+    { name: 'Marley en guerre', pal: 'cendre', fights: 22, sky: ['#332b26', '#141110'],
+      mobs: [['Soldat titanisé', 'titan'], ['Titan de siège', 'blinde'], ['Titan d\'assaut', 'anormal']],
+      boss: ['Titan Mâchoire', 'machoire', 'brulee'] },
+    { name: 'Le raid sur Liberio', pal: 'brulee', fights: 23, sky: ['#40291c', '#19100b'],
+      mobs: [['Titan de la garde', 'blinde'], ['Titan incendié', 'titan'], ['Titan enfumé', 'anormal']],
+      boss: ['Titan Marteau d\'Ouvrier', 'marteau', 'givre'] },
+    { name: 'Le port de Paradis', pal: 'chair', fights: 24, sky: ['#20303a', '#0d1317'],
+      mobs: [['Titan des quais', 'titan'], ['Titan submergé', 'rampant'], ['Titan corsaire', 'anormal']],
+      boss: ['Titan Bestial Hurlant', 'bestial', 'or'] },
+    { name: 'Le coup des Jägerists', pal: 'ombre', fights: 25, sky: ['#2b2436', '#110e17'],
+      mobs: [['Titan fanatisé', 'titan'], ['Titan mutilé', 'rampant'], ['Titan déchaîné', 'anormal']],
+      boss: ['Titan Rampant', 'rampant', 'ombre'] },
+    { name: 'La cité souterraine', pal: 'cendre', fights: 25, sky: ['#232329', '#0e0e12'],
+      mobs: [['Titan des tunnels', 'rampant'], ['Titan aveugle', 'titan'], ['Titan famélique', 'anormal']],
+      boss: ['Titan Anormal Vorace', 'anormal', 'sang'] },
+    { name: 'Le Grondement', pal: 'brulee', fights: 20, sky: ['#4a2718', '#1c0e08'],
+      mobs: [['Colosse marcheur', 'colossal'], ['Colosse fumant', 'colossal'], ['Titan d\'avant-garde', 'titan']],
+      boss: ['Titan Originel', 'originel', 'or'] },
+    { name: 'Le mur en marche', pal: 'sang', fights: 21, sky: ['#42201a', '#190c0a'],
+      mobs: [['Colosse de tête', 'colossal'], ['Colosse brûlant', 'colossal'], ['Titan d\'escorte', 'blinde']],
+      boss: ['Colosse du Grondement', 'colossal', 'brulee'] },
+    { name: 'Le ciel d\'Odiha', pal: 'givre', fights: 22, sky: ['#1d2f3f', '#0b1218'],
+      mobs: [['Titan de DCA', 'blinde'], ['Titan grimpeur', 'anormal'], ['Titan d\'acier', 'blinde']],
+      boss: ['Titan Charrette Blindé', 'charrette', 'cendre'] },
+    { name: 'Fort Salta', pal: 'brulee', fights: 23, sky: ['#452a17', '#1a1009'],
+      mobs: [['Colosse d\'assaut', 'colossal'], ['Titan de brèche', 'blinde'], ['Titan enflammé', 'titan']],
+      boss: ['Titan Colossal Enragé', 'colossal', 'sang'] },
+    { name: 'La forêt des chemins', pal: 'ombre', fights: 24, sky: ['#241f33', '#0e0c15'],
+      mobs: [['Ombre de titan', 'anormal'], ['Écho de titan', 'titan'], ['Spectre de titan', 'rampant']],
+      boss: ['Titan des Chemins', 'originel', 'ombre'] },
+    { name: 'Le duel des Titans', pal: 'cendre', fights: 25, sky: ['#2e2e34', '#121215'],
+      mobs: [['Titan blindé mineur', 'blinde'], ['Titan de choc', 'titan'], ['Titan de flanc', 'anormal']],
+      boss: ['Titan Blindé Éveillé', 'blinde', 'or'] },
+    { name: 'La dernière charge', pal: 'chair', fights: 25, sky: ['#332b1f', '#14110c'],
+      mobs: [['Titan de meute', 'bestial'], ['Titan hurlant', 'bestial'], ['Titan d\'arrière-garde', 'titan']],
+      boss: ['Titan Bestial Ancestral', 'bestial', 'ombre'] },
+    { name: 'Les Neuf Titans', pal: 'or', fights: 25, sky: ['#3a3016', '#16130a'],
+      mobs: [['Héritier mineur', 'machoire'], ['Héritier blindé', 'blinde'], ['Héritier fugace', 'anormal']],
+      boss: ['Titan Mâchoire Ancestral', 'machoire', 'or'] },
+    { name: 'La coordination', pal: 'givre', fights: 25, sky: ['#1e2c3a', '#0c1116'],
+      mobs: [['Titan coordonné', 'titan'], ['Titan synchronisé', 'blinde'], ['Titan lié', 'anormal']],
+      boss: ['Titan Originel Éveillé', 'originel', 'givre'] },
+    { name: 'Le crépuscule des murs', pal: 'ombre', fights: 25, sky: ['#241a2e', '#0e0a12'],
+      mobs: [['Colosse crépusculaire', 'colossal'], ['Titan d\'ossements', 'marteau'], ['Titan d\'ombre', 'anormal']],
+      boss: ['Colosse Primordial', 'colossal', 'ombre'] },
+    { name: 'L\'aube d\'un monde libre', pal: 'or', fights: 25, sky: ['#3d3418', '#17140a'],
+      mobs: [['Titan du dernier jour', 'originel'], ['Colosse final', 'colossal'], ['Titan libéré', 'titan']],
+      boss: ['Titan Fondateur', 'originel', 'or'] }
+  ];
+
+  /* Boutique. Les consommables s'achètent en or, les équipements du bataillon
+     en cristaux (lâchés par les boss de chapitre). */
+  var SHOP_CONSUMABLES = [
+    { id: 'ration', icon: Art.icon("abilities",10), name: 'Ration de campagne', desc: 'Restaure 60 % des PV', cost: 120, growth: 1.35 },
+    { id: 'lames', icon: Art.icon("abilities",11), name: 'Lames de rechange', desc: '+60 % de dégâts pendant 90 s', cost: 260, growth: 1.35, buff: 'lames', dur: 90 },
+    { id: 'gaz', icon: Art.icon("abilities",12), name: 'Gaz comprimé', desc: '+50 % de vitesse pendant 90 s', cost: 320, growth: 1.35, buff: 'gaz', dur: 90 },
+    { id: 'fumigene', icon: Art.icon("abilities",13), name: 'Fusée éclairante', desc: 'Or doublé pendant 90 s', cost: 400, growth: 1.35, buff: 'fumigene', dur: 90 }
+  ];
+
+  var SHOP_UPGRADES = [
+    { id: 'tridim', icon: Art.icon("abilities",14), name: 'Équipement tridimensionnel', desc: '+25 % de dégâts par niveau', cost: 3, max: 8, growth: 1.6 },
+    { id: 'acier', icon: Art.icon("abilities",15), name: 'Acier ultra-dur', desc: '+5 % de critique par niveau', cost: 4, max: 6, growth: 1.7 },
+    { id: 'reservoir', icon: Art.icon("abilities",16), name: 'Réservoir renforcé', desc: '+10 % de vitesse par niveau', cost: 4, max: 6, growth: 1.7 },
+    { id: 'cape', icon: Art.icon("abilities",17), name: 'Cape du bataillon', desc: '+30 % de PV par niveau', cost: 3, max: 6, growth: 1.6 },
+    { id: 'vivres', icon: Art.icon("abilities",18), name: 'Vivres de campagne', desc: '+2 %/s de régénération par niveau', cost: 5, max: 5, growth: 1.8 },
+    { id: 'serum', icon: Art.icon("abilities",19), name: 'Sérum de titan', desc: '+30 % d\'or par niveau', cost: 5, max: 6, growth: 1.7 }
+  ];
+
+  window.Content = {
+    CHAPTERS: CHAPTERS,
+    SHOP_CONSUMABLES: SHOP_CONSUMABLES,
+    SHOP_UPGRADES: SHOP_UPGRADES
+  };
+})();

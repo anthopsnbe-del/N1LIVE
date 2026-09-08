@@ -1,0 +1,1 @@
+window.AOT_BUILD = Object.freeze({"versionCode": 7, "versionName": "5.0", "packageName": "com.n1live.aotidl3", "releaseEndpoint": "https://asylum-games.fr/aotidle/release.php", "downloadUrl": "https://asylum-games.fr/aotidle/telecharger.php", "notes": "Nouveau logo et icône Android, accueil, Tour de combat de 200 étages et missions quotidiennes."});

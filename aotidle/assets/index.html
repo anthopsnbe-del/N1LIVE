@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#0e0d12" />
+<title>AOT IDLE</title>
+<link rel="stylesheet" href="style.css" /><link rel="stylesheet" href="remaster.css" /><link rel="stylesheet" href="updates.css" />
+<link rel="stylesheet" href="social.css"><link rel="stylesheet" href="hub.css"><link rel="icon" href="app-icon.png"></head>
+<body>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- Écran de chargement                                                 -->
+<!-- ------------------------------------------------------------------ -->
+<div id="splash">
+  <div class="splash-inner">
+    <img class="brand-logo splash-logo" src="logo.png" alt="Idle AOT">
+    <p class="splash-sub">Bataillon d'exploration · idle RPG</p>
+    <div class="splash-bar"><div id="splash-bar"></div></div>
+    <p class="splash-status" id="splash-status">Chargement…</p>
+    <button id="splash-start" class="big-btn hidden">COMMENCER</button>
+    <p class="splash-legal">Projet de fan non officiel, sans lien avec les ayants droit.</p>
+  </div>
+</div>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- Connexion / inscription                                             -->
+<!-- ------------------------------------------------------------------ -->
+<div id="auth" class="hidden">
+  <div class="auth-box">
+    <img class="brand-logo auth-logo" src="logo.png" alt="Idle AOT">
+    <p class="auth-sub" id="auth-sub">Connectez-vous pour le classement et les clans.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-mode="login">Connexion</button>
+      <button class="auth-tab" data-mode="register">Inscription</button>
+    </div>
+
+    <label class="field"><span>Pseudo</span><input id="auth-pseudo" type="text" autocomplete="username" maxlength="18" placeholder="Eren104" /></label>
+    <label class="field" id="auth-email-field"><span>E-mail</span><input id="auth-email" type="email" autocomplete="email" placeholder="cadet@exemple.fr" /></label>
+    <label class="field"><span>Mot de passe</span><input id="auth-password" type="password" autocomplete="current-password" placeholder="••••••••" /></label>
+
+    <p class="auth-error hidden" id="auth-error"></p>
+
+    <button class="big-btn" id="auth-submit">SE CONNECTER</button>
+    <button class="ghost-btn google-btn" id="auth-google">
+      <span class="g">G</span> Continuer avec Google
+    </button>
+    <button class="ghost-btn" id="auth-offline">Jouer hors ligne</button>
+    <p class="auth-server" id="auth-server"></p>
+  </div>
+</div>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- Jeu                                                                 -->
+<!-- ------------------------------------------------------------------ -->
+<div id="app">
+
+  <header class="topbar">
+    <div class="res">
+      <span class="res-item gold"><i><span class="art tile-15"></span></i><b id="gold">0</b></span>
+      <span class="res-item crystal"><i><span class="art tile-15"></span></i><b id="crystals">0</b></span>
+      <span class="res-item soul"><i><span class="art tile-15"></span></i><b id="souls">0</b></span>
+    </div>
+    <div class="hero-line">
+      <span class="hero-name">Rang <b id="hero-level">1</b></span>
+      <div class="xp-bar"><div id="xp-fill"></div><span id="xp-text">0 / 0</span></div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="tab active" id="tab-combat">
+      <div class="chapter">
+        <div class="chapter-head">
+          <button class="chapter-btn" id="chapter-down" aria-label="Chapitre précédent">&#8249;</button>
+          <div class="chapter-title">
+            <span id="chapter-label">Chapitre 1 / 1000</span>
+            <b id="chapter-name">La brèche de Shiganshina</b>
+            <small id="fight-label">Combat 1 / 20</small>
+          </div>
+          <button class="chapter-btn" id="chapter-up" aria-label="Chapitre suivant">&#8250;</button>
+        </div>
+        <button class="map-open ghost-btn" id="map-open">CARTE DE CAMPAGNE · 1 000 CHAPITRES</button><p id="mission-brief" class="hint"></p><div class="chapter-progress"><div id="fight-progress"></div></div>
+      </div>
+
+      <div class="arena" id="arena">
+        <div class="floaters" id="floaters"></div>
+        <canvas id="enemy-canvas" width="220" height="230"></canvas>
+        <div class="enemy-name"><span id="enemy-name">Titan de 3 m</span><span class="boss-tag hidden" id="boss-tag">BOSS</span></div>
+        <div class="hp-bar big"><div id="enemy-hp-fill"></div><span id="enemy-hp-text">10 / 10</span></div>
+        <div class="boss-timer hidden" id="boss-timer"> 45.0 s</div>
+      </div>
+
+      <div class="hero-panel">
+        <canvas id="hero-canvas" width="72" height="88"></canvas>
+        <div class="hero-stats">
+          <div class="hp-bar"><div id="hero-hp-fill"></div><span id="hero-hp-text">100 / 100</span></div>
+          <div class="dps-line">
+            <span> <b id="dps-value">0</b> DPS</span>
+            <span> <b id="gps-value">0</b>/s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="skills" id="skills"></div>
+      <div class="log" id="log"></div>
+    </section>
+
+    <section class="tab" id="tab-hero">
+      <h2>Entraînement</h2>
+      <p class="hint">Dépensez votre or pour renforcer le soldat. Réinitialisé à la renaissance.</p>
+      <div class="cards" id="upgrades"></div>
+      <h2>Équipement</h2>
+      <div class="cards" id="gear"></div>
+      <h2>Registre</h2>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="tab" id="tab-team">
+      <h2>Archives du bataillon</h2><p class="hint">Choisissez votre portrait. Collection de personnages, indépendante de leur présence dans chaque arc.</p><div id="portraits"></div><h2>Escouade</h2>
+      <p class="hint">Vos recrues combattent en continu, même hors ligne.</p>
+      <div class="cards" id="team"></div>
+    </section>
+
+    <section class="tab" id="tab-shop">
+      <h2>Intendance</h2>
+      <p class="hint">Consommables payés en or, effet immédiat.</p>
+      <div class="cards" id="shop-consumables"></div>
+      <h2>Équipement du bataillon <small> cristaux</small></h2>
+      <p class="hint">Améliorations permanentes : elles survivent à la renaissance. Les cristaux tombent en terminant un nouveau chapitre.</p>
+      <div class="cards" id="shop-upgrades"></div>
+    </section>
+
+    <section class="tab" id="tab-world">
+      <h2>Classement</h2>
+      <div class="board-tabs">
+        <button class="board-tab active" data-scope="global">Mondial</button>
+        <button class="board-tab" data-scope="clan">Mon clan</button>
+      </div>
+      <div class="board" id="leaderboard"><p class="hint" id="board-empty">Connectez-vous pour voir le classement.</p></div>
+
+      <h2>Clan</h2>
+      <div class="clan-box" id="clan-box"></div>
+
+      <h2>Renaissance</h2>
+      <div class="prestige-box">
+        <div class="prestige-gain"><span>Âmes à gagner</span><b id="prestige-gain">0</b></div>
+        <div class="prestige-info" id="prestige-info"></div>
+        <button class="big-btn" id="prestige-btn">Renaître</button>
+      </div>
+
+      <h2>Options</h2><label class="switch"><input id="sfx-option" type="checkbox" checked> Effets sonores</label><label class="switch"><input id="motion-option" type="checkbox"> Animations réduites</label>
+      <div class="options">
+        <label class="switch"><input type="checkbox" id="opt-autoadvance" checked /> <span>Progression automatique des chapitres</span></label>
+        <label class="switch"><input type="checkbox" id="opt-autoskill" /> <span>Compétences automatiques</span></label>
+        <label class="field"><span>Serveur (API)</span><input id="opt-server" type="url" placeholder="https://exemple.fr/aot-idle/api" /></label>
+        <button class="ghost-btn" id="server-save">Enregistrer le serveur</button>
+        <button class="ghost-btn" id="account-btn">Compte / déconnexion</button>
+        <button class="ghost-btn" id="export-btn">Exporter la sauvegarde</button>
+        <button class="ghost-btn" id="import-btn">Importer une sauvegarde</button>
+        <button class="danger-btn" id="wipe-btn">Effacer la sauvegarde</button>
+      </div>
+      <p class="version">AOT IDLE — v5.0 · projet de fan non officiel</p>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="tab-combat"><i><span class="art tile-12"></span></i><span>Combat</span></button>
+    <button class="tab-btn" data-tab="tab-hero"><i><span class="art tile-13"></span></i><span>Soldat</span></button>
+    <button class="tab-btn" data-tab="tab-team"><i><span class="art tile-12"></span></i><span>Escouade</span></button>
+    <button class="tab-btn" data-tab="tab-shop"><i><span class="art tile-14"></span></i><span>Boutique</span></button>
+    <button class="tab-btn" data-tab="tab-world"><i><span class="art tile-5"></span></i><span>Monde</span></button>
+  </nav>
+
+</div>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <h3 id="modal-title">Titre</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="sprites.js"></script>
+<script src="art.js"></script><script src="content.js"></script>
+<script src="net.js"></script>
+<script src="campaign.js"></script><script src="remaster.js"></script><script src="build-info.js"></script><script src="updates.js"></script><script src="game.js"></script><script src="social.js"></script><script src="hub.js"></script>
+</body>
+</html>
+
+
