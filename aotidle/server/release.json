@@ -1,0 +1,11 @@
+{
+  "versionCode": 7,
+  "versionName": "5.0",
+  "packageName": "com.n1live.aotidl3",
+  "releaseEndpoint": "https://asylum-games.fr/aotidle/release.php",
+  "downloadUrl": "https://asylum-games.fr/aotidle/telecharger.php",
+  "notes": "Nouveau logo et icône Android, accueil, Tour de combat de 200 étages et missions quotidiennes.",
+  "file": "aot-idle-5.0.apk",
+  "size": 30077717,
+  "sha256": "4e6c2cc5a4fec849c5a3a3845136cde1b292799378396c7225a84762c3af4d78"
+}

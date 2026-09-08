@@ -1,4 +1,4 @@
-# AOT IDLE — v6.0
+# AOT IDLE — v6.1
 
 Idle RPG de fan (non officiel) : une application Android qui est une coquille
 WebView autour d'un jeu web sans dépendance. Le dépôt contient tout ce qu'il
@@ -7,14 +7,15 @@ faut pour reconstruire l'APK.
 ```
 assets/        le jeu (HTML, CSS, JS, images WebP)
 shell/         le conteneur Android d'origine : manifeste, dex, ressources
-tools/         optimisation des images, assemblage et signature de l'APK
+server/        le service PHP à publier sur l'hébergement (sans les secrets)
+tools/         images, assemblage et signature de l'APK, paquet FTP
 build/         sortie de compilation (non versionnée)
 ```
 
 ## Construire l'APK
 
 ```bash
-python3 tools/build_apk.py build/AOTIDLE-v6.0.apk
+python3 tools/build_apk.py build/AOTIDLE-v6.1.apk
 ```
 
 Le script assemble `shell/` + `assets/`, garde `resources.arsc` non compressé et
@@ -29,6 +30,35 @@ différente). Pour publier une vraie mise à jour, signez avec la clé d'origine
 ```bash
 KEYSTORE=/chemin/aotidle.p12 KS_PASS=… KEY_ALIAS=… python3 tools/build_apk.py
 ```
+
+## Préparer la mise en ligne
+
+```bash
+KEYSTORE=… KS_PASS=… KEY_ALIAS=… python3 tools/package_ftp.py
+```
+
+Construit `build/AOT-IDLE-v6-FTP.zip` : les fichiers PHP de `server/`, l'APK
+signé et un `release.json` calculé sur cet APK (taille et SHA-256, vérifiés par
+`release-lib.php`). `server/INSTALLATION-FTP.md` décrit le transfert et les
+vérifications à faire ensuite.
+
+`server/` ne contient volontairement ni `config.php`, ni `db.php`, ni
+`google.php` : les identifiants restent sur l'hébergement.
+
+## Le boss mondial
+
+`server/boss-core.php` ajoute à `social.php` trois actions (`boss_state`,
+`boss_strike`, `boss_claim`) et deux tables créées au premier appel
+(`social_boss`, `social_boss_damage`). Un titan par monde et par jour UTC, une
+barre de vie commune, un assaut par minute et par joueur. **Les dégâts sont
+calculés côté serveur** à partir de la puissance déjà enregistrée par `sync` :
+le client ne transmet aucun nombre de dégâts. Les points de vie sont
+dimensionnés sur la population active du monde, et la récompense en cristaux
+n'est versée qu'une fois par titan.
+
+Côté jeu, `assets/boss.js` tient l'écran (barre de vie, assaut, classement des
+assaillants et des clans) et la carte d'accueil ; sans compte connecté, il le
+dit au lieu de simuler des joueurs.
 
 ## Optimiser les images
 
@@ -58,6 +88,7 @@ au serveur (classement, clans, arène).
 | `fx.js` | moteur d'effets : rendu des combattants, impacts, particules, sons |
 | `screens.js` | carte de campagne, archives des portraits, feuille de réglages |
 | `hub.js` | accueil, ordres du jour, Tour de combat |
+| `boss.js` | boss mondial coopératif (assauts, classements, récompense) |
 | `social.js` / `net.js` | comptes, mondes, chat, amis, arène classée, clans |
 | `content.js` / `campaign.js` | 1 000 chapitres, boutique, arcs narratifs |
 | `art.js` | découpe des planches d'icônes (bornes en demi-définition) |
@@ -90,9 +121,11 @@ dix fois plus légères, `sprites.js` (code mort) supprimé.
 ## Réserves
 
 - Le jeu est un projet de fan, sans lien avec les ayants droit.
-- Le multijoueur (classement, clans, chat, arène) dépend du serveur
-  `asylum-games.fr`, qui n'est pas dans ce dépôt : les fonctions en ligne ne
-  peuvent pas être modifiées ici.
+- Le service en ligne tourne sur `asylum-games.fr` : ce dépôt contient son code
+  (`server/`) mais rien ne part en production sans un transfert FTP manuel.
+- L'APK produit par défaut est signé avec une clé de développement. Pour
+  publier une mise à jour installable par-dessus la v5, il faut signer avec la
+  clé d'origine.
 - Les images d'origine en pleine définition ne sont pas versionnées ; elles
   restent disponibles dans l'APK v5.0 si une nouvelle passe d'optimisation est
   nécessaire.

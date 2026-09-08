@@ -73,9 +73,10 @@
   function pendingRewards() {
     var progress = daily();
     var j = journey();
-    return MISSIONS.filter(function (m) {
+    var missions = MISSIONS.filter(function (m) {
       return !j.claimed[m.id] && progress[m.id] >= m.goal;
     }).length;
+    return missions + (window.Boss ? window.Boss.pending() : 0);
   }
 
   // ------------------------------------------------------------------
@@ -229,6 +230,11 @@
   function route(where) {
     if (where === 'home') { home(); return; }
     if (where === 'tower') { show('tab-tower'); render(); return; }
+    if (where === 'boss') {
+      show('tab-boss');
+      if (window.Boss) window.Boss.refresh(true);
+      return;
+    }
     var tab = where === 'campaign' ? 'tab-combat' : 'tab-world';
     document.querySelector('[data-tab="' + tab + '"]').click();
     if (where === 'arena' || where === 'rank') {
@@ -334,6 +340,12 @@
       + '<h2>Arène</h2><p>Duels en temps réel</p><span>Affronter un joueur →</span></button>'
       + '<button class="destination" data-destination="rank">' + Art.icon('abilities', 20)
       + '<h2>Classement</h2><p>Les meilleurs du monde</p><span>Voir les rangs →</span></button></div>'
+      + '<button class="destination boss-destination" data-destination="boss">'
+      + '<small>ASSAUT MONDIAL · COOPÉRATIF</small>'
+      + '<h2>Boss mondial <b id="home-boss-badge" class="badge hidden">0</b></h2>'
+      + '<p id="home-boss-name">Chargement…</p>'
+      + '<progress id="home-boss-progress" max="100" value="0"></progress>'
+      + '<p id="home-boss-note"></p><span>Rejoindre l\'assaut →</span></button>'
       + '<button class="destination tower-destination" data-destination="tower">'
       + '<small>DÉFI SOLO</small><h2>Tour de combat</h2><p id="home-tower"></p>'
       + '<progress id="home-tower-progress" max="200"></progress>'
