@@ -218,6 +218,7 @@
       version: 3,
       portrait: 0,
       title: '',
+      cosmetics: { cape: '', harness: '', frame: '' },
       journey: { towerBest: 0, towerWins: 0, day: "", dayKills: 0, dayTower: 0,
         dayBosses: 0, streak: 0, claimed: {}, dailyClaimed: false },
       gold: 0,
@@ -1479,6 +1480,7 @@
       journey: state.journey,
       portrait: state.portrait,
       title: state.title,
+      cosmetics: state.cosmetics,
       deeds: state.deeds,
       seen: state.seen,
       soul: state.soul,
@@ -1498,6 +1500,7 @@
     state.journey = keep.journey;
     state.portrait = keep.portrait;
     state.title = keep.title;
+    state.cosmetics = keep.cosmetics;
     state.deeds = keep.deeds;
     state.seen = keep.seen;
     state.soul = keep.soul;

@@ -108,8 +108,6 @@ function market_handle(PDO $db, array $in, array $player, string $world, int $no
     if (!in_array($action, ['market_state', 'market_list', 'market_cancel', 'market_buy'], true)) {
         return null;
     }
-    wallet_install($db);
-    market_install($db);
     $user = (int) $player['id'];
 
     if ($action === 'market_list') {

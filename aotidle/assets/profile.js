@@ -98,6 +98,11 @@
       avatar.innerHTML = Art.icon('heroes', s.portrait);
       avatar.dataset.portrait = s.portrait;
     }
+    // Cape, harnais et cadre se posent sur le conteneur du portrait.
+    if (window.Cosmetics) {
+      window.Cosmetics.decorate($('profile-avatar'));
+      window.Cosmetics.decorate(avatar);
+    }
     $('profile-name').textContent = s.online.pseudo || Art.names[s.portrait] || 'Soldat';
     $('profile-title').textContent = title ? title.name : 'Cadet du 104e';
     $('profile-line').textContent = 'Rang ' + s.level + ' · chapitre ' + s.chapter + ' / 1 000'

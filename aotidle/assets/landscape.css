@@ -1,10 +1,14 @@
-/* AOT IDLE — mise en page paysage.
+/* AOT IDLE — mise en page paysage (DÉSACTIVÉE).
 
-   En paysage, la hauteur devient la ressource rare : la barre d'onglets passe
-   sur le côté en rail vertical, la topbar tient sur une seule ligne, et l'écran
-   de combat se sépare en deux colonnes — l'arène à gauche, tout ce qui se lit
-   et se touche à droite. Le portrait n'est pas touché : les deux orientations
-   restent jouables. */
+   Le mode paysage de la v6.4 posait trop de problèmes à l'usage : le jeu est
+   revenu au portrait en v6.6 (manifeste `screenOrientation="portrait"`, et
+   cette feuille n'est plus chargée par `index.html`).
+
+   Le travail est conservé ici : pour le reprendre, remettre le lien dans
+   `index.html`, repasser le manifeste en `sensorLandscape` (valeur 6), et
+   corriger écran par écran — c'est surtout la hauteur disponible qui manquait
+   sur les écrans en ligne et les feuilles modales.
+*/
 
 @media (orientation: landscape) and (min-width: 620px) {
 

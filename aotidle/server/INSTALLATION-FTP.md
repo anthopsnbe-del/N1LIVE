@@ -1,4 +1,4 @@
-# Publier la version 6.4 avec FileZilla
+# Publier la version 6.6 avec FileZilla
 
 Ce dossier est prêt à transférer. **Il n'a pas été publié.**
 
@@ -27,16 +27,27 @@ elle-même sur l'hébergement.
 3. Dans la racine publique de `asylum-games.fr`, ouvrir le dossier distant
    `aotidle` existant. Conserver ses fichiers `config.php`, `db.php`,
    `google.php` et sa configuration serveur : ils ne sont pas dans ce paquet.
-4. Envoyer d'abord `aotidle/releases/aot-idle-6.4.apk`, puis `social-core.php`,
+4. Envoyer d'abord `aotidle/releases/aot-idle-6.6.apk`, puis `social-core.php`,
    **`wallet-core.php`**, **`boss-core.php`**, **`war-core.php`**, **`season-core.php`** et
-   **`market-core.php`**, `social.php`, `index.php`, `release-lib.php`,
+   **`market-core.php`**, **`clan-core.php`**, `social.php`, `index.php`, `release-lib.php`,
    `release.php`, `telecharger.php` et les deux fichiers `download-widget.*`.
 5. Envoyer **release.json en dernier**, une fois l'APK entièrement transféré.
    C'est ce fichier qui annonce la nouvelle version aux joueurs.
 6. Le fragment `BOUTON-A-COLLER.html` n'a pas changé depuis la v5 : rien à
    refaire si le bouton est déjà en place.
 7. Vérifier `https://asylum-games.fr/aotidle/release.php` : versionName doit
-   valoir 6.4 et versionCode 12. Installer ensuite sur un téléphone de test.
+   valoir 6.6 et versionCode 14. Installer ensuite sur un téléphone de test.
+8. Vérifier le service multijoueur d'un seul appel, sans compte :
+
+   ```bash
+   curl -s -X POST -H 'Content-Type: application/json' \
+        -d '{"action":"ping"}' https://asylum-games.fr/aotidle/social.php
+   ```
+
+   La réponse doit annoncer `"version":"6.6"`, tous les modules à `true` et
+   toutes les tables à `true`. Une table à `false` signifie qu'un fichier PHP
+   manque ; `"version"` absente ou différente signifie que `social-core.php`
+   n'a pas été remplacé.
 
 ## Nouveau service : le boss mondial
 
@@ -107,8 +118,35 @@ de présentation et un message expliquant que la mise à jour du serveur manque.
 C'est le comportement attendu — ces modes s'allument à la seconde où le
 transfert est fait.
 
-Le serveur de la 6.4 est identique à celui de la 6.3 : si vous avez déjà
-transféré les fichiers PHP, seul l'APK est à renvoyer (puis `release.json`).
+## Correctif 6.6 : « Service multijoueur indisponible »
+
+Les versions 6.5 et antérieures des modules créaient leurs tables **à
+l'intérieur** de la transaction ouverte par `social.php`. Sur MySQL et MariaDB,
+un `CREATE TABLE` valide implicitement la transaction en cours : le `commit`
+final échouait alors avec « There is no active transaction », et le jeu
+affichait « Service multijoueur indisponible ». Deux autres pièges MySQL
+suivaient : la colonne `rank` de `social_season_rewards` (mot réservé depuis
+MySQL 8, renommée `place`) et un `OFFSET` passé en paramètre lié, que MySQL
+refuse.
+
+C'est corrigé dans ce paquet, mais **les fichiers PHP doivent être renvoyés
+tous ensemble** : `social.php` crée désormais les tables avant d'ouvrir la
+transaction, et les modules ne le font plus eux-mêmes. Un mélange d'anciens et
+de nouveaux fichiers reproduirait l'erreur. L'appel `ping` ci-dessus le
+confirme en une commande.
+
+## Nouveau service : journal de clan et emotes
+
+`clan-core.php` ajoute deux actions (`clan_journal`, `clan_emote`) et **une
+table créée automatiquement** : `social_clan_log`. Le journal est écrit par le
+serveur lui-même quand le clan s'engage, fait tomber un front, gagne ou perd
+une guerre, ou récupère un butin. Les emotes sont une liste fixe définie dans
+le fichier : le client n'envoie qu'un identifiant, donc rien de ce qui
+s'affiche ne provient d'un champ de texte libre. Une emote toutes les dix
+secondes par joueur, 120 lignes conservées par clan.
+
+Les cosmétiques (cape, harnais, cadre) sont, eux, entièrement côté jeu : rien à
+transférer et aucune table.
 
 ## Vérifications après mise en ligne
 
@@ -131,7 +169,10 @@ transféré les fichiers PHP, seul l'APK est à renvoyer (puis `release.json`).
 7. **Accueil → Saison** : le numéro de saison, le compte à rebours et le
    classement doivent s'afficher ; les récompenses n'apparaissent qu'après une
    clôture.
-8. Tester aussi les fonctions v5 qui n'ont pas bougé : recherche classée dans
+8. **Guerre de clans → Journal du clan** : le panneau liste les faits du clan
+   et les emotes ; en poster une doit l'ajouter en bas de la liste pour tous
+   les membres.
+9. Tester aussi les fonctions v5 qui n'ont pas bougé : recherche classée dans
    l'arène, demande d'ami, défi, chat global et de clan.
 
 ## Rappels

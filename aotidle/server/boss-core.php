@@ -231,7 +231,6 @@ function boss_handle(PDO $db, array $in, array $player, string $world, int $clan
     if (!in_array($action, ['boss_state', 'boss_strike', 'boss_claim'], true)) {
         return null;
     }
-    boss_install($db);
     $user = (int) $player['id'];
     $boss = boss_current($db, $world, $now);
 
@@ -292,10 +291,13 @@ function boss_handle(PDO $db, array $in, array $player, string $world, int $clan
             [$boss['boss_id'], $user]);
         // La récompense est versée au dépôt : elle devient échangeable au
         // marché, et le joueur la rapatrie quand il veut.
-        wallet_install($db);
         wallet_add($db, $user, $reward, 'boss mondial', $now);
         $share = (int) $boss['max_hp'] > 0 ? (int) $mine['damage'] / (int) $boss['max_hp'] : 0;
         $item = item_grant($db, $player, $share, (int) $boss['defeated'] === 1, 'boss mondial', $now);
+        if (function_exists('clan_log')) {
+            clan_log($db, $clan, $user, 'boss', 'a touché ' . $reward . ' cristaux sur le titan du jour'
+                . ($item ? ' et une pièce : ' . $item['name'] : '') . '.', $now);
+        }
         $view = boss_view($db, $boss, $player, $clan, $now);
         $view['credited'] = $reward;
         $view['wallet'] = wallet_view($db, $user)['wallet'];

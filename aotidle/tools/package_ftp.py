@@ -21,18 +21,21 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, "build")
-VERSION_NAME = "6.5"
-VERSION_CODE = 13
+VERSION_NAME = "6.6"
+VERSION_CODE = 14
 SERVER_FILES = [
     "index.php", "social.php", "social-core.php", "wallet-core.php", "boss-core.php",
-    "war-core.php", "season-core.php", "market-core.php",
+    "war-core.php", "season-core.php", "market-core.php", "clan-core.php",
     "release.php", "release-lib.php", "telecharger.php",
     "download-widget.js", "download-widget.css"
 ]
-NOTES = ("Jeu en mode paysage, fiche de soldat complète (portrait, pseudo, titres, registre, limite d'images), décors sur les écrans en ligne. Dépôt du bataillon, marché entre joueurs et saisons de l'arène. Guerres de clans sur "
-         "24 heures, boss mondial coopératif, combats qui montent en difficulté, élites, sac et "
-         "fusion d'équipement, panoplies, passifs de recrues, arbre des âmes, missions "
-         "quotidiennes, Tour à modificateurs, jeu dix fois plus léger.")
+NOTES = ("Retour en mode portrait. Cosmétiques (cape, harnais, cadre) débloqués par vos exploits, "
+         "journal de clan et emotes. Fiche de soldat complète (portrait, pseudo, titres, registre, "
+         "limite d'images), Archives du bataillon en cartes de R à LR, hauts faits, ouverture "
+         "narrative et décors sur les écrans en ligne. Dépôt du bataillon, marché entre joueurs et "
+         "saisons de l'arène. Guerres de clans sur 24 heures, boss mondial coopératif, combats qui "
+         "montent en difficulté, élites, sac et fusion d'équipement, panoplies, passifs de recrues, "
+         "arbre des âmes, missions quotidiennes, Tour à modificateurs, jeu dix fois plus léger.")
 
 
 def main():

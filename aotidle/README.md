@@ -1,4 +1,4 @@
-# AOT IDLE — v6.5
+# AOT IDLE — v6.6
 
 Idle RPG de fan (non officiel) : une application Android qui est une coquille
 WebView autour d'un jeu web sans dépendance. Le dépôt contient tout ce qu'il
@@ -16,7 +16,7 @@ build/         sortie de compilation (non versionnée)
 ## Construire l'APK
 
 ```bash
-python3 tools/build_apk.py build/AOTIDLE-v6.5.apk
+python3 tools/build_apk.py build/AOTIDLE-v6.6.apk
 ```
 
 Le script assemble `shell/` + `assets/`, garde `resources.arsc` non compressé et
@@ -97,16 +97,14 @@ moitié.
 Côté jeu, `assets/market.js` tient le dépôt et le marché, `assets/season.js` la
 saison en cours et son classement.
 
-## Mode paysage
+## Orientation
 
-Le manifeste demande `sensorLandscape` : le jeu se tient à l'horizontale, dans
-les deux sens. `assets/landscape.css` refait la mise en page à partir de 620 px
-de large — la barre d'onglets devient un rail vertical, la topbar tient sur une
-ligne, l'écran de combat se sépare en deux colonnes (arène à gauche, chapitre,
-escouade, compétences et journal à droite) et les listes passent sur deux
-colonnes. La mise en page portrait n'a pas bougé : les deux orientations
-restent jouables, ce qui permet de revenir en arrière en changeant la seule
-ligne du manifeste.
+Le manifeste demande `portrait` : c'est l'orientation dans laquelle le jeu a
+été dessiné et la seule qui soit testée. Une mise en page paysage existe dans
+`assets/landscape.css` mais elle est **désactivée** (feuille non liée) : son
+en-tête explique comment la remettre en service — relier la feuille dans
+`index.html` et passer `screenOrientation` à `sensorLandscape` dans le
+manifeste.
 
 ## Fiche de soldat
 
@@ -125,6 +123,28 @@ montre sa silhouette, sa rareté et ce qu'il faut faire. Cadre coloré par
 rareté, éclat holographique animé à partir de UR, et un **bonus de collection**
 (+0,6 % de dégâts par carte) pour que collectionner serve. Le portrait du
 joueur se choisit dans cet écran.
+
+## Cosmétiques
+
+`assets/cosmetics.js` : trois pièces purement visuelles — **cape**, **harnais**
+et **cadre** —, chacune débloquée par un exploit que le jeu mesure déjà (rang,
+chapitre, Tour, renaissances, cartes des Archives). Aucune statistique ne
+bouge, aucune image ne s'ajoute à l'APK : tout est en CSS par-dessus le
+portrait (`fx.css`, section « cosmétiques »), y compris le liseré du portrait
+dans la barre du haut. Une pièce dont la condition n'est plus remplie après une
+renaissance revient au choix par défaut au lieu de disparaître sans un mot.
+
+## Journal de clan et emotes
+
+`server/clan-core.php` ajoute deux actions (`clan_journal`, `clan_emote`) et une
+table (`social_clan_log`). Le journal est écrit **par le serveur** aux moments
+qui comptent : engagement du clan, front effondré, guerre gagnée ou perdue,
+butin récupéré au boss mondial ou à la guerre. Les emotes sont une liste fixe
+côté serveur — le client n'envoie qu'un identifiant, donc rien de ce qui
+s'affiche dans le journal ne vient d'un champ de texte libre —, limitées à une
+toutes les dix secondes et purgées au-delà de 120 lignes par clan.
+
+Côté jeu, `assets/clan.js` tient le panneau sous l'écran « Guerre de clans ».
 
 ## Hauts faits, mise en scène et ambiance
 
@@ -180,8 +200,10 @@ au serveur (classement, clans, arène).
 | `war.js` | guerres de clans : appariement, front commun, scores par camp |
 | `market.js` | dépôt du bataillon, marché entre joueurs, mouvements |
 | `season.js` | saisons de l'arène : classement, clôture, récompenses |
+| `clan.js` | journal du clan et emotes |
 | `profile.js` | fiche de soldat : identité, titres, registre, confort de jeu |
 | `collection.js` | Archives : cartes de personnages, raretés, bonus de collection |
+| `cosmetics.js` | cape, harnais et cadre du portrait |
 | `achievements.js` | hauts faits et leurs récompenses |
 | `story.js` | ouverture et cartes de dialogue aux jalons |
 | `notify.js` | rappels système, si la coquille Android les expose |

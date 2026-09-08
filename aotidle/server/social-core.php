@@ -19,6 +19,21 @@ function social_install(PDO $db): void {
         try {$db->exec('INSERT INTO social_lock (id) VALUES (1)');} catch(PDOException $e) {}
     }
 }
+/* Diagnostic sans compte : dit quelle version du service tourne et quelles
+   tables existent. Sert à vérifier un transfert FTP en un appel. */
+function social_ping(PDO $db): array {
+    $tables=['social_accounts','social_boss','social_wars','social_wallet','social_items','social_market','social_seasons','social_clan_log'];
+    $found=[];
+    foreach($tables as $name){
+        try{$db->query('SELECT 1 FROM '.$name.' LIMIT 1');$found[$name]=true;}catch(Throwable $e){$found[$name]=false;}
+    }
+    return ['service'=>'AOT IDLE','version'=>'6.6','modules'=>[
+        'boss'=>function_exists('boss_handle'),'war'=>function_exists('war_handle'),
+        'wallet'=>function_exists('wallet_handle'),'season'=>function_exists('season_handle'),
+        'market'=>function_exists('market_handle'),
+        'clan'=>function_exists('clan_handle')],'tables'=>$found];
+}
+
 function sq(PDO $db,string $sql,array $args=[]): PDOStatement {$q=$db->prepare($sql);$q->execute($args);return $q;}
 function social_error(string $s): void {throw new DomainException($s);}
 function social_account(PDO $db,int $id): array {
@@ -165,6 +180,7 @@ function social_handle(PDO $db,array $in): array {
     if(function_exists('war_handle')){$war=war_handle($db,$in,$p,$world,$clan,$now);if($war!==null)return $war;}
     if(function_exists('season_handle')){$season=season_handle($db,$in,$p,$world,$now);if($season!==null)return $season;}
     if(function_exists('market_handle')){$market=market_handle($db,$in,$p,$world,$now);if($market!==null)return $market;}
+    if(function_exists('clan_handle')){$journal=clan_handle($db,$in,$p,$clan,$now);if($journal!==null)return $journal;}
     if(function_exists('wallet_handle')){$wallet=wallet_handle($db,$in,$p,$now);if($wallet!==null)return $wallet;}
     social_error('Action inconnue.');return [];
 }

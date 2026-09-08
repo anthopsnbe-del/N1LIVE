@@ -22,7 +22,7 @@ function season_install(PDO $db): void
         'social_seasons (id VARCHAR(32) PRIMARY KEY, world VARCHAR(8) NOT NULL, number INTEGER NOT NULL,
           started_at BIGINT NOT NULL, ends_at BIGINT NOT NULL, closed INTEGER NOT NULL DEFAULT 0)',
         'social_season_rewards (season_id VARCHAR(32) NOT NULL, user_id INTEGER NOT NULL,
-          world VARCHAR(8) NOT NULL, number INTEGER NOT NULL, rank INTEGER NOT NULL, rating INTEGER NOT NULL,
+          world VARCHAR(8) NOT NULL, number INTEGER NOT NULL, place INTEGER NOT NULL, rating INTEGER NOT NULL,
           crystals INTEGER NOT NULL, claimed INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(season_id, user_id))'
     ];
     foreach ($tables as $sql) {
@@ -56,7 +56,7 @@ function season_close(PDO $db, array $season, int $now): void
         if ($crystals < 1) {
             continue;
         }
-        sq($db, 'INSERT INTO social_season_rewards (season_id, user_id, world, number, rank, rating, crystals)
+        sq($db, 'INSERT INTO social_season_rewards (season_id, user_id, world, number, place, rating, crystals)
                  VALUES (?,?,?,?,?,?,?)',
             [$season['id'], (int) $row['user_id'], $season['world'], (int) $season['number'],
              $rank, (int) $row['rating'], $crystals]);
@@ -130,7 +130,7 @@ function season_view(PDO $db, array $season, string $world, int $user, int $now)
 {
     $mine = sq($db, 'SELECT rating, wins, losses FROM social_ratings WHERE user_id = ? AND world = ?',
         [$user, $world])->fetch(PDO::FETCH_ASSOC) ?: ['rating' => 1000, 'wins' => 0, 'losses' => 0];
-    $pending = sq($db, 'SELECT number, rank, rating, crystals FROM social_season_rewards
+    $pending = sq($db, 'SELECT number, place, rating, crystals FROM social_season_rewards
                         WHERE user_id = ? AND claimed = 0 ORDER BY number', [$user])->fetchAll(PDO::FETCH_ASSOC);
     return [
         'season' => [
@@ -148,7 +148,7 @@ function season_view(PDO $db, array $season, string $world, int $user, int $now)
         'standings' => season_standings($db, $world),
         'pending' => array_map(fn($row) => [
             'number' => (int) $row['number'],
-            'rank' => (int) $row['rank'],
+            'rank' => (int) $row['place'],
             'rating' => (int) $row['rating'],
             'crystals' => (int) $row['crystals']
         ], $pending),
@@ -162,8 +162,6 @@ function season_handle(PDO $db, array $in, array $player, string $world, int $no
     if (!in_array($action, ['season_state', 'season_claim'], true)) {
         return null;
     }
-    season_install($db);
-    wallet_install($db);
     $user = (int) $player['id'];
     $season = season_current($db, $world, $now);
 

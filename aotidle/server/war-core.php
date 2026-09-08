@@ -96,6 +96,14 @@ function war_resolve(PDO $db, array $war, int $now): array
     sq($db, 'UPDATE social_wars SET resolved = 1, winner = ? WHERE id = ?', [$winner, $war['id']]);
     $war['resolved'] = 1;
     $war['winner'] = $winner;
+    if (function_exists('clan_log')) {
+        foreach ([1 => (int) $war['clan_a'], 2 => (int) $war['clan_b']] as $side => $clanId) {
+            clan_log($db, $clanId, 0, 'guerre',
+                $winner === 3 ? 'Guerre terminée : égalité.'
+                : ($winner === $side ? 'Guerre remportée par le clan !' : 'Guerre perdue. Le front tenait bon.'),
+                $now);
+        }
+    }
     return $war;
 }
 
@@ -230,7 +238,6 @@ function war_handle(PDO $db, array $in, array $player, string $world, int $clanI
     if (!in_array($action, ['war_state', 'war_enroll', 'war_strike', 'war_claim'], true)) {
         return null;
     }
-    war_install($db);
     $user = (int) $player['id'];
     if ($clanId < 1) {
         social_error('Rejoignez un clan pour participer aux guerres de clans.');
@@ -263,6 +270,11 @@ function war_handle(PDO $db, array $in, array $player, string $world, int $clanI
             social_error('Un clan vide ne peut pas partir en guerre.');
         }
         $started = war_match($db, $clan, $world, $now);
+        if (function_exists('clan_log')) {
+            clan_log($db, $clanId, $user, 'guerre', $started
+                ? 'Le clan part en guerre : un adversaire a été trouvé.'
+                : 'Le clan est engagé et attend un adversaire.', $now);
+        }
         if ($started) {
             return war_view($db, $started, $player, $clanId, $now);
         }
@@ -299,6 +311,9 @@ function war_handle(PDO $db, array $in, array $player, string $world, int $clanI
         }
         $war = sq($db, 'SELECT * FROM social_wars WHERE id = ?', [$war['id']])->fetch(PDO::FETCH_ASSOC);
         $war = war_resolve($db, $war, $now);
+        if ($left === 0 && function_exists('clan_log')) {
+            clan_log($db, $clanId, $user, 'front', 'a fait tomber le front adverse.', $now);
+        }
         $view = war_view($db, $war, $player, $clanId, $now);
         $view['hit'] = ['damage' => $damage, 'killing' => $left === 0];
         return $view;
@@ -323,11 +338,14 @@ function war_handle(PDO $db, array $in, array $player, string $world, int $clanI
         sq($db, 'UPDATE social_war_damage SET claimed = 1 WHERE war_id = ? AND user_id = ?',
             [$war['id'], $user]);
         // Comme pour le boss mondial : versement au dépôt, butin éventuel.
-        wallet_install($db);
         wallet_add($db, $user, $reward, 'guerre de clans', $now);
         $score = $side === 1 ? (int) $war['score_a'] : (int) $war['score_b'];
         $share = $score > 0 ? (int) $mine['damage'] / max(1, (int) $war['max_hp']) : 0;
         $item = item_grant($db, $player, $share, (int) $war['winner'] === $side, 'guerre de clans', $now);
+        if (function_exists('clan_log')) {
+            clan_log($db, $clanId, $user, 'butin', 'a touché ' . $reward . ' cristaux pour la guerre'
+                . ($item ? ' et une pièce : ' . $item['name'] : '') . '.', $now);
+        }
         $view = war_view($db, $war, $player, $clanId, $now);
         $view['credited'] = $reward;
         $view['wallet'] = wallet_view($db, $user)['wallet'];

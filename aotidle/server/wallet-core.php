@@ -62,8 +62,10 @@ function wallet_add(PDO $db, int $user, int $delta, string $reason, int $now): i
     sq($db, 'INSERT INTO social_wallet_log (id, user_id, delta, reason, created_at) VALUES (?,?,?,?,?)',
         [bin2hex(random_bytes(16)), $user, $delta, $reason, $now]);
     // L'historique sert à expliquer un solde, pas à tenir une comptabilité.
-    $old = sq($db, 'SELECT id FROM social_wallet_log WHERE user_id = ? ORDER BY created_at DESC, id LIMIT 500 OFFSET ?',
-        [$user, WALLET_LOG_KEEP])->fetchAll(PDO::FETCH_COLUMN);
+    // OFFSET n'accepte pas un paramètre lié sur MySQL : la valeur est une
+    // constante entière du fichier, insérée telle quelle.
+    $old = sq($db, 'SELECT id FROM social_wallet_log WHERE user_id = ? ORDER BY created_at DESC, id
+                    LIMIT 500 OFFSET ' . (int) WALLET_LOG_KEEP, [$user])->fetchAll(PDO::FETCH_COLUMN);
     foreach ($old as $id) {
         sq($db, 'DELETE FROM social_wallet_log WHERE id = ?', [$id]);
     }
@@ -171,7 +173,6 @@ function wallet_handle(PDO $db, array $in, array $player, int $now): ?array
     if (!in_array($action, ['wallet_state', 'wallet_withdraw', 'item_withdraw'], true)) {
         return null;
     }
-    wallet_install($db);
     $user = (int) $player['id'];
 
     if ($action === 'wallet_withdraw') {

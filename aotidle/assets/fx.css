@@ -631,3 +631,121 @@ body.reduced .hero-card::after { animation: none; opacity: 0; }
 .story-actions { display: flex; flex-direction: column; gap: 8px; }
 .story-actions .big-btn, .story-actions .ghost-btn { width: 100%; }
 body.reduced .story-panel { animation: none; }
+
+/* ------------------------------------------------------------------ */
+/* Cosmétiques : cape, harnais, cadre — tout en CSS, aucune image      */
+/* ------------------------------------------------------------------ */
+.cos { position: relative; display: inline-block; --cape: transparent; --cape-deep: transparent; }
+.cos > .asset, .cos > canvas { position: relative; z-index: 1; }
+/* La cape passe derrière le portrait, le harnais par-dessus. */
+.cos::before, .cos::after { content: ''; position: absolute; pointer-events: none; }
+.cos::before {
+  inset: -9px -13px -5px;
+  z-index: 0;
+  border-radius: 40% 40% 26% 26% / 46% 46% 18% 18%;
+  background: linear-gradient(160deg, var(--cape), var(--cape-deep) 70%);
+  box-shadow: 0 0 16px var(--cape);
+}
+.cos::after { inset: 0; z-index: 2; border-radius: 12px; background: none; }
+/* La topbar rogne son bouton : la cape s'y lit comme un liseré. */
+.avatar-btn.cos { box-shadow: 0 0 0 2px var(--cape); }
+
+.cos[data-cape=exploration] { --cape: #3d6a4f; --cape-deep: #16302c; }
+.cos[data-cape=garnison]    { --cape: #8c3b3f; --cape-deep: #33161d; }
+.cos[data-cape=brigade]     { --cape: #4a5f9c; --cape-deep: #171f36; }
+.cos[data-cape=marley]      { --cape: #6d6455; --cape-deep: #1e1c18; }
+.cos[data-cape=liberte]     { --cape: #d9b063; --cape-deep: #3a2708; }
+.cos[data-cape=liberte]::before { animation: cosglow 4.5s ease-in-out infinite; }
+@keyframes cosglow { 50% { box-shadow: 0 0 32px #f2cf8b99; } }
+
+.cos[data-harness=renforce]::after {
+  background: repeating-linear-gradient(72deg, #00000000 0 13px, #c9b48c40 13px 16px);
+}
+.cos[data-harness=ackerman]::after {
+  background: repeating-linear-gradient(72deg, #00000000 0 11px, #dfe7e355 11px 14px),
+              repeating-linear-gradient(-72deg, #00000000 0 11px, #dfe7e333 11px 14px);
+}
+.cos[data-harness=foudre]::after {
+  background: repeating-linear-gradient(72deg, #00000000 0 12px, #9fd8ff55 12px 15px);
+  box-shadow: inset 0 0 14px #6fc4ff55;
+}
+.cos[data-harness=titan]::after {
+  background: repeating-linear-gradient(90deg, #00000000 0 9px, #d98a5a4d 9px 13px);
+  box-shadow: inset 0 0 18px #c2603a66;
+}
+
+.cos[data-frame=acier] > .asset   { border-color: #b9c6c9; box-shadow: 0 0 0 2px #46545a; }
+.cos[data-frame=or] > .asset      { border-color: #e6c47c; box-shadow: 0 0 0 2px #6e5522, 0 0 14px #e6c47c55; }
+.cos[data-frame=sang] > .asset    { border-color: #c2555a; box-shadow: 0 0 0 2px #4a1d20, 0 0 14px #c2555a55; }
+.cos[data-frame=eclipse] > .asset { border-color: #b79bff; box-shadow: 0 0 0 2px #2c2352, 0 0 18px #b79bff66; }
+
+.cos-title { margin: 16px 0 4px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+.cos-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0 4px; }
+.cos-chip {
+  padding: 9px 6px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  text-align: center;
+}
+.cos-chip b { display: block; margin-top: 7px; font-size: 11.5px; overflow-wrap: anywhere; }
+.cos-chip span { display: block; margin-top: 3px; font-size: 10px; color: var(--muted); }
+.cos-chip.selected { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.cos-chip:disabled { opacity: .45; }
+.cos-preview {
+  display: block;
+  width: 34px;
+  height: 40px;
+  margin: 4px auto 0;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: linear-gradient(150deg, #33474a, #16232a);
+}
+.cos-preview::after { border-radius: 9px; }
+body.reduced .cos::before { animation: none; }
+
+/* ------------------------------------------------------------------ */
+/* Journal de clan et emotes                                           */
+/* ------------------------------------------------------------------ */
+.clan-journal { margin-top: 26px; border-top: 1px solid var(--line); padding-top: 12px; }
+.clan-log {
+  max-height: 260px;
+  overflow: auto;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #0f1b21;
+}
+.clan-entry {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid #22343a;
+  font-size: 12px;
+}
+.clan-entry:last-child { border-bottom: 0; }
+.clan-entry b { color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px; }
+.clan-entry span { color: var(--text); overflow-wrap: anywhere; }
+.clan-entry em { font-style: normal; font-size: 10px; color: var(--muted); white-space: nowrap; }
+.clan-entry.kind-front b, .clan-entry.kind-front span { color: #ffc98a; }
+.clan-entry.kind-guerre span { color: #a9d8c2; }
+.clan-entry.kind-butin span { color: #e7d29a; }
+.emote-bar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 10px; }
+.clan-emote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  text-align: left;
+  font-size: 11.5px;
+}
+.clan-emote b { font-size: 16px; }
+.clan-emote span { min-width: 0; overflow-wrap: anywhere; }
+.clan-emote:disabled { opacity: .5; }
