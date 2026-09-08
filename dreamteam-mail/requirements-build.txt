@@ -1,0 +1,3 @@
+# L'application n'utilise que la bibliotheque standard (tkinter, imaplib, email).
+# Seule la compilation en .exe demande une dependance :
+pyinstaller>=6.6

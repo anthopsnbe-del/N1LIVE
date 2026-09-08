@@ -1,0 +1,152 @@
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from dreamteam_mail.core import (  # noqa: E402
+    DOMAIN,
+    Adresse,
+    GestionnaireAdresses,
+    Message,
+    domaine_configure,
+    generer_local_part,
+    valider_domaine,
+    valider_local_part,
+)
+
+
+class TestGeneration(unittest.TestCase):
+    def test_domaine_et_format(self):
+        for style in ("mots", "aleatoire"):
+            local = generer_local_part(style)
+            self.assertEqual(valider_local_part(local), local)
+            self.assertTrue(Adresse(local=local).email.endswith(f"@{DOMAIN}"))
+
+    def test_unicite_raisonnable(self):
+        parts = {generer_local_part("aleatoire") for _ in range(500)}
+        self.assertEqual(len(parts), 500)
+
+    def test_local_part_invalide(self):
+        for mauvais in ("", "a b", "-abc", "abc-", "é", "x" * 40):
+            with self.assertRaises(ValueError):
+                valider_local_part(mauvais)
+
+
+class TestCycleDeVie(unittest.TestCase):
+    def gestionnaire(self, **kw):
+        kw.setdefault("persister", False)
+        return GestionnaireAdresses(**kw)
+
+    def test_ttl_par_defaut_une_heure(self):
+        adresse = self.gestionnaire().creer()
+        self.assertEqual(adresse.ttl, 3600)
+        self.assertAlmostEqual(adresse.expire_a - adresse.cree_a, 3600, delta=1)
+
+    def test_expiration_et_purge(self):
+        g = self.gestionnaire()
+        adresse = g.creer()
+        futur = adresse.cree_a + 3601
+        self.assertTrue(adresse.est_expiree(futur))
+        self.assertEqual(g.purger(futur), [adresse.email])
+        self.assertEqual(g.actives(), [])
+        self.assertIsNone(g.obtenir(adresse.email))
+
+    def test_pas_expiree_avant_l_heure(self):
+        g = self.gestionnaire()
+        adresse = g.creer()
+        self.assertFalse(adresse.est_expiree(adresse.cree_a + 3599))
+        self.assertEqual(g.purger(adresse.cree_a + 3599), [])
+
+    def test_messages_effaces_a_la_purge(self):
+        g = self.gestionnaire()
+        adresse = g.creer()
+        g.ajouter_messages(adresse.email, [Message(sujet="secret", corps="code 1234")])
+        self.assertEqual(len(g.obtenir(adresse.email).messages), 1)
+        g.purger(adresse.cree_a + 3601)
+        self.assertEqual(adresse.messages, [])
+
+    def test_deduplication_des_messages(self):
+        g = self.gestionnaire()
+        adresse = g.creer()
+        msg = Message(expediteur="a@b.fr", sujet="x", date="d", corps="c")
+        self.assertEqual(g.ajouter_messages(adresse.email, [msg]), 1)
+        self.assertEqual(g.ajouter_messages(adresse.email, [msg]), 0)
+
+    def test_suppression_immediate(self):
+        g = self.gestionnaire()
+        adresse = g.creer()
+        self.assertTrue(g.supprimer(adresse.email))
+        self.assertFalse(g.supprimer(adresse.email))
+
+    def test_limite_adresses_actives(self):
+        g = self.gestionnaire(max_actives=2)
+        g.creer()
+        g.creer()
+        with self.assertRaises(RuntimeError):
+            g.creer()
+
+    def test_compte_a_rebours(self):
+        adresse = Adresse(local="test")
+        self.assertEqual(adresse.compte_a_rebours(adresse.cree_a + 3600 - 65), "01:05")
+
+
+class TestPersistance(unittest.TestCase):
+    def test_expirees_non_rechargees(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as dossier:
+            fichier = Path(dossier) / "etat.json"
+            g1 = GestionnaireAdresses(fichier=fichier)
+            vivante = g1.creer()
+            perimee = g1.creer()
+            g1.obtenir(perimee.email).cree_a -= 7200
+            g1._sauver()
+
+            g2 = GestionnaireAdresses(fichier=fichier)
+            emails = [a.email for a in g2.actives()]
+            self.assertIn(vivante.email, emails)
+            self.assertNotIn(perimee.email, emails)
+
+
+class TestDomaine(unittest.TestCase):
+    def test_normalisation(self):
+        self.assertEqual(valider_domaine("  Asylum-Games.FR. "), "asylum-games.fr")
+
+    def test_domaines_invalides(self):
+        for mauvais in ("", "local", "a..b.fr", "-a.fr", "a-.fr", "a.fr-", "é.fr"):
+            with self.assertRaises(ValueError, msg=mauvais):
+                valider_domaine(mauvais)
+
+    def test_domaine_personnalise_dans_les_adresses(self):
+        g = GestionnaireAdresses(persister=False, domaine="asylum-games.fr")
+        self.assertTrue(g.creer().email.endswith("@asylum-games.fr"))
+
+    def test_domaine_lu_depuis_la_config(self):
+        import json
+        import os
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as dossier:
+            ancien = os.environ.get("DREAMTEAM_MAIL_HOME")
+            os.environ["DREAMTEAM_MAIL_HOME"] = dossier
+            try:
+                (Path(dossier) / "config.json").write_text(
+                    json.dumps({"domaine": "asylum-games.fr"}), encoding="utf-8"
+                )
+                self.assertEqual(domaine_configure(), "asylum-games.fr")
+                g = GestionnaireAdresses(persister=False)
+                self.assertEqual(g.domaine, "asylum-games.fr")
+                (Path(dossier) / "config.json").write_text(
+                    json.dumps({"domaine": "pas valide"}), encoding="utf-8"
+                )
+                self.assertEqual(domaine_configure(), DOMAIN)
+            finally:
+                if ancien is None:
+                    os.environ.pop("DREAMTEAM_MAIL_HOME", None)
+                else:
+                    os.environ["DREAMTEAM_MAIL_HOME"] = ancien
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,2 +1,9 @@
 *.log
 .DS_Store
+
+# DreamTeam Mail (build)
+dreamteam-mail/build/
+dreamteam-mail/dist/
+dreamteam-mail/.venv/
+__pycache__/
+*.pyc
