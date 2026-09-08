@@ -160,7 +160,8 @@ function social_handle(PDO $db,array $in): array {
       $invites=sq($db,'SELECT id,sender FROM social_invites WHERE recipient=? AND world=?',[$id,$world])->fetchAll(PDO::FETCH_ASSOC);foreach($invites as &$inv)$inv['profile']=social_profile($db,(int)$inv['sender'],$world);unset($inv);
       return ['profile'=>social_profile($db,$id,$world),'friends'=>$list,'invites'=>$invites,'match'=>$match?social_match($db,$match,$id,$now):null,'serverNow'=>$now];
     }
-    // Boss mondial : actions ajoutées par boss-core.php.
+    // Boss mondial et guerres de clans : actions ajoutées par boss-core.php et war-core.php.
     if(function_exists('boss_handle')){$boss=boss_handle($db,$in,$p,$world,$clan,$now);if($boss!==null)return $boss;}
+    if(function_exists('war_handle')){$war=war_handle($db,$in,$p,$world,$clan,$now);if($war!==null)return $war;}
     social_error('Action inconnue.');return [];
 }

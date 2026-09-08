@@ -76,7 +76,7 @@
     var missions = MISSIONS.filter(function (m) {
       return !j.claimed[m.id] && progress[m.id] >= m.goal;
     }).length;
-    return missions + (window.Boss ? window.Boss.pending() : 0);
+    return missions + (window.Boss ? window.Boss.pending() : 0) + (window.War ? window.War.pending() : 0);
   }
 
   // ------------------------------------------------------------------
@@ -235,6 +235,11 @@
       if (window.Boss) window.Boss.refresh(true);
       return;
     }
+    if (where === 'war') {
+      show('tab-war');
+      if (window.War) window.War.refresh(true);
+      return;
+    }
     var tab = where === 'campaign' ? 'tab-combat' : 'tab-world';
     document.querySelector('[data-tab="' + tab + '"]').click();
     if (where === 'arena' || where === 'rank') {
@@ -346,6 +351,10 @@
       + '<p id="home-boss-name">Chargement…</p>'
       + '<progress id="home-boss-progress" max="100" value="0"></progress>'
       + '<p id="home-boss-note"></p><span>Rejoindre l\'assaut →</span></button>'
+      + '<button class="destination war-destination" data-destination="war">'
+      + '<small>GUERRE DE CLANS · 24 HEURES</small>'
+      + '<h2>Guerre de clans <b id="home-war-badge" class="badge hidden">0</b></h2>'
+      + '<p id="home-war-note"></p><span>Voir le front →</span></button>'
       + '<button class="destination tower-destination" data-destination="tower">'
       + '<small>DÉFI SOLO</small><h2>Tour de combat</h2><p id="home-tower"></p>'
       + '<progress id="home-tower-progress" max="200"></progress>'

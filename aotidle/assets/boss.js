@@ -213,6 +213,10 @@
     }
   }
 
+  /* Petit accès partagé au service en ligne : la guerre de clans s'en sert
+     aussi, inutile d'écrire deux fois le même fetch. */
+  window.Api = { call: call, connected: connected };
+
   window.Boss = {
     refresh: function (force) {
       if (!connected()) { render(); return; }

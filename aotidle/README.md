@@ -1,4 +1,4 @@
-# AOT IDLE — v6.1
+# AOT IDLE — v6.2
 
 Idle RPG de fan (non officiel) : une application Android qui est une coquille
 WebView autour d'un jeu web sans dépendance. Le dépôt contient tout ce qu'il
@@ -15,7 +15,7 @@ build/         sortie de compilation (non versionnée)
 ## Construire l'APK
 
 ```bash
-python3 tools/build_apk.py build/AOTIDLE-v6.1.apk
+python3 tools/build_apk.py build/AOTIDLE-v6.2.apk
 ```
 
 Le script assemble `shell/` + `assets/`, garde `resources.arsc` non compressé et
@@ -60,6 +60,20 @@ Côté jeu, `assets/boss.js` tient l'écran (barre de vie, assaut, classement de
 assaillants et des clans) et la carte d'accueil ; sans compte connecté, il le
 dit au lieu de simuler des joueurs.
 
+## Les guerres de clans
+
+`server/war-core.php` ajoute quatre actions (`war_state`, `war_enroll`,
+`war_strike`, `war_claim`) et trois tables (`social_wars`, `social_war_queue`,
+`social_war_damage`). Le chef d'un clan engage son clan ; le serveur l'apparie
+avec le clan en attente d'effectif le plus proche dans le même monde. Les deux
+clans frappent le même front pendant 24 heures et marquent chacun leur score ;
+le camp qui a le plus contribué l'emporte, à la chute du front ou à l'échéance.
+Le module réutilise le calcul de dégâts de `boss-core.php` : mêmes garde-fous,
+même impossibilité pour le client d'annoncer ses propres dégâts.
+
+Côté jeu, `assets/war.js` tient l'écran : engagement du clan, front commun,
+deux barres de score, classement de chaque camp et récompense de fin.
+
 ## Optimiser les images
 
 `tools/optimize_assets.py` est une passe unique, déjà appliquée. Elle détoure
@@ -89,6 +103,7 @@ au serveur (classement, clans, arène).
 | `screens.js` | carte de campagne, archives des portraits, feuille de réglages |
 | `hub.js` | accueil, ordres du jour, Tour de combat |
 | `boss.js` | boss mondial coopératif (assauts, classements, récompense) |
+| `war.js` | guerres de clans : appariement, front commun, scores par camp |
 | `social.js` / `net.js` | comptes, mondes, chat, amis, arène classée, clans |
 | `content.js` / `campaign.js` | 1 000 chapitres, boutique, arcs narratifs |
 | `art.js` | découpe des planches d'icônes (bornes en demi-définition) |

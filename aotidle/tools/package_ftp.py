@@ -21,16 +21,16 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, "build")
-VERSION_NAME = "6.1"
-VERSION_CODE = 9
+VERSION_NAME = "6.2"
+VERSION_CODE = 10
 SERVER_FILES = [
-    "index.php", "social.php", "social-core.php", "boss-core.php",
+    "index.php", "social.php", "social-core.php", "boss-core.php", "war-core.php",
     "release.php", "release-lib.php", "telecharger.php",
     "download-widget.js", "download-widget.css"
 ]
-NOTES = ("Boss mondial coopératif, classement des assaillants et des clans, combats qui montent "
-         "en difficulté, élites, sac et fusion d'équipement, panoplies, passifs de recrues, arbre "
-         "des âmes, missions quotidiennes, Tour à modificateurs, jeu dix fois plus léger.")
+NOTES = ("Guerres de clans sur 24 heures, boss mondial coopératif, combats qui montent en "
+         "difficulté, élites, sac et fusion d'équipement, panoplies, passifs de recrues, arbre des "
+         "âmes, missions quotidiennes, Tour à modificateurs, jeu dix fois plus léger.")
 
 
 def main():
