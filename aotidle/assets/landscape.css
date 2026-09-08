@@ -1,0 +1,140 @@
+/* AOT IDLE — mise en page paysage.
+
+   En paysage, la hauteur devient la ressource rare : la barre d'onglets passe
+   sur le côté en rail vertical, la topbar tient sur une seule ligne, et l'écran
+   de combat se sépare en deux colonnes — l'arène à gauche, tout ce qui se lit
+   et se touche à droite. Le portrait n'est pas touché : les deux orientations
+   restent jouables. */
+
+@media (orientation: landscape) and (min-width: 620px) {
+
+  /* ---------- ossature ---------- */
+
+  #app {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    max-width: none;
+    padding-top: 0;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .topbar {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 6px 16px;
+    padding-top: max(6px, env(safe-area-inset-top));
+  }
+  .topbar .res { margin: 0; }
+  .topbar .hero-line { flex: 1; margin-top: 0; }
+  .res-item:after { display: none; }   /* les libellés OR / CRISTAUX prennent la place */
+
+  main { grid-column: 2; grid-row: 2; }
+
+  /* Rail vertical : la navigation ne mange plus de hauteur. */
+  .tabbar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    grid-template-columns: 1fr;
+    grid-auto-rows: max-content;
+    align-content: center;
+    gap: 2px;
+    border-top: 0;
+    border-right: 1px solid var(--line);
+    padding: 8px 3px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+  .tabbar .tab-btn { padding: 8px 0; }
+  .tabbar .badge { right: calc(50% - 26px); }
+  .tabbar .tab-btn i img { width: 30px; height: 24px; }
+
+  /* ---------- écran de combat : deux colonnes ---------- */
+
+  #tab-combat.active {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.85fr) minmax(300px, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    gap: 8px 14px;
+    align-content: start;
+    padding: 10px 16px 14px;
+  }
+  #tab-combat .arena { grid-column: 1; grid-row: 1 / span 4; margin-top: 0; height: 100%; }
+  #tab-combat .chapter { grid-column: 2; grid-row: 1; }
+  #tab-combat .hero-panel { grid-column: 2; grid-row: 2; margin-top: 0; }
+  #tab-combat .skills { grid-column: 2; grid-row: 3; margin-top: 0; }
+  #tab-combat .log { grid-column: 2; grid-row: 4; margin-top: 0; flex: none; min-height: 70px; }
+  #tab-combat .map-open { margin-top: 6px; }
+  /* La colonne droite doit tenir dans la hauteur : icônes de compétences plus
+     petites, en-tête et journal resserrés. */
+  #tab-combat .chapter { padding: 8px 10px; }
+  #tab-combat .chapter-title b { font-size: 15px; }
+  #mission-brief { -webkit-line-clamp: 2; margin: 6px 0; }
+  .skills { gap: 6px; }
+  .skill { padding: 6px 3px 5px; font-size: 9.5px; }
+  .skill .asset { width: 42px; height: 42px; }
+  .hero-panel #hero-canvas { width: 38px; height: 46px; }
+
+  /* ---------- listes sur deux colonnes ---------- */
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .stats { grid-template-columns: repeat(4, 1fr); }
+  #portraits { grid-template-columns: repeat(8, 1fr); }
+  .qty-picker { max-width: 340px; }
+
+  /* ---------- accueil ---------- */
+
+  #tab-home.active {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 14px;
+    align-content: start;
+  }
+  #tab-home > .home-banner, #tab-home > .daily-card { grid-column: 1 / -1; }
+  #tab-home > .home-banner { padding: 10px 0 6px; }
+  .home-banner .brand-logo { max-height: 84px; }
+  #tab-home .destination { height: 100%; }
+  .daily-row { grid-template-columns: 1fr auto; }
+
+  /* ---------- écrans en ligne et Tour ---------- */
+
+  /* Ces écrans restent sur une colonne, mais centrée : une pleine largeur de
+     paysage donnerait des lignes de texte illisibles. */
+  #tab-tower, #tab-boss, #tab-war, #tab-market, #tab-season {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  #tab-profile { max-width: 760px; margin: 0 auto; }
+  .title-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .profile-avatar .asset { width: 92px; height: 106px; }
+  #fps-meter { left: 100px; bottom: 8px; }
+  .tower-arena img, .boss-arena img, .war-arena img { height: 190px; }
+  .tower-heading { padding: 10px 0 6px; }
+  .tower-heading h1 { font-size: 22px; margin: 6px 0; }
+  .boss-board { max-height: none; }
+
+  /* ---------- feuilles et modales ---------- */
+
+  .sheet { align-items: center; }
+  .sheet-panel { max-height: 92vh; border-radius: 18px; max-width: 720px; }
+  .modal-box { max-height: 88vh; overflow-y: auto; }
+  #chapter-grid { grid-template-columns: repeat(20, 1fr); }
+  .fx-banner { top: 22%; }
+}
+
+/* Paysage sur un écran étroit (petits téléphones posés à l'horizontale) :
+   pas de rail, mais une topbar et des marges compactées. */
+@media (orientation: landscape) and (max-width: 619px) {
+  .topbar { padding: 6px 12px; }
+  .hero-line { margin-top: 4px; }
+  .tab { padding: 8px 12px 16px; }
+  .home-banner .brand-logo { max-height: 70px; }
+  .tower-arena img, .boss-arena img, .war-arena img { height: 150px; }
+}

@@ -9,7 +9,15 @@
 (function () {
   'use strict';
 
-  var prefs = { sound: true, motion: !matchMedia('(prefers-reduced-motion: reduce)').matches };
+  /* `fps` : 0 = sans limite, sinon 30 ou 60 images par seconde. Limiter le
+     rendu soulage la batterie et les téléphones modestes sans jamais toucher à
+     la simulation, qui reste calculée en temps réel. */
+  var prefs = {
+    sound: true,
+    motion: !matchMedia('(prefers-reduced-motion: reduce)').matches,
+    fps: 0,
+    meter: false
+  };
   try { Object.assign(prefs, JSON.parse(localStorage.getItem('aot-v3-settings') || '{}')); } catch (e) { /* ignoré */ }
 
   function savePrefs() {
@@ -129,8 +137,38 @@
   // Interface appelée par le jeu
   // ------------------------------------------------------------------
 
+  /* Limiteur d'images. Chaque boucle (jeu, effets) a son propre compteur :
+     avec un compteur commun, les deux se voleraient les images et le rendu
+     tomberait à la moitié du réglage. */
+  var gates = {};
+  function frameGate(now, key) {
+    if (!prefs.fps) return true;
+    var name = key || 'default';
+    if (now - (gates[name] || 0) < 1000 / prefs.fps - 1) return false;
+    gates[name] = now;
+    return true;
+  }
+
+  /* Compteur d'images, affiché à la demande depuis le profil. */
+  var meterFrames = 0;
+  var meterSince = 0;
+  function meterTick(now) {
+    var el = document.getElementById('fps-meter');
+    if (!el) return;
+    if (!prefs.meter) { el.hidden = true; return; }
+    el.hidden = false;
+    meterFrames++;
+    if (!meterSince) meterSince = now;
+    if (now - meterSince >= 500) {
+      el.textContent = Math.round(meterFrames * 1000 / (now - meterSince)) + ' i/s';
+      meterFrames = 0;
+      meterSince = now;
+    }
+  }
+
   var api = {};
 
+  api.frameGate = frameGate;
   api.prefs = prefs;
   api.sound = sound;
   api.savePrefs = savePrefs;
@@ -423,6 +461,8 @@
 
   function frame(now) {
     requestAnimationFrame(frame);
+    if (!frameGate(now, 'fx')) return;
+    meterTick(now);
     var dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0.016;
     lastFrame = now;
     if (document.hidden) return;
@@ -470,6 +510,10 @@
       banner.id = 'fx-banner';
       banner.className = 'fx-banner';
       document.body.append(banner);
+      var meter = document.createElement('div');
+      meter.id = 'fps-meter';
+      meter.hidden = true;
+      document.body.append(meter);
     }
     requestAnimationFrame(frame);
   });

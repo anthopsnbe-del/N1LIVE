@@ -1,4 +1,4 @@
-# AOT IDLE — v6.3
+# AOT IDLE — v6.4
 
 Idle RPG de fan (non officiel) : une application Android qui est une coquille
 WebView autour d'un jeu web sans dépendance. Le dépôt contient tout ce qu'il
@@ -15,7 +15,7 @@ build/         sortie de compilation (non versionnée)
 ## Construire l'APK
 
 ```bash
-python3 tools/build_apk.py build/AOTIDLE-v6.3.apk
+python3 tools/build_apk.py build/AOTIDLE-v6.4.apk
 ```
 
 Le script assemble `shell/` + `assets/`, garde `resources.arsc` non compressé et
@@ -96,6 +96,26 @@ moitié.
 Côté jeu, `assets/market.js` tient le dépôt et le marché, `assets/season.js` la
 saison en cours et son classement.
 
+## Mode paysage
+
+Le manifeste demande `sensorLandscape` : le jeu se tient à l'horizontale, dans
+les deux sens. `assets/landscape.css` refait la mise en page à partir de 620 px
+de large — la barre d'onglets devient un rail vertical, la topbar tient sur une
+ligne, l'écran de combat se sépare en deux colonnes (arène à gauche, chapitre,
+escouade, compétences et journal à droite) et les listes passent sur deux
+colonnes. La mise en page portrait n'a pas bougé : les deux orientations
+restent jouables, ce qui permet de revenir en arrière en changeant la seule
+ligne du manifeste.
+
+## Fiche de soldat
+
+`assets/profile.js` réunit ce qui concerne le joueur : portrait (le sélecteur a
+quitté l'onglet Escouade), pseudo — envoyé au serveur quand le compte est
+connecté, local sinon —, titres débloqués par les exploits, registre complet et
+confort de jeu. La **limite d'images** (30, 60 ou sans limite) et le compteur
+d'images vivent ici : le limiteur ne freine que le rendu, la simulation reste
+en temps réel. Le portrait sert aussi de bouton dans la topbar.
+
 ## Optimiser les images
 
 `tools/optimize_assets.py` est une passe unique, déjà appliquée. Elle détoure
@@ -128,6 +148,7 @@ au serveur (classement, clans, arène).
 | `war.js` | guerres de clans : appariement, front commun, scores par camp |
 | `market.js` | dépôt du bataillon, marché entre joueurs, mouvements |
 | `season.js` | saisons de l'arène : classement, clôture, récompenses |
+| `profile.js` | fiche de soldat : identité, titres, registre, confort de jeu |
 | `social.js` / `net.js` | comptes, mondes, chat, amis, arène classée, clans |
 | `content.js` / `campaign.js` | 1 000 chapitres, boutique, arcs narratifs |
 | `art.js` | découpe des planches d'icônes (bornes en demi-définition) |

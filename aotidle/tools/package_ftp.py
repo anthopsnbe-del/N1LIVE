@@ -21,15 +21,15 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, "build")
-VERSION_NAME = "6.3"
-VERSION_CODE = 11
+VERSION_NAME = "6.4"
+VERSION_CODE = 12
 SERVER_FILES = [
     "index.php", "social.php", "social-core.php", "wallet-core.php", "boss-core.php",
     "war-core.php", "season-core.php", "market-core.php",
     "release.php", "release-lib.php", "telecharger.php",
     "download-widget.js", "download-widget.css"
 ]
-NOTES = ("Dépôt du bataillon, marché entre joueurs et saisons de l'arène. Guerres de clans sur "
+NOTES = ("Jeu en mode paysage, fiche de soldat complète (portrait, pseudo, titres, registre, limite d'images), décors sur les écrans en ligne. Dépôt du bataillon, marché entre joueurs et saisons de l'arène. Guerres de clans sur "
          "24 heures, boss mondial coopératif, combats qui montent en difficulté, élites, sac et "
          "fusion d'équipement, panoplies, passifs de recrues, arbre des âmes, missions "
          "quotidiennes, Tour à modificateurs, jeu dix fois plus léger.")

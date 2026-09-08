@@ -368,3 +368,141 @@ body.reduced .war-bar i { transition: none; }
 }
 #market-earned, #season-timer { font-size: 12px; color: var(--muted); }
 #season-mine { text-align: center; }
+
+/* ---------- décors d'écran ---------- */
+
+/* Les écrans « de destination » ne sont plus des listes sur fond noir : chacun
+   reçoit un quadrant de `environments.webp` en toile de fond, assombri pour que
+   le texte reste lisible. Une seule image, déjà chargée, quatre ambiances. */
+#tab-home, #tab-tower, #tab-boss, #tab-war, #tab-season, #tab-market, #tab-profile {
+  background-image:
+    linear-gradient(180deg, #0b1418a8 0%, #0b1418cc 45%, #080e12f2 100%),
+    url(environments.webp);
+  background-size: auto, 200% 200%;
+  background-repeat: no-repeat;
+  background-attachment: scroll, fixed;
+}
+#tab-home { background-position: 0 0, 0 0; }
+#tab-tower { background-position: 0 0, 100% 0; }
+#tab-boss { background-position: 0 0, 100% 100%; }
+#tab-war { background-position: 0 0, 0 100%; }
+#tab-season { background-position: 0 0, 100% 0; }
+#tab-market { background-position: 0 0, 0 100%; }
+#tab-profile { background-position: 0 0, 100% 100%; }
+
+/* ---------- écrans en attente ---------- */
+
+/* Un écran qui demande un compte ne doit pas être une page blanche : il montre
+   ce qu'il contiendra et propose l'action qui débloque. */
+.empty-state {
+  max-width: 460px;
+  margin: 10px auto;
+  padding: 18px 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #101c20d9;
+  text-align: center;
+}
+.empty-state img {
+  display: block;
+  width: 140px;
+  height: 150px;
+  object-fit: contain;
+  margin: 0 auto 10px;
+  filter: drop-shadow(0 10px 14px #0009);
+}
+.empty-state h3 { margin: 0 0 10px; font: 700 17px/1.3 Georgia, serif; color: var(--text); }
+.empty-state ol { margin: 0 0 14px; padding-left: 20px; text-align: left; }
+.empty-state li { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
+.empty-state .big-btn { width: 100%; }
+.empty-state .hint { margin-top: 10px; }
+
+/* Bandeau des écrans : un dégradé qui accroche le titre au décor. */
+.tower-heading, .profile-head, .home-banner {
+  position: relative;
+  border-radius: 16px;
+  padding-inline: 14px;
+  background: linear-gradient(180deg, #16262bcc, #0e1a1f00);
+}
+
+/* ---------- fiche de soldat ---------- */
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 14px;
+  margin-bottom: 12px;
+  border: 1px solid #4d6259;
+}
+.profile-avatar .asset {
+  width: 76px;
+  height: 88px;
+  border-radius: 12px;
+  border: 1px solid var(--gold);
+}
+.profile-head h1 { margin: 0 0 4px; font: 700 22px/1.2 Georgia, serif; color: var(--text); }
+.profile-rank {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.profile-head .hint { margin: 0; }
+#profile-notice:not(:empty) {
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: #33261a;
+  color: #ffe1a0;
+  font-size: 12px;
+}
+#profile-save, #profile-settings { width: 100%; margin-top: 8px; }
+#profile-portraits { margin-bottom: 4px; }
+
+.title-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.title-chip {
+  padding: 10px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  text-align: left;
+}
+.title-chip b { display: block; font-size: 12.5px; }
+.title-chip span { display: block; margin-top: 4px; font-size: 10.5px; color: var(--muted); }
+.title-chip.selected { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.title-chip:disabled { opacity: .45; }
+
+.avatar-btn { padding: 0; overflow: hidden; }
+.avatar-btn .asset { width: 100%; height: 100%; display: block; }
+.fps-picker button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12px;
+}
+.fps-picker button.selected {
+  color: #241b02;
+  background: linear-gradient(180deg, #d8a83a, #a8801f);
+  border-color: #6d5b25;
+}
+
+#fps-meter {
+  position: fixed;
+  left: 8px;
+  bottom: calc(78px + env(safe-area-inset-bottom));
+  z-index: 60;
+  padding: 3px 7px;
+  border-radius: 7px;
+  background: #0b1216cc;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}

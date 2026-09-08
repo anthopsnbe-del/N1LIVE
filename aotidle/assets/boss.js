@@ -38,7 +38,15 @@
       signal: controller.signal,
       body: JSON.stringify(body)
     }).then(function (r) { return r.json(); }).then(function (r) {
-      if (!r.ok) throw new Error(r.error || 'Service indisponible.');
+      if (!r.ok) {
+        // Un serveur resté en v5 ne connaît pas ces actions : le dire, plutôt
+        // que d'afficher son « Action inconnue » brut.
+        if (r.error === 'Action inconnue.') {
+          throw new Error('Le serveur du jeu n\'a pas encore la mise à jour : ces écrans '
+            + 's\'activeront dès que les fichiers PHP de la v6 seront en ligne.');
+        }
+        throw new Error(r.error || 'Service indisponible.');
+      }
       return r;
     }).finally(function () { clearTimeout(timer); });
   }
@@ -237,8 +245,14 @@
     section.className = 'tab';
     section.innerHTML = '<header class="tower-heading"><small>ASSAUT MONDIAL · COOPÉRATIF</small>'
       + '<h1 id="boss-name">Boss mondial</h1><p id="boss-reset"></p></header>'
-      + '<div id="boss-offline" hidden><p class="hint">L\'assaut mondial réunit tous les joueurs de votre monde '
-      + 'sur le même titan. Il demande un compte : ouvrez « Compte » dans l\'onglet Monde pour vous connecter.</p></div>'
+      + '<div id="boss-offline" hidden><div class="empty-state">'
+      + '<img src="enemies/colossal.webp" alt="">'
+      + '<h3>Assaut mondial coopératif</h3><ol>'
+      + '<li>Tous les joueurs de votre monde frappent le <b>même titan</b>, une nouvelle bête chaque jour.</li>'
+      + '<li>Un assaut par minute : vos dégâts viennent de votre puissance de campagne.</li>'
+      + '<li>À sa chute, cristaux et équipement sont versés au dépôt du bataillon.</li>'
+      + '</ol><button class="big-btn" data-open-account>Créer un compte ou se connecter</button>'
+      + '<p class="hint">Le mode hors ligne reste complet : campagne, Tour de combat et missions du jour ne demandent pas de compte.</p></div></div>'
       + '<div id="boss-live">'
       + '<div class="tower-arena boss-arena"><img id="boss-art" src="enemies/colossal.webp" alt="Boss mondial">'
       + '<progress id="boss-hp" max="100" aria-label="Vie du boss mondial"></progress></div>'
@@ -256,6 +270,9 @@
 
     $('boss-strike').onclick = strike;
     $('boss-claim').onclick = claim;
+    section.querySelectorAll('[data-open-account]').forEach(function (b) {
+      b.onclick = function () { document.getElementById('account-btn').click(); };
+    });
     ready = true;
     render();
 

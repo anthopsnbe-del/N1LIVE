@@ -138,9 +138,14 @@
     section.className = 'tab';
     section.innerHTML = '<header class="tower-heading"><small>ARÈNE CLASSÉE</small>'
       + '<h1 id="season-number">Saison</h1><p id="season-timer"></p></header>'
-      + '<div id="season-offline" hidden><p class="hint">Les saisons rythment l\'arène classée : '
-      + 'quatorze jours, puis récompenses et remise à niveau des cotes. Elles demandent un compte : '
-      + 'ouvrez « Compte » dans l\'onglet Monde.</p></div>'
+      + '<div id="season-offline" hidden><div class="empty-state">'
+      + '<img src="enemies/feminin.webp" alt="">'
+      + '<h3>Saisons de l\'arène</h3><ol>'
+      + '<li>Quatorze jours de duels classés, puis clôture et récompenses.</li>'
+      + '<li>Podium : 120, 80 et 60 cristaux ; top 10 : 35 ; top 50 : 15.</li>'
+      + '<li>Les cotes ne repartent pas de zéro : elles se rapprochent de 1000 de moitié.</li>'
+      + '</ol><button class="big-btn" data-open-account>Créer un compte ou se connecter</button>'
+      + '<p class="hint">Le mode hors ligne reste complet : campagne, Tour de combat et missions du jour ne demandent pas de compte.</p></div></div>'
       + '<div id="season-live">'
       + '<p id="season-mine" class="hint"></p>'
       + '<button id="season-claim" class="big-btn" hidden></button>'
@@ -152,6 +157,9 @@
     document.querySelector('main').append(section);
 
     $('season-claim').onclick = claim;
+    section.querySelectorAll('[data-open-account]').forEach(function (b) {
+      b.onclick = function () { document.getElementById('account-btn').click(); };
+    });
     ready = true;
     render();
 

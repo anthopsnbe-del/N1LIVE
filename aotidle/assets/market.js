@@ -248,9 +248,14 @@
     section.className = 'tab';
     section.innerHTML = '<header class="tower-heading"><small>DÉPÔT DU BATAILLON</small>'
       + '<h1><b id="market-balance">0</b> cristaux</h1><p id="market-earned"></p></header>'
-      + '<div id="market-offline" hidden><p class="hint">Le dépôt garde les récompenses versées par le serveur '
-      + '(boss mondial, guerres de clans, saisons) et sert de monnaie au marché. Il demande un compte : '
-      + 'ouvrez « Compte » dans l\'onglet Monde.</p></div>'
+      + '<div id="market-offline" hidden><div class="empty-state">'
+      + '<img src="enemies/bestial.webp" alt="">'
+      + '<h3>Dépôt et marché</h3><ol>'
+      + '<li>Le dépôt garde les récompenses versées par le serveur : boss, guerres, saisons.</li>'
+      + '<li>Vendez l\'équipement gagné à d\'autres joueurs, ou rapatriez-le dans votre sac.</li>'
+      + '<li>Rien de votre sauvegarde locale n\'entre sur le marché : pas de duplication possible.</li>'
+      + '</ol><button class="big-btn" data-open-account>Créer un compte ou se connecter</button>'
+      + '<p class="hint">Le mode hors ligne reste complet : campagne, Tour de combat et missions du jour ne demandent pas de compte.</p></div></div>'
       + '<div id="market-live">'
       + '<button id="market-withdraw" class="big-btn"></button>'
       + '<p id="market-notice" role="status"></p>'
@@ -275,6 +280,9 @@
     $('market-withdraw').onclick = withdrawCrystals;
     document.querySelectorAll('[data-market-nav]').forEach(function (b) {
       b.onclick = function () { panel = b.dataset.marketNav; render(); };
+    });
+    section.querySelectorAll('[data-open-account]').forEach(function (b) {
+      b.onclick = function () { document.getElementById('account-btn').click(); };
     });
     ready = true;
     render();

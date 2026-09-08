@@ -1,4 +1,4 @@
-# Publier la version 6.3 avec FileZilla
+# Publier la version 6.4 avec FileZilla
 
 Ce dossier est prêt à transférer. **Il n'a pas été publié.**
 
@@ -27,7 +27,7 @@ elle-même sur l'hébergement.
 3. Dans la racine publique de `asylum-games.fr`, ouvrir le dossier distant
    `aotidle` existant. Conserver ses fichiers `config.php`, `db.php`,
    `google.php` et sa configuration serveur : ils ne sont pas dans ce paquet.
-4. Envoyer d'abord `aotidle/releases/aot-idle-6.3.apk`, puis `social-core.php`,
+4. Envoyer d'abord `aotidle/releases/aot-idle-6.4.apk`, puis `social-core.php`,
    **`wallet-core.php`**, **`boss-core.php`**, **`war-core.php`**, **`season-core.php`** et
    **`market-core.php`**, `social.php`, `index.php`, `release-lib.php`,
    `release.php`, `telecharger.php` et les deux fichiers `download-widget.*`.
@@ -36,7 +36,7 @@ elle-même sur l'hébergement.
 6. Le fragment `BOUTON-A-COLLER.html` n'a pas changé depuis la v5 : rien à
    refaire si le bouton est déjà en place.
 7. Vérifier `https://asylum-games.fr/aotidle/release.php` : versionName doit
-   valoir 6.3 et versionCode 11. Installer ensuite sur un téléphone de test.
+   valoir 6.4 et versionCode 12. Installer ensuite sur un téléphone de test.
 
 ## Nouveau service : le boss mondial
 
@@ -100,9 +100,15 @@ clôture, le serveur fige le classement, prépare les récompenses (podium 120 /
 rapproche chaque cote de 1000 de moitié — une remise à niveau, pas un
 effacement.
 
-**Important : publiez le serveur et l'APK ensemble.** Un client 6.2 parlant à
-un serveur 6.3 afficherait « 0 cristal » à la récupération d'une récompense de
-boss ou de guerre, puisque celle-ci part désormais au dépôt.
+**Important : publiez le serveur et l'APK ensemble.** Tant que les fichiers PHP
+ne sont pas en ligne, le serveur répond « action inconnue » : dans le jeu, les
+écrans Boss mondial, Guerre de clans, Saison et Dépôt affichent alors leur page
+de présentation et un message expliquant que la mise à jour du serveur manque.
+C'est le comportement attendu — ces modes s'allument à la seconde où le
+transfert est fait.
+
+Le serveur de la 6.4 est identique à celui de la 6.3 : si vous avez déjà
+transféré les fichiers PHP, seul l'APK est à renvoyer (puis `release.json`).
 
 ## Vérifications après mise en ligne
 

@@ -204,6 +204,7 @@
     var s = {
       version: 3,
       portrait: 0,
+      title: '',
       journey: { towerBest: 0, towerWins: 0, day: "", dayKills: 0, dayTower: 0,
         dayBosses: 0, streak: 0, claimed: {}, dailyClaimed: false },
       gold: 0,
@@ -872,9 +873,13 @@
     last = now;
     if (running) {
       step(dt);
-      renderCombat();
-      renderSprites(now);
-      if (dirty.panels) { refreshPanels(); dirty.panels = false; }
+      // La limite d'images ne freine que l'affichage : les combats avancent au
+      // même rythme quel que soit le réglage.
+      if (!window.Fx || window.Fx.frameGate(now, 'game')) {
+        renderCombat();
+        renderSprites(now);
+        if (dirty.panels) { refreshPanels(); dirty.panels = false; }
+      }
     }
     requestAnimationFrame(loop);
   }
@@ -1453,6 +1458,7 @@
       record: state.record,
       journey: state.journey,
       portrait: state.portrait,
+      title: state.title,
       soul: state.soul,
       autoBuy: state.autoBuy
     };
@@ -1469,6 +1475,7 @@
     state.record = keep.record;
     state.journey = keep.journey;
     state.portrait = keep.portrait;
+    state.title = keep.title;
     state.soul = keep.soul;
     state.autoBuy = keep.autoBuy;
     state.stats.prestiges++;

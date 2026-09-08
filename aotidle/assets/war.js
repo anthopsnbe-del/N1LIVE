@@ -221,8 +221,14 @@
     section.className = 'tab';
     section.innerHTML = '<header class="tower-heading"><small>GUERRE DE CLANS · 24 HEURES</small>'
       + '<h1 id="war-title">Guerre de clans</h1><p id="war-timer"></p></header>'
-      + '<div id="war-offline" hidden><p class="hint">Les guerres de clans opposent deux clans du même '
-      + 'monde sur un front commun. Elles demandent un compte : ouvrez « Compte » dans l\'onglet Monde.</p></div>'
+      + '<div id="war-offline" hidden><div class="empty-state">'
+      + '<img src="enemies/blinde.webp" alt="">'
+      + '<h3>Guerre de clans</h3><ol>'
+      + '<li>Deux clans du même monde s\'affrontent 24 heures sur un <b>front commun</b>.</li>'
+      + '<li>Le chef engage le clan ; le serveur cherche un adversaire de taille comparable.</li>'
+      + '<li>Le camp qui a le plus contribué l\'emporte — le perdant repart quand même avec des cristaux.</li>'
+      + '</ol><button class="big-btn" data-open-account>Créer un compte ou se connecter</button>'
+      + '<p class="hint">Le mode hors ligne reste complet : campagne, Tour de combat et missions du jour ne demandent pas de compte.</p></div></div>'
       + '<div id="war-idle" hidden><p id="war-clan" class="hint"></p><p id="war-queue" class="hint"></p>'
       + '<button id="war-enroll" class="big-btn" hidden></button>'
       + '<p class="hint">L\'appariement cherche un clan de taille comparable dans votre monde. '
@@ -249,6 +255,9 @@
     $('war-enroll').onclick = enroll;
     $('war-strike').onclick = strike;
     $('war-claim').onclick = claim;
+    section.querySelectorAll('[data-open-account]').forEach(function (b) {
+      b.onclick = function () { document.getElementById('account-btn').click(); };
+    });
     ready = true;
     render();
 

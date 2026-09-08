@@ -253,6 +253,11 @@
       if (window.Season) window.Season.refresh(true);
       return;
     }
+    if (where === 'profile') {
+      show('tab-profile');
+      if (window.Profile) window.Profile.refresh();
+      return;
+    }
     var tab = where === 'campaign' ? 'tab-combat' : 'tab-world';
     document.querySelector('[data-tab="' + tab + '"]').click();
     if (where === 'arena' || where === 'rank') {
