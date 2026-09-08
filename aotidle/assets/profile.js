@@ -149,6 +149,7 @@
     $('profile-sound').checked = prefs.sound;
     $('profile-motion').checked = !prefs.motion;
     $('profile-meter').checked = !!prefs.meter;
+    $('profile-music').checked = prefs.music !== false;
     document.querySelectorAll('[data-fps]').forEach(function (b) {
       b.classList.toggle('selected', Number(b.dataset.fps) === (prefs.fps || 0));
     });
@@ -179,6 +180,7 @@
       + '<h2>Confort de jeu</h2>'
       + '<label class="switch"><input id="profile-sound" type="checkbox"> <span>Effets sonores</span></label>'
       + '<label class="switch"><input id="profile-motion" type="checkbox"> <span>Animations réduites</span></label>'
+      + '<label class="switch"><input id="profile-music" type="checkbox"> <span>Ambiance sonore</span></label>'
       + '<label class="switch"><input id="profile-meter" type="checkbox"> <span>Afficher les images par seconde</span></label>'
       + '<p class="hint">Limite d\'images : moins d\'images, moins de batterie. '
       + 'La simulation, elle, tourne toujours en temps réel.</p>'
@@ -209,6 +211,11 @@
     };
     $('profile-meter').onchange = function () {
       window.Fx.prefs.meter = this.checked;
+      window.Fx.savePrefs();
+    };
+    $('profile-music').onchange = function () {
+      window.Fx.prefs.music = this.checked;
+      window.Fx.startAmbience();
       window.Fx.savePrefs();
     };
     document.querySelectorAll('[data-fps]').forEach(function (b) {

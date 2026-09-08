@@ -20,30 +20,30 @@
   ];
 
   var COMPANIONS = [
-    { id: 'cadet', icon: Art.icon("heroes",0), rarity: "SSR", name: 'Eren Jäger', dps: 2, cost: 30, growth: 1.18 },
-    { id: 'eclaireur', icon: Art.icon("heroes",1), rarity: "UR", name: 'Mikasa Ackerman', dps: 14, cost: 320, growth: 1.18 },
-    { id: 'tireur', icon: Art.icon("heroes",6), rarity: "SR", name: 'Sasha Braus', dps: 90, cost: 3200, growth: 1.18 },
-    { id: 'escouade', icon: Art.icon("heroes",7), rarity: "SR", name: 'Jean Kirstein', dps: 620, cost: 34000, growth: 1.18 },
-    { id: 'veteran', icon: Art.icon("heroes",4), rarity: "SSR", name: 'Hange Zoe', dps: 4200, cost: 420000, growth: 1.19 },
-    { id: 'capitaine', icon: Art.icon("heroes",3), rarity: "LP", name: 'Livaï Ackerman', dps: 32000, cost: 5.2e6, growth: 1.19 },
-    { id: 'commandant', icon: Art.icon("heroes",5), rarity: "UR", name: 'Erwin Smith', dps: 260000, cost: 7.5e7, growth: 1.19 },
-    { id: 'allie', icon: Art.icon("heroes",2), rarity: "SSR", name: 'Armin Arlert', dps: 2.4e6, cost: 1.1e9, growth: 1.19 },
-{id:"hero8",icon:Art.icon("heroes",8),name:"Connie Springer",rarity:"R",cost:150,dps:8,growth:1.19},
-{id:"hero9",icon:Art.icon("heroes",9),name:"Historia Reiss",rarity:"SR",cost:1440,dps:80,growth:1.19},
-{id:"hero10",icon:Art.icon("heroes",10),name:"Reiner Braun",rarity:"UR",cost:107520,dps:5973,growth:1.19},
-{id:"hero11",icon:Art.icon("heroes",11),name:"Bertolt Hoover",rarity:"SSR",cost:15360,dps:853,growth:1.19},
-{id:"hero12",icon:Art.icon("heroes",12),name:"Annie Leonhart",rarity:"UR",cost:138240,dps:7680,growth:1.19},
-{id:"hero13",icon:Art.icon("heroes",13),name:"Sieg Jäger",rarity:"LP",cost:1228800,dps:68267,growth:1.19},
-{id:"hero14",icon:Art.icon("heroes",14),name:"Pieck Finger",rarity:"SSR",cost:21120,dps:1173,growth:1.19},
-{id:"hero15",icon:Art.icon("heroes",15),name:"Porco Galliard",rarity:"SSR",cost:23040,dps:1280,growth:1.19},
-{id:"hero16",icon:Art.icon("heroes",16),name:"Ymir",rarity:"SR",cost:3120,dps:173,growth:1.19},
-{id:"hero17",icon:Art.icon("heroes",17),name:"Gabi Braun",rarity:"R",cost:420,dps:23,growth:1.19},
-{id:"hero18",icon:Art.icon("heroes",18),name:"Falco Grice",rarity:"SR",cost:3600,dps:200,growth:1.19},
-{id:"hero19",icon:Art.icon("heroes",19),name:"Kenny Ackerman",rarity:"UR",cost:245760,dps:13653,growth:1.19},
-{id:"hero20",icon:Art.icon("heroes",20),name:"Petra Ral",rarity:"SR",cost:4080,dps:227,growth:1.19},
-{id:"hero21",icon:Art.icon("heroes",21),name:"Marco Bott",rarity:"R",cost:540,dps:30,growth:1.19},
-{id:"hero22",icon:Art.icon("heroes",22),name:"Floch Forster",rarity:"R",cost:570,dps:32,growth:1.19},
-{id:"hero23",icon:Art.icon("heroes",23),name:"Hannes",rarity:"R",cost:600,dps:33,growth:1.19}
+    { id: 'cadet', icon: Art.icon("heroes",0), rarity: "SSR", name: 'Eren Jäger', dps: 2, cost: 30, growth: 1.18, portrait: 0 },
+    { id: 'eclaireur', icon: Art.icon("heroes",1), rarity: "UR", name: 'Mikasa Ackerman', dps: 14, cost: 320, growth: 1.18, portrait: 1 },
+    { id: 'tireur', icon: Art.icon("heroes",6), rarity: "SR", name: 'Sasha Braus', dps: 90, cost: 3200, growth: 1.18, portrait: 6 },
+    { id: 'escouade', icon: Art.icon("heroes",7), rarity: "SR", name: 'Jean Kirstein', dps: 620, cost: 34000, growth: 1.18, portrait: 7 },
+    { id: 'veteran', icon: Art.icon("heroes",4), rarity: "SSR", name: 'Hange Zoe', dps: 4200, cost: 420000, growth: 1.19, portrait: 4 },
+    { id: 'capitaine', icon: Art.icon("heroes",3), rarity: "LR", name: 'Livaï Ackerman', dps: 32000, cost: 5.2e6, growth: 1.19, portrait: 3 },
+    { id: 'commandant', icon: Art.icon("heroes",5), rarity: "UR", name: 'Erwin Smith', dps: 260000, cost: 7.5e7, growth: 1.19, portrait: 5 },
+    { id: 'allie', icon: Art.icon("heroes",2), rarity: "SSR", name: 'Armin Arlert', dps: 2.4e6, cost: 1.1e9, growth: 1.19, portrait: 2 },
+{id:"hero8",icon:Art.icon("heroes",8),name:"Connie Springer",rarity:"R",cost:150,dps:8,growth:1.19, portrait: 8 },
+{id:"hero9",icon:Art.icon("heroes",9),name:"Historia Reiss",rarity:"SR",cost:1440,dps:80,growth:1.19, portrait: 9 },
+{id:"hero10",icon:Art.icon("heroes",10),name:"Reiner Braun",rarity:"UR",cost:107520,dps:5973,growth:1.19, portrait: 10 },
+{id:"hero11",icon:Art.icon("heroes",11),name:"Bertolt Hoover",rarity:"SSR",cost:15360,dps:853,growth:1.19, portrait: 11 },
+{id:"hero12",icon:Art.icon("heroes",12),name:"Annie Leonhart",rarity:"UR",cost:138240,dps:7680,growth:1.19, portrait: 12 },
+{id:"hero13",icon:Art.icon("heroes",13),name:"Sieg Jäger",rarity:"LP",cost:1228800,dps:68267,growth:1.19, portrait: 13 },
+{id:"hero14",icon:Art.icon("heroes",14),name:"Pieck Finger",rarity:"SSR",cost:21120,dps:1173,growth:1.19, portrait: 14 },
+{id:"hero15",icon:Art.icon("heroes",15),name:"Porco Galliard",rarity:"SSR",cost:23040,dps:1280,growth:1.19, portrait: 15 },
+{id:"hero16",icon:Art.icon("heroes",16),name:"Ymir",rarity:"SR",cost:3120,dps:173,growth:1.19, portrait: 16 },
+{id:"hero17",icon:Art.icon("heroes",17),name:"Gabi Braun",rarity:"R",cost:420,dps:23,growth:1.19, portrait: 17 },
+{id:"hero18",icon:Art.icon("heroes",18),name:"Falco Grice",rarity:"SR",cost:3600,dps:200,growth:1.19, portrait: 18 },
+{id:"hero19",icon:Art.icon("heroes",19),name:"Kenny Ackerman",rarity:"UR",cost:245760,dps:13653,growth:1.19, portrait: 19 },
+{id:"hero20",icon:Art.icon("heroes",20),name:"Petra Ral",rarity:"SR",cost:4080,dps:227,growth:1.19, portrait: 20 },
+{id:"hero21",icon:Art.icon("heroes",21),name:"Marco Bott",rarity:"R",cost:540,dps:30,growth:1.19, portrait: 21 },
+{id:"hero22",icon:Art.icon("heroes",22),name:"Floch Forster",rarity:"R",cost:570,dps:32,growth:1.19, portrait: 22 },
+{id:"hero23",icon:Art.icon("heroes",23),name:"Hannes",rarity:"R",cost:600,dps:33,growth:1.19, portrait: 23 }
   ];
 
   /* Les recrues arrivent dans l'ordre de leur coût : la liste est écrite au
@@ -53,7 +53,9 @@
   /* Chaque recrue apporte un passif qui lui ressemble, actif dès le premier
      exemplaire et renforcé de moitié à chaque palier de 25. La rareté fixe la
      force du passif : R 2 %, SR 3 %, SSR 4 %, UR 6 %, LP 9 %. */
-  var PASSIVE_SCALE = { R: 0.02, SR: 0.03, SSR: 0.04, UR: 0.06, LP: 0.09 };
+  /* Échelle de rareté du jeu, de la plus commune à la plus rare. */
+  var RARITY_LADDER = ['R', 'SR', 'SSR', 'UR', 'LP', 'LR'];
+  var PASSIVE_SCALE = { R: 0.02, SR: 0.03, SSR: 0.04, UR: 0.06, LP: 0.09, LR: 0.12 };
   var PASSIVES = {
     cadet: ['dmg', 'dégâts du soldat'],
     eclaireur: ['crit', 'chances de critique'],
@@ -88,6 +90,17 @@
   }
 
   function heroTier(count) { return 1 + Math.floor(count / 25) * 0.5; }
+
+  /* Archives : une recrue possédée débloque sa carte. La collection donne un
+     bonus global — collectionner sert à quelque chose, pas seulement à voir
+     de belles cartes. */
+  function collectionCount(s) {
+    var owned = 0;
+    COMPANIONS.forEach(function (c) { if (s.team[c.id] > 0) owned++; });
+    return owned;
+  }
+
+  function collectionBonus(s) { return 1 + collectionCount(s) * 0.006; }
 
   /* Somme des passifs d'un type donné, en fraction (0,12 = +12 %). */
   function heroBonus(s, stat) {
@@ -221,6 +234,8 @@
       hp: 0,
       up: {},
       team: {},
+      deeds: {},
+      seen: {},
       soul: {},
       gear: {},
       bag: [],
@@ -313,7 +328,8 @@
     var shop = 1 + shopLevel(s, 'tridim') * 0.25;
     var rage = s.buffs.rage > 0 ? 2 : 1;
     var lames = s.buffs.lames > 0 ? 1.6 : 1;
-    return base * gear * shop * soulMult(s) * rage * lames * (1 + heroBonus(s, 'dmg') + soulNode(s, 'lame') * 0.12);
+    return base * gear * shop * soulMult(s) * rage * lames * collectionBonus(s)
+      * (1 + heroBonus(s, 'dmg') + soulNode(s, 'lame') * 0.12);
   }
 
   function attackSpeed(s) {
@@ -350,7 +366,7 @@
     });
     var shop = 1 + shopLevel(s, 'tridim') * 0.25;
     return total * shop * soulMult(s) * (s.buffs.rage > 0 ? 2 : 1) * (s.buffs.lames > 0 ? 1.6 : 1)
-      * (1 + heroBonus(s, 'team') + soulNode(s, 'bataillon') * 0.2);
+      * collectionBonus(s) * (1 + heroBonus(s, 'team') + soulNode(s, 'bataillon') * 0.2);
   }
 
   function totalDps(s) {
@@ -466,7 +482,10 @@
     $('boss-timer').classList.toggle('hidden', !boss);
     var arena = $('arena');
     arena.style.background = 'radial-gradient(120% 80% at 50% 0%, ' + chapter.sky[0] + ' 0%, ' + chapter.sky[1] + ' 75%)';
-    if (window.Fx) window.Fx.spawn(enemy);
+    if (window.Fx) {
+      window.Fx.spawn(enemy);
+      if ($('tab-combat').classList.contains('active')) window.Fx.mood(boss ? 'boss' : 'campagne');
+    }
     renderCombat();
   }
 
@@ -521,6 +540,7 @@
         if (state.chapter > state.bestChapter) state.bestChapter = state.chapter;
         log('Chapitre ' + state.chapter + ' — ' + chapterDef(state.chapter).name);
         if (window.Fx) window.Fx.chapter(chapterDef(state.chapter).name);
+        if (window.Story) window.Story.chapter(state.chapter);
       }
     } else {
       state.fight++;
@@ -1459,6 +1479,8 @@
       journey: state.journey,
       portrait: state.portrait,
       title: state.title,
+      deeds: state.deeds,
+      seen: state.seen,
       soul: state.soul,
       autoBuy: state.autoBuy
     };
@@ -1476,6 +1498,8 @@
     state.journey = keep.journey;
     state.portrait = keep.portrait;
     state.title = keep.title;
+    state.deeds = keep.deeds;
+    state.seen = keep.seen;
     state.soul = keep.soul;
     state.autoBuy = keep.autoBuy;
     state.stats.prestiges++;
@@ -1538,6 +1562,7 @@
         document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
         btn.classList.add('active');
         $(btn.dataset.tab).classList.add('active');
+        if (window.Hub) window.Hub.mood(btn.dataset.tab);
         dirty.panels = true;
         if (btn.dataset.tab === 'tab-world' && window.Online) window.Online.refresh();
       });
@@ -1668,6 +1693,7 @@
       var enter = function () {
         running = true;
         if (hasSave) offlineProgress();
+        if (window.Story) window.Story.intro();
         save();
       };
       if (window.Online && window.Online.shouldGate()) window.Online.showAuth(enter);
@@ -1704,6 +1730,11 @@
     prestige: doPrestige,
     upgrades: UPGRADES,
     companions: COMPANIONS,
+    rarities: RARITY_LADDER,
+    passiveOf: passiveOf,
+    collection: function () {
+      return { owned: collectionCount(state), total: COMPANIONS.length, bonus: collectionBonus(state) };
+    },
     costs: { upgrade: upgradeCost, companion: companionCost },
     dps: function () { return totalDps(state); },
     maxHp: function () { return maxHp(state); },

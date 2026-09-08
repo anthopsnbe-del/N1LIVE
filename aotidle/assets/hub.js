@@ -79,7 +79,8 @@
     return missions
       + (window.Boss ? window.Boss.pending() : 0)
       + (window.War ? window.War.pending() : 0)
-      + (window.Season ? window.Season.pending() : 0);
+      + (window.Season ? window.Season.pending() : 0)
+      + (window.Deeds ? window.Deeds.pending() : 0);
   }
 
   // ------------------------------------------------------------------
@@ -220,7 +221,16 @@
   // Navigation
   // ------------------------------------------------------------------
 
+  /* Chaque écran a son ambiance : la nappe se réaccorde en changeant d'onglet. */
+  var MOOD_BY_TAB = {
+    'tab-home': 'qg', 'tab-profile': 'qg', 'tab-market': 'qg',
+    'tab-combat': 'campagne', 'tab-tower': 'campagne',
+    'tab-boss': 'boss', 'tab-war': 'guerre', 'tab-season': 'arene',
+    'tab-world': 'arene'
+  };
+
   function show(id) {
+    if (window.Fx) window.Fx.mood(MOOD_BY_TAB[id] || 'qg');
     document.querySelector('main').scrollTop = 0;
     var target = document.getElementById(id);
     if (target) target.scrollTop = 0;
@@ -330,6 +340,7 @@
   }
 
   window.Hub = {
+    mood: function (id) { if (window.Fx) window.Fx.mood(MOOD_BY_TAB[id] || 'qg'); },
     inTower: function () { return !!(fight && fight.active); },
     home: home,
     route: route,

@@ -371,51 +371,22 @@ body.reduced .war-bar i { transition: none; }
 
 /* ---------- décors d'écran ---------- */
 
-/* Les écrans « de destination » ne sont plus des listes sur fond noir : chacun
-   reçoit un quadrant de `environments.webp` en toile de fond, assombri pour que
-   le texte reste lisible. Une seule image, déjà chargée, quatre ambiances. */
+/* Un décor par écran, fabriqué par `tools/make_backgrounds.py` à partir des
+   illustrations déjà embarquées : même source, six étalonnages, 106 Ko en tout.
+   L'image est fixée au viewport — le contenu défile devant elle. */
 #tab-home, #tab-tower, #tab-boss, #tab-war, #tab-season, #tab-market, #tab-profile {
-  background-image:
-    linear-gradient(180deg, #0b1418a8 0%, #0b1418cc 45%, #080e12f2 100%),
-    url(environments.webp);
-  background-size: auto, 200% 200%;
   background-repeat: no-repeat;
-  background-attachment: scroll, fixed;
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
 }
-#tab-home { background-position: 0 0, 0 0; }
-#tab-tower { background-position: 0 0, 100% 0; }
-#tab-boss { background-position: 0 0, 100% 100%; }
-#tab-war { background-position: 0 0, 0 100%; }
-#tab-season { background-position: 0 0, 100% 0; }
-#tab-market { background-position: 0 0, 0 100%; }
-#tab-profile { background-position: 0 0, 100% 100%; }
-
-/* ---------- écrans en attente ---------- */
-
-/* Un écran qui demande un compte ne doit pas être une page blanche : il montre
-   ce qu'il contiendra et propose l'action qui débloque. */
-.empty-state {
-  max-width: 460px;
-  margin: 10px auto;
-  padding: 18px 16px 20px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: #101c20d9;
-  text-align: center;
-}
-.empty-state img {
-  display: block;
-  width: 140px;
-  height: 150px;
-  object-fit: contain;
-  margin: 0 auto 10px;
-  filter: drop-shadow(0 10px 14px #0009);
-}
-.empty-state h3 { margin: 0 0 10px; font: 700 17px/1.3 Georgia, serif; color: var(--text); }
-.empty-state ol { margin: 0 0 14px; padding-left: 20px; text-align: left; }
-.empty-state li { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
-.empty-state .big-btn { width: 100%; }
-.empty-state .hint { margin-top: 10px; }
+#tab-home { background-image: linear-gradient(180deg, #0a1216a6, #0a1216f2), url(bg-qg.webp); }
+#tab-tower { background-image: linear-gradient(180deg, #0a1216a6, #0a1216f2), url(bg-front.webp); }
+#tab-boss { background-image: linear-gradient(180deg, #0d0f14a6, #0a1216f2), url(bg-boss.webp); }
+#tab-war { background-image: linear-gradient(180deg, #0b1018a6, #0a1216f2), url(bg-front.webp); }
+#tab-season { background-image: linear-gradient(180deg, #100e0aa6, #0a1216f2), url(bg-arene.webp); }
+#tab-market { background-image: linear-gradient(180deg, #0a1016a6, #0a1216f2), url(bg-marche.webp); }
+#tab-profile { background-image: linear-gradient(180deg, #0f0d0aa6, #0a1216f2), url(bg-profil.webp); }
 
 /* Bandeau des écrans : un dégradé qui accroche le titre au décor. */
 .tower-heading, .profile-head, .home-banner {
@@ -506,3 +477,157 @@ body.reduced .war-bar i { transition: none; }
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
+
+/* ---------- Archives : cartes de personnages ---------- */
+
+#collection { margin-bottom: 22px; }
+#collection-bar { width: 100%; height: 7px; accent-color: #d8b76e; margin-bottom: 12px; }
+.rarity-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.rarity-filters button {
+  padding: 7px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.rarity-filters button.selected { color: var(--text); border-color: var(--gold); background: var(--panel-2); }
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+
+/* La carte : cadre coloré par la rareté, éclat animé au-delà de UR. */
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  padding: 6px 6px 8px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, #22322f, #131f24);
+  color: var(--text);
+  text-align: center;
+}
+.hero-card-art { position: relative; border-radius: 10px; overflow: hidden; }
+.hero-card .asset { width: 100%; height: auto; aspect-ratio: .86; display: block; }
+.hero-card-rarity {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  background: #0d1418cc;
+  border: 1px solid currentColor;
+}
+.hero-card-name { display: block; margin-top: 6px; font-size: 11.5px; line-height: 1.25; }
+.hero-card-count { display: block; margin-top: 2px; font-size: 10px; color: var(--muted); }
+
+.hero-card.is-R { border-color: #6b7a72; }
+.hero-card.is-R .hero-card-rarity { color: #b9c8bf; }
+.hero-card.is-SR { border-color: #4da3ff; }
+.hero-card.is-SR .hero-card-rarity { color: #4da3ff; }
+.hero-card.is-SSR { border-color: #c072ff; }
+.hero-card.is-SSR .hero-card-rarity { color: #c072ff; }
+.hero-card.is-UR { border-color: #ffa12e; box-shadow: 0 0 14px #ffa12e22; }
+.hero-card.is-UR .hero-card-rarity { color: #ffc46b; }
+.hero-card.is-LP { border-color: #ff5f6d; box-shadow: 0 0 16px #ff5f6d33; }
+.hero-card.is-LP .hero-card-rarity { color: #ff8f96; }
+.hero-card.is-LR {
+  border-color: #ffe08a;
+  box-shadow: 0 0 22px #ffd06a44, inset 0 0 22px #ffd06a11;
+}
+.hero-card.is-LR .hero-card-rarity { color: #ffe08a; }
+
+/* Éclat holographique : il balaie la carte des raretés hautes. */
+.hero-card.unlocked.is-UR::after,
+.hero-card.unlocked.is-LP::after,
+.hero-card.unlocked.is-LR::after {
+  content: '';
+  position: absolute;
+  inset: -40% -120%;
+  background: linear-gradient(72deg, transparent 42%, #ffffff30 50%, transparent 58%);
+  animation: card-sheen 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.hero-card.unlocked.is-LR::after { animation-duration: 2.4s; background: linear-gradient(72deg, transparent 40%, #ffe9b055 50%, transparent 60%); }
+@keyframes card-sheen {
+  0%, 100% { transform: translateX(-45%); opacity: 0; }
+  35% { opacity: 1; }
+  70% { transform: translateX(45%); opacity: 0; }
+}
+
+.hero-card.locked { opacity: .78; }
+.hero-card.locked .hero-card-art { filter: grayscale(1) brightness(.35) contrast(1.2); }
+.hero-card.locked .hero-card-name { color: var(--muted); }
+.hero-card.current { outline: 2px solid var(--gold); outline-offset: 1px; }
+
+.card-detail { display: flex; gap: 14px; align-items: flex-start; text-align: left; }
+.card-detail .hero-card.big { width: 128px; flex: 0 0 auto; }
+.card-detail h4 { margin: 0 0 6px; font: 700 16px/1.3 Georgia, serif; }
+.card-detail p { margin: 4px 0; font-size: 12.5px; }
+
+body.reduced .hero-card::after { animation: none; opacity: 0; }
+
+/* ---------- hauts faits ---------- */
+
+.deeds-list { display: flex; flex-direction: column; gap: 8px; }
+.deed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.deed-body { flex: 1; min-width: 0; }
+.deed-body b { display: block; font-size: 12.5px; }
+.deed-body span { display: block; margin: 3px 0 6px; font-size: 11px; color: var(--muted); }
+.deed-body progress { width: 100%; height: 6px; accent-color: #d8b76e; }
+.deed .buy-btn { min-width: 104px; font-size: 11px; }
+.deed.complete { border-color: var(--wing); }
+
+/* ---------- mise en scène ---------- */
+
+.story-sheet { z-index: 85; align-items: center; padding: 16px; }
+.story-panel {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px 18px 18px;
+  border-radius: 18px;
+  border: 1px solid #c5ab7066;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 20px 60px #000b;
+  text-align: center;
+  animation: story-in .3s ease-out;
+}
+@keyframes story-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+.story-face { width: 96px; margin: 0 auto 12px; }
+.story-face .asset {
+  width: 100%;
+  height: auto;
+  aspect-ratio: .86;
+  border-radius: 12px;
+  border: 1px solid var(--gold);
+  display: block;
+}
+.story-panel small {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #d2b777;
+}
+.story-panel h2 { margin: 8px 0 10px; font: 700 22px/1.25 Georgia, serif; color: #f0e6cf; text-transform: none; letter-spacing: 0; }
+.story-panel p { margin: 0 0 16px; font-size: 13px; line-height: 1.7; color: #cfdad4; }
+.story-actions { display: flex; flex-direction: column; gap: 8px; }
+.story-actions .big-btn, .story-actions .ghost-btn { width: 100%; }
+body.reduced .story-panel { animation: none; }

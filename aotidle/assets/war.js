@@ -153,6 +153,8 @@
       return;
     }
 
+    if (window.Notify && window.Notify.available() && !war.resolved) window.Notify.war(war.endsAt);
+
     var mySide = war.side;
     var us = war.clans[mySide - 1];
     var them = war.clans[2 - mySide];

@@ -1,4 +1,4 @@
-# AOT IDLE — v6.4
+# AOT IDLE — v6.5
 
 Idle RPG de fan (non officiel) : une application Android qui est une coquille
 WebView autour d'un jeu web sans dépendance. Le dépôt contient tout ce qu'il
@@ -7,15 +7,16 @@ faut pour reconstruire l'APK.
 ```
 assets/        le jeu (HTML, CSS, JS, images WebP)
 shell/         le conteneur Android d'origine : manifeste, dex, ressources
+android/       sources Java de la coquille, à compiler pour les notifications
 server/        le service PHP à publier sur l'hébergement (sans les secrets)
-tools/         images, assemblage et signature de l'APK, paquet FTP
+tools/         images, décors, assemblage et signature de l'APK, paquet FTP
 build/         sortie de compilation (non versionnée)
 ```
 
 ## Construire l'APK
 
 ```bash
-python3 tools/build_apk.py build/AOTIDLE-v6.4.apk
+python3 tools/build_apk.py build/AOTIDLE-v6.5.apk
 ```
 
 Le script assemble `shell/` + `assets/`, garde `resources.arsc` non compressé et
@@ -116,6 +117,37 @@ confort de jeu. La **limite d'images** (30, 60 ou sans limite) et le compteur
 d'images vivent ici : le limiteur ne freine que le rendu, la simulation reste
 en temps réel. Le portrait sert aussi de bouton dans la topbar.
 
+## Archives du bataillon
+
+`assets/collection.js` : les 24 personnages en cartes, rangées de **R à LR**.
+Recruter un exemplaire débloque définitivement la carte ; verrouillée, elle
+montre sa silhouette, sa rareté et ce qu'il faut faire. Cadre coloré par
+rareté, éclat holographique animé à partir de UR, et un **bonus de collection**
+(+0,6 % de dégâts par carte) pour que collectionner serve. Le portrait du
+joueur se choisit dans cet écran.
+
+## Hauts faits, mise en scène et ambiance
+
+- `assets/achievements.js` : huit hauts faits à quatre paliers, payés en
+  cristaux, conservés à la renaissance.
+- `assets/story.js` : ouverture en trois plans à la première partie et carte de
+  dialogue à chaque jalon d'arc — le texte vient de `content.js`.
+- `assets/fx.js` fait aussi tourner une **nappe d'ambiance générée en direct**
+  (trois oscillateurs, un souffle filtré, un balayage lent) qui se réaccorde
+  selon l'écran : QG, campagne, boss, guerre, arène. Zéro octet d'audio dans
+  l'APK.
+- `tools/make_backgrounds.py` fabrique les six décors d'écran depuis
+  `environments.webp` : recadrage, flou léger, étalonnage par écran, vignette
+  et grain — 106 Ko en tout.
+
+## Notifications système
+
+Elles demandent du Java, donc un vrai build Android : les sources sont dans
+`android/` (pont `AotBridge`, receveur d'alarme, entrées de manifeste) avec
+leur mode d'emploi. Côté jeu, `assets/notify.js` s'en sert **si** le pont
+existe et ne fait rien sinon — l'APK actuel, qui réutilise le `classes.dex`
+d'origine, fonctionne exactement comme avant.
+
 ## Optimiser les images
 
 `tools/optimize_assets.py` est une passe unique, déjà appliquée. Elle détoure
@@ -149,6 +181,10 @@ au serveur (classement, clans, arène).
 | `market.js` | dépôt du bataillon, marché entre joueurs, mouvements |
 | `season.js` | saisons de l'arène : classement, clôture, récompenses |
 | `profile.js` | fiche de soldat : identité, titres, registre, confort de jeu |
+| `collection.js` | Archives : cartes de personnages, raretés, bonus de collection |
+| `achievements.js` | hauts faits et leurs récompenses |
+| `story.js` | ouverture et cartes de dialogue aux jalons |
+| `notify.js` | rappels système, si la coquille Android les expose |
 | `social.js` / `net.js` | comptes, mondes, chat, amis, arène classée, clans |
 | `content.js` / `campaign.js` | 1 000 chapitres, boutique, arcs narratifs |
 | `art.js` | découpe des planches d'icônes (bornes en demi-définition) |

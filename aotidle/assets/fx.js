@@ -16,13 +16,15 @@
     sound: true,
     motion: !matchMedia('(prefers-reduced-motion: reduce)').matches,
     fps: 0,
-    meter: false
+    meter: false,
+    music: true
   };
   try { Object.assign(prefs, JSON.parse(localStorage.getItem('aot-v3-settings') || '{}')); } catch (e) { /* ignoré */ }
 
   function savePrefs() {
     try { localStorage.setItem('aot-v3-settings', JSON.stringify(prefs)); } catch (e) { /* ignoré */ }
     document.body.classList.toggle('reduced', !prefs.motion);
+    applyMood(true);
   }
 
   // ------------------------------------------------------------------
@@ -32,6 +34,7 @@
   var audio = null;
   var noiseBuffer = null;
   var lastSound = 0;
+  var api_mood = function () {};
 
   function ensureAudio() {
     if (!audio) {
@@ -46,7 +49,11 @@
     return audio;
   }
 
-  document.addEventListener('pointerdown', ensureAudio, { passive: true });
+  document.addEventListener('pointerdown', function () {
+    ensureAudio();
+    buildAmbience();
+  }, { passive: true });
+  document.addEventListener('visibilitychange', function () { applyMood(true); });
 
   function tone(type, freq, target, gain, dur, delay) {
     var t = audio.currentTime + (delay || 0);
@@ -75,6 +82,91 @@
     vol.gain.exponentialRampToValueAtTime(0.0008, t + dur);
     src.start(t); src.stop(t + dur + 0.02);
   }
+
+  /* ---------------------------------------------------------------- */
+  /* Ambiance : une nappe jouée en direct, pas un fichier.               */
+  /* ---------------------------------------------------------------- */
+
+  /* Trois oscillateurs très graves, un souffle filtré et un balayage lent
+     suffisent à poser une atmosphère. C'est de la musique générée : elle ne
+     pèse rien dans l'APK, ne boucle jamais tout à fait pareil, et se réaccorde
+     quand on change d'écran. */
+  var MOODS = {
+    qg: { root: 82.4, fifth: 1.5, cutoff: 620, gain: 0.05 },        // mi grave, calme
+    campagne: { root: 73.4, fifth: 1.5, cutoff: 520, gain: 0.055 }, // ré, tension sourde
+    boss: { root: 55.0, fifth: 1.414, cutoff: 380, gain: 0.075 },   // la grave, quinte diminuée
+    guerre: { root: 61.7, fifth: 1.335, cutoff: 440, gain: 0.065 }, // si bémol, dissonant
+    arene: { root: 98.0, fifth: 1.5, cutoff: 700, gain: 0.05 }      // sol, plus ouvert
+  };
+
+  var ambience = null;
+  var mood = 'qg';
+
+  function buildAmbience() {
+    if (ambience || !ensureAudio()) return;
+    var mix = audio.createGain();
+    var filter = audio.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.Q.value = 0.8;
+    mix.gain.value = 0;
+    filter.connect(mix);
+    mix.connect(audio.destination);
+
+    var voices = [audio.createOscillator(), audio.createOscillator(), audio.createOscillator()];
+    voices[0].type = 'sine';
+    voices[1].type = 'triangle';
+    voices[2].type = 'sine';
+    voices.forEach(function (osc) {
+      var gain = audio.createGain();
+      gain.gain.value = 0.34;
+      osc.connect(gain);
+      gain.connect(filter);
+      osc.start();
+    });
+
+    // Souffle : le buffer de bruit relu en boucle, très filtré.
+    var breath = audio.createBufferSource();
+    var breathGain = audio.createGain();
+    breath.buffer = noiseBuffer;
+    breath.loop = true;
+    breathGain.gain.value = 0.05;
+    breath.connect(breathGain);
+    breathGain.connect(filter);
+    breath.start();
+
+    // Balayage lent du filtre : l'ambiance respire au lieu de bourdonner.
+    var lfo = audio.createOscillator();
+    var lfoGain = audio.createGain();
+    lfo.frequency.value = 0.06;
+    lfoGain.gain.value = 140;
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+    lfo.start();
+
+    ambience = { mix: mix, filter: filter, voices: voices };
+    applyMood(true);
+  }
+
+  function applyMood(immediate) {
+    if (!ambience || !audio) return;
+    var recipe = MOODS[mood] || MOODS.qg;
+    var t = audio.currentTime;
+    var slide = immediate ? 0.2 : 2.5;
+    var target = prefs.music && !document.hidden ? recipe.gain : 0;
+    ambience.mix.gain.cancelScheduledValues(t);
+    ambience.mix.gain.setTargetAtTime(target, t, immediate ? 0.1 : 1.2);
+    ambience.filter.frequency.setTargetAtTime(recipe.cutoff, t, slide / 2);
+    var tuning = [recipe.root, recipe.root * recipe.fifth, recipe.root * 2.01];
+    ambience.voices.forEach(function (osc, i) {
+      osc.frequency.setTargetAtTime(tuning[i], t, slide / 2);
+    });
+  }
+
+  api_mood = function (name) {
+    if (!MOODS[name] || mood === name) return;
+    mood = name;
+    applyMood(false);
+  };
 
   /* Chaque son est une petite recette : une lame siffle et claque, un boss
      gronde, une montée de niveau monte un accord. */
@@ -170,6 +262,8 @@
 
   api.frameGate = frameGate;
   api.prefs = prefs;
+  api.mood = function (name) { api_mood(name); };
+  api.startAmbience = function () { buildAmbience(); };
   api.sound = sound;
   api.savePrefs = savePrefs;
 

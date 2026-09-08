@@ -21,8 +21,8 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, "build")
-VERSION_NAME = "6.4"
-VERSION_CODE = 12
+VERSION_NAME = "6.5"
+VERSION_CODE = 13
 SERVER_FILES = [
     "index.php", "social.php", "social-core.php", "wallet-core.php", "boss-core.php",
     "war-core.php", "season-core.php", "market-core.php",

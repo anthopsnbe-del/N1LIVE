@@ -149,6 +149,8 @@
 
     if (offline || !view) return;
 
+    if (window.Notify && window.Notify.available()) window.Notify.boss(view.boss.endsAt);
+
     var boss = view.boss;
     var you = view.you;
     $('boss-art').src = 'enemies/' + boss.shape + '.webp';
