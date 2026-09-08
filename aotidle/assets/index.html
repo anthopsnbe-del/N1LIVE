@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0e0d12" />
 <title>AOT IDLE</title>
 <link rel="stylesheet" href="style.css" /><link rel="stylesheet" href="remaster.css" /><link rel="stylesheet" href="updates.css" />
-<link rel="stylesheet" href="social.css"><link rel="stylesheet" href="hub.css"><link rel="icon" href="app-icon.png"></head>
+<link rel="stylesheet" href="fx.css"><link rel="stylesheet" href="social.css"><link rel="stylesheet" href="hub.css"><link rel="icon" href="app-icon.webp"></head>
 <body>
 
 <!-- ------------------------------------------------------------------ -->
@@ -14,10 +14,11 @@
 <!-- ------------------------------------------------------------------ -->
 <div id="splash">
   <div class="splash-inner">
-    <img class="brand-logo splash-logo" src="logo.png" alt="Idle AOT">
+    <img class="brand-logo splash-logo" src="logo.webp" alt="Idle AOT">
     <p class="splash-sub">Bataillon d'exploration · idle RPG</p>
     <div class="splash-bar"><div id="splash-bar"></div></div>
     <p class="splash-status" id="splash-status">Chargement…</p>
+    <p class="splash-tip" id="splash-tip"></p>
     <button id="splash-start" class="big-btn hidden">COMMENCER</button>
     <p class="splash-legal">Projet de fan non officiel, sans lien avec les ayants droit.</p>
   </div>
@@ -28,7 +29,7 @@
 <!-- ------------------------------------------------------------------ -->
 <div id="auth" class="hidden">
   <div class="auth-box">
-    <img class="brand-logo auth-logo" src="logo.png" alt="Idle AOT">
+    <img class="brand-logo auth-logo" src="logo.webp" alt="Idle AOT">
     <p class="auth-sub" id="auth-sub">Connectez-vous pour le classement et les clans.</p>
 
     <div class="auth-tabs">
@@ -65,6 +66,7 @@
     <div class="hero-line">
       <span class="hero-name">Rang <b id="hero-level">1</b></span>
       <div class="xp-bar"><div id="xp-fill"></div><span id="xp-text">0 / 0</span></div>
+      <button class="icon-btn" id="settings-btn" aria-label="Réglages">⚙</button>
     </div>
   </header>
 
@@ -90,6 +92,7 @@
         <div class="enemy-name"><span id="enemy-name">Titan de 3 m</span><span class="boss-tag hidden" id="boss-tag">BOSS</span></div>
         <div class="hp-bar big"><div id="enemy-hp-fill"></div><span id="enemy-hp-text">10 / 10</span></div>
         <div class="boss-timer hidden" id="boss-timer"> 45.0 s</div>
+        <div class="combo hidden" id="combo"><b id="combo-count">0</b><span>combo</span></div>
       </div>
 
       <div class="hero-panel">
@@ -110,9 +113,18 @@
     <section class="tab" id="tab-hero">
       <h2>Entraînement</h2>
       <p class="hint">Dépensez votre or pour renforcer le soldat. Réinitialisé à la renaissance.</p>
+      <div class="qty-picker" role="group" aria-label="Quantité achetée">
+        <button class="qty selected" data-qty="1">×1</button>
+        <button class="qty" data-qty="10">×10</button>
+        <button class="qty" data-qty="max">max</button>
+      </div>
       <div class="cards" id="upgrades"></div>
       <h2>Équipement</h2>
+      <p class="hint" id="set-info"></p>
       <div class="cards" id="gear"></div>
+      <h2>Sac <small id="bag-count"></small></h2>
+      <p class="hint">Les pièces remplacées y sont rangées. Deux pièces identiques fusionnent en une rareté supérieure.</p>
+      <div class="cards" id="bag"></div>
       <h2>Registre</h2>
       <div class="stats" id="stats"></div>
     </section>
@@ -143,6 +155,7 @@
       <h2>Clan</h2>
       <div class="clan-box" id="clan-box"></div>
 
+      <section id="progress-block">
       <h2>Renaissance</h2>
       <div class="prestige-box">
         <div class="prestige-gain"><span>Âmes à gagner</span><b id="prestige-gain">0</b></div>
@@ -150,28 +163,20 @@
         <button class="big-btn" id="prestige-btn">Renaître</button>
       </div>
 
-      <h2>Options</h2><label class="switch"><input id="sfx-option" type="checkbox" checked> Effets sonores</label><label class="switch"><input id="motion-option" type="checkbox"> Animations réduites</label>
-      <div class="options">
-        <label class="switch"><input type="checkbox" id="opt-autoadvance" checked /> <span>Progression automatique des chapitres</span></label>
-        <label class="switch"><input type="checkbox" id="opt-autoskill" /> <span>Compétences automatiques</span></label>
-        <label class="field"><span>Serveur (API)</span><input id="opt-server" type="url" placeholder="https://exemple.fr/aot-idle/api" /></label>
-        <button class="ghost-btn" id="server-save">Enregistrer le serveur</button>
-        <button class="ghost-btn" id="account-btn">Compte / déconnexion</button>
-        <button class="ghost-btn" id="export-btn">Exporter la sauvegarde</button>
-        <button class="ghost-btn" id="import-btn">Importer une sauvegarde</button>
-        <button class="danger-btn" id="wipe-btn">Effacer la sauvegarde</button>
-      </div>
-      <p class="version">AOT IDLE — v5.0 · projet de fan non officiel</p>
-    </section>
+      <h2>Arbre des âmes <small><b id="soul-pool">0</b> âmes à investir</small></h2>
+      <p class="hint">Les âmes dépensées ici ne réduisent pas votre bonus de renaissance, et l'arbre traverse toutes les renaissances.</p>
+      <div id="soul-tree"></div>
+      <p class="version">AOT IDLE — v6.0 · projet de fan non officiel</p>
+      </section>
 
   </main>
 
   <nav class="tabbar">
-    <button class="tab-btn active" data-tab="tab-combat"><i><span class="art tile-12"></span></i><span>Combat</span></button>
-    <button class="tab-btn" data-tab="tab-hero"><i><span class="art tile-13"></span></i><span>Soldat</span></button>
-    <button class="tab-btn" data-tab="tab-team"><i><span class="art tile-12"></span></i><span>Escouade</span></button>
-    <button class="tab-btn" data-tab="tab-shop"><i><span class="art tile-14"></span></i><span>Boutique</span></button>
-    <button class="tab-btn" data-tab="tab-world"><i><span class="art tile-5"></span></i><span>Monde</span></button>
+    <button class="tab-btn active" data-tab="tab-combat"><i></i><span>Combat</span><b class="badge hidden"></b></button>
+    <button class="tab-btn" data-tab="tab-hero"><i></i><span>Soldat</span><b class="badge hidden"></b></button>
+    <button class="tab-btn" data-tab="tab-team"><i></i><span>Escouade</span><b class="badge hidden"></b></button>
+    <button class="tab-btn" data-tab="tab-shop"><i></i><span>Boutique</span><b class="badge hidden"></b></button>
+    <button class="tab-btn" data-tab="tab-world"><i></i><span>Monde</span><b class="badge hidden"></b></button>
   </nav>
 
 </div>
@@ -184,12 +189,36 @@
   </div>
 </div>
 
+<div id="settings-sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-label="Réglages">
+  <div class="sheet-panel">
+    <header>
+      <div><small>QUARTIER GÉNÉRAL</small><h2>Réglages</h2></div>
+      <button id="settings-close" aria-label="Fermer">×</button>
+    </header>
+    <h3>Confort</h3>
+    <label class="switch"><input id="sfx-option" type="checkbox" checked> <span>Effets sonores</span></label>
+    <label class="switch"><input id="motion-option" type="checkbox"> <span>Animations réduites</span></label>
+    <h3>Automatisation</h3>
+    <label class="switch" id="row-autoadvance"><input type="checkbox" id="opt-autoadvance" checked /> <span>Progression automatique des chapitres</span></label>
+    <label class="switch" id="row-autoskill"><input type="checkbox" id="opt-autoskill" /> <span>Compétences automatiques</span></label>
+    <label class="switch" id="row-autobuy"><input type="checkbox" id="opt-autobuy" /> <span>Entraînement automatique</span></label>
+    <p class="hint" id="auto-hint"></p>
+    <h3>Compte et sauvegarde</h3>
+    <label class="field"><span>Serveur (API)</span><input id="opt-server" type="url" placeholder="https://exemple.fr/aot-idle/api" /></label>
+    <button class="ghost-btn" id="server-save">Enregistrer le serveur</button>
+    <button class="ghost-btn" id="account-btn">Compte / déconnexion</button>
+    <button class="ghost-btn" id="export-btn">Exporter la sauvegarde</button>
+    <button class="ghost-btn" id="import-btn">Importer une sauvegarde</button>
+    <button class="danger-btn" id="wipe-btn">Effacer la sauvegarde</button>
+    <p class="version">AOT IDLE — v6.0 · projet de fan non officiel, sans lien avec les ayants droit.</p>
+  </div>
+</div>
+
 <div id="toast" class="toast hidden"></div>
 
-<script src="sprites.js"></script>
 <script src="art.js"></script><script src="content.js"></script>
 <script src="net.js"></script>
-<script src="campaign.js"></script><script src="remaster.js"></script><script src="build-info.js"></script><script src="updates.js"></script><script src="game.js"></script><script src="social.js"></script><script src="hub.js"></script>
+<script src="campaign.js"></script><script src="fx.js"></script><script src="screens.js"></script><script src="build-info.js"></script><script src="updates.js"></script><script src="game.js"></script><script src="social.js"></script><script src="hub.js"></script>
 </body>
 </html>
 

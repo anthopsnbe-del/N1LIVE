@@ -1,0 +1,272 @@
+/* AOT IDLE — habillage des nouveautés v6 : animations, bannières, combo,
+   pastilles, feuilles modales, sac et arbre des âmes.
+   Tout ce qui bouge est neutralisé par `body.reduced` (option « Animations
+   réduites ») sans jamais faire disparaître une information. */
+
+/* ---------- arène ---------- */
+
+/* Les deux couches de l'arène (décor et effets) sont posées par fx.js ;
+   leur empilement reste défini dans remaster.css. */
+.arena { overflow: hidden; will-change: transform; }
+/* Les canvas du combat sont des dessins haute définition, pas du pixel art :
+   le lissage doit rester actif (l'ancien `image-rendering: pixelated` global
+   les crénelait). */
+#enemy-canvas, #hero-canvas, canvas.asset { image-rendering: auto; }
+
+.boss-tag.elite-tag { background: var(--epic); }
+.boss-timer.urgent { color: #ff7b74; animation: pulse .6s ease-in-out infinite; }
+
+.combo {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 4;
+  text-align: center;
+  color: var(--legend);
+  text-shadow: 0 2px 6px #000;
+  animation: pop .25s ease-out;
+}
+.combo b { display: block; font-size: 22px; font-weight: 900; line-height: 1; }
+.combo span { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- bannières plein écran ---------- */
+
+.fx-banner {
+  position: fixed;
+  left: 50%;
+  top: 26%;
+  /* Sous les modales (70-80) : une bannière ne doit jamais couvrir un
+     panneau ouvert par le joueur. */
+  z-index: 50;
+  transform: translate(-50%, -50%) scale(.9);
+  padding: 14px 26px;
+  border-radius: 14px;
+  border: 1px solid #cbb17b66;
+  background: linear-gradient(120deg, #1b2c30f2, #0f1a1ef2);
+  box-shadow: 0 18px 60px #000a;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.fx-banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.fx-banner small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: .28em;
+  color: #d2b777;
+  margin-bottom: 6px;
+}
+.fx-banner b { font: 700 22px/1.2 Georgia, serif; color: #f0e6cf; }
+.fx-banner.boss { border-color: #c0403a; }
+.fx-banner.boss b { color: #ff9d95; }
+.fx-banner.elite b { color: #d9a8ff; }
+.fx-banner.level b { color: var(--xp); }
+.fx-banner.loot b { color: var(--legend); }
+.fx-banner.defeat b { color: #ff7b74; }
+
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes pulse { 50% { opacity: .45; } }
+@keyframes slide-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes count-up { from { transform: translateY(-3px); color: var(--gold); } to { transform: none; } }
+
+.tab.active { animation: slide-in .22s ease-out; }
+.res-item b.bump { animation: count-up .3s ease-out; }
+
+/* ---------- barre d'onglets : pastilles ---------- */
+
+.tabbar .tab-btn { position: relative; }
+.tabbar .badge {
+  position: absolute;
+  top: 2px;
+  right: calc(50% - 22px);
+  min-width: 16px;
+  padding: 1px 4px;
+  border-radius: 9px;
+  background: var(--hp);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 14px;
+  text-align: center;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  margin-left: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 16px;
+}
+
+/* ---------- quantité d'achat ---------- */
+
+.qty-picker { display: flex; gap: 6px; margin-bottom: 10px; }
+.qty {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12px;
+}
+.qty-picker .qty.selected { color: #241b02; background: linear-gradient(180deg, #d8a83a, #a8801f); border-color: #6d5b25; }
+
+/* ---------- sac et panoplie ---------- */
+
+.bag-actions { display: flex; flex-direction: column; gap: 5px; }
+.bag-actions .buy-btn { min-width: 88px; padding: 6px; font-size: 11px; }
+.bag-actions .buy-btn.fuse { background: linear-gradient(180deg, #c072ff, #7a3fb0); border-color: #6a3f96; color: #fff; }
+.ghost-btn.small { padding: 5px 8px; font-size: 10.5px; min-width: 88px; }
+.card[data-rarity="légendaire"] { border-color: #7a5a1c; }
+.card[data-rarity="mythique"] { border-color: #8d2a34; }
+
+/* ---------- arbre des âmes ---------- */
+
+#soul-tree .branch {
+  margin: 14px 0 8px;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--soul);
+}
+#soul-tree .buy-btn { background: linear-gradient(180deg, #a888e8, #6f52aa); border-color: #574189; color: #fff; }
+#soul-tree .buy-btn:disabled { background: var(--panel-2); border-color: var(--line); color: var(--muted); }
+
+/* ---------- feuilles modales (réglages, carte) ---------- */
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: #05080ab8;
+  backdrop-filter: blur(3px);
+}
+.sheet.hidden { display: none; }
+.sheet-panel {
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 18px 16px calc(22px + env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  background: var(--bg-soft);
+  animation: sheet-up .24s ease-out;
+}
+@keyframes sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.sheet-panel header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.sheet-panel header small { font-size: 9px; letter-spacing: .22em; color: #d2b777; }
+.sheet-panel header h2 { margin: 6px 0 12px; color: var(--text); font-size: 19px; text-transform: none; letter-spacing: 0; }
+.sheet-panel header button {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 18px;
+}
+.sheet-panel h3 {
+  margin: 18px 0 8px;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sheet-panel .switch.locked { opacity: .45; }
+.sheet-panel .ghost-btn, .sheet-panel .danger-btn { width: 100%; margin-top: 8px; }
+
+
+/* ---------- rapport hors ligne ---------- */
+
+.report {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+.report span { color: var(--muted); }
+.report b { font-variant-numeric: tabular-nums; }
+
+/* ---------- animations réduites ---------- */
+
+body.reduced .fx-banner,
+body.reduced .tab.active,
+body.reduced .combo,
+body.reduced .res-item b.bump,
+body.reduced .sheet-panel { animation: none; }
+body.reduced .arena { transform: none !important; }
+body.reduced .floater { animation-duration: .01s; }
+
+/* ---------- accueil : ordres du jour ---------- */
+
+.home-banner small {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: .06em;
+}
+.daily-card h2 { display: flex; align-items: center; gap: 8px; }
+.daily-card h2 .badge {
+  position: static;
+  min-width: 18px;
+  padding: 1px 5px;
+  border-radius: 9px;
+  background: var(--hp);
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+}
+.daily-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.daily-row span { font-size: 12px; color: var(--muted); }
+.daily-row progress { grid-column: 1; width: 100%; height: 6px; accent-color: #d8b76e; }
+.daily-row .buy-btn { grid-row: 1 / span 2; min-width: 104px; font-size: 11px; }
+
+/* ---------- Tour de combat ---------- */
+
+.tower-modifier {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #6a7a5b;
+  border-radius: 11px;
+  background: #1d2c2ecc;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.tower-modifier b { color: var(--gold); }
+.tower-arena { position: relative; }
+#tower-weak {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid #ffd27a;
+  background: #ffcd7433;
+  color: #ffe6b0;
+  font-size: 20px;
+  animation: weak-pulse .7s ease-in-out infinite;
+  z-index: 4;
+}
+@keyframes weak-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 #ffd27a66; }
+  50% { transform: scale(1.12); box-shadow: 0 0 0 10px #ffd27a00; }
+}
+body.reduced #tower-weak { animation: none; }

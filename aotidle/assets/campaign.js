@@ -29,7 +29,12 @@
   arcs.forEach(function(a,ai){for(var j=0;j<100;j++){
     var phase=Math.floor(j/25), milestone=j%25===24, training=ai===1, human=ai===5;
     var mob=training?['Cible d’entraînement','soldat']:human?['Brigade intérieure','soldat']:['Titan errant','titan'];
-    list.push({name:a[0],arc:ai,year:a[1],brief:(milestone?'Jalon : '+a[4][phase]+'. ':'Mission secondaire '+(j+1)+' : '+missions[j%5]+'. ')+a[3],
+    /* Le titre du chapitre est celui de la mission, pas celui de l'arc :
+       cent chapitres nommés « Le 104e bataillon » donnaient une campagne
+       qui semblait vide. L'arc reste affiché à côté du numéro. */
+    var title=milestone?a[4][phase]:missions[j%5];
+    list.push({name:title,arcName:a[0],arc:ai,year:a[1],milestone:milestone,
+      brief:(milestone?'Jalon : '+a[4][phase]+'. ':'Mission secondaire '+(j+1)+' : '+missions[j%5]+'. ')+a[3],
       pal:'chair',fights:milestone?40:25+((ai*100+j)%16),sky:['#31433f','#111b22'],mobs:[mob],
       boss:milestone?encounters[ai][phase].concat('chair'):[training?'Parcours chronométré':human?'Chef de patrouille':'Titan anormal',training||human?'soldat':'anormal','chair']});
   }});

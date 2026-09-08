@@ -36,7 +36,8 @@
  }
  window.Social={setPortrait:function(n){if(state()&&state().online.token)run('portrait',{portrait:n},function(){poll(true);});}};
  document.addEventListener('DOMContentLoaded',function(){
-  var world=$('tab-world'),legacy=document.createElement('details');legacy.className='legacy-world';legacy.append(text('summary','Clan, compte et options du jeu'));while(world.firstChild)legacy.append(world.firstChild);world.append(legacy);
+  var world=$('tab-world'),legacy=document.createElement('details');legacy.className='legacy-world';legacy.append(text('summary','Clan et classement hérités'));/* La renaissance et l'arbre des âmes restent à vue : seul l'ancien bloc clan/classement est replié sous le quartier général en ligne. */
+  var progress=$('progress-block');while(world.firstChild){var node=world.firstChild;world.removeChild(node);if(node!==progress)legacy.append(node);}world.append(progress);world.append(legacy);
   var root=document.createElement('div');root.id='social-root';root.innerHTML=`
    <header class="world-heading"><small>LE BATAILLON VOUS ATTEND</small><h1>Quartier général</h1><span id="social-connection">Connexion requise</span></header>
    <section class="identity-card"><div id="social-avatar"></div><div><h2 id="social-pseudo">Soldat</h2><span id="social-world">EU1</span><p id="social-rank">Votre aventure en ligne</p></div><button id="social-login" class="ghost-btn">Compte</button></section>
