@@ -20,6 +20,7 @@ from . import theme
 from .core import (
     DUREES,
     MAX_ACTIVE,
+    RELEVE_AUTO_SECONDES,
     TTL_SECONDS,
     GestionnaireAdresses,
     PurgeAutomatique,
@@ -43,6 +44,7 @@ class Application(tk.Tk):
 
         self.backend: Backend = backend_par_defaut()
         self.file_evenements: queue.Queue = queue.Queue()
+        self._releve_en_cours: set[str] = set()
 
         self._construire()
         self._rafraichir_liste()
@@ -50,6 +52,7 @@ class Application(tk.Tk):
         self.purge = PurgeAutomatique(self.gestionnaire, intervalle=1.0, au_tick=self._sur_purge)
         self.purge.demarrer()
         self.after(500, self._vider_file)
+        self.after(RELEVE_AUTO_SECONDES * 1000, self._releve_automatique)
         self.protocol("WM_DELETE_WINDOW", self._fermer)
 
     # ------------------------------------------------------------ construction
@@ -63,6 +66,11 @@ class Application(tk.Tk):
         ttk.Button(barre, text="Supprimer", command=self.supprimer_adresse).pack(side=tk.LEFT, padx=(6, 0))
         ttk.Button(barre, text="Tout detruire", command=self.tout_supprimer).pack(side=tk.LEFT, padx=(6, 0))
         ttk.Button(barre, text="Serveur…", command=self.configurer_imap).pack(side=tk.RIGHT)
+
+        self.var_auto = tk.BooleanVar(value=True)
+        ttk.Checkbutton(
+            barre, text=f"Releve auto ({RELEVE_AUTO_SECONDES} s)", variable=self.var_auto,
+        ).pack(side=tk.RIGHT, padx=(12, 12))
 
         self.var_style = tk.StringVar(value="mots")
         ttk.Label(barre, text="Style :").pack(side=tk.RIGHT, padx=(12, 4))
@@ -159,15 +167,36 @@ class Application(tk.Tk):
             self._statut("Selectionne d'abord une adresse.")
             return
         self._statut(f"Relevé en cours pour {email}…")
-        threading.Thread(target=self._relever_en_fond, args=(email,), daemon=True).start()
+        self._lancer_releve(email)
 
-    def _relever_en_fond(self, email: str) -> None:
+    def _lancer_releve(self, email: str, silencieux: bool = False) -> None:
+        if email in self._releve_en_cours:
+            return  # un relevé precedent est encore en vol
+        self._releve_en_cours.add(email)
+        threading.Thread(
+            target=self._relever_en_fond, args=(email, silencieux), daemon=True
+        ).start()
+
+    def _relever_en_fond(self, email: str, silencieux: bool = False) -> None:
         try:
             messages = self.backend.relever(email)
         except Exception as err:  # reseau, auth, etc.
-            self.file_evenements.put(("erreur", f"Relevé impossible : {err}"))
+            if not silencieux:  # un relevé de fond echoue en silence
+                self.file_evenements.put(("erreur", f"Relevé impossible : {err}"))
+            self.file_evenements.put(("fin_releve", email))
             return
-        self.file_evenements.put(("messages", (email, messages)))
+        self.file_evenements.put(("messages", (email, messages, silencieux)))
+        self.file_evenements.put(("fin_releve", email))
+
+    def _releve_automatique(self) -> None:
+        """Relève l'adresse selectionnee a intervalle regulier, si l'option est active."""
+        try:
+            if self.var_auto.get():
+                email = self._selection()
+                if email and self.gestionnaire.obtenir(email) is not None:
+                    self._lancer_releve(email, silencieux=True)
+        finally:
+            self.after(RELEVE_AUTO_SECONDES * 1000, self._releve_automatique)
 
     def appliquer_domaine(self, domaine: str) -> None:
         """Change le domaine des futures adresses ; les adresses en cours restent valides."""
@@ -266,12 +295,14 @@ class Application(tk.Tk):
                 if genre == "tick":
                     purge_signalee.extend(charge)
                 elif genre == "messages":
-                    email, messages = charge
+                    email, messages, silencieux = charge
                     ajoutes = self.gestionnaire.ajouter_messages(email, messages)
-                    self._statut(
-                        f"{ajoutes} nouveau(x) message(s) pour {email}."
-                        if ajoutes else f"Aucun nouveau message pour {email}."
-                    )
+                    if ajoutes:
+                        self._statut(f"{ajoutes} nouveau(x) message(s) pour {email}.")
+                    elif not silencieux:
+                        self._statut(f"Aucun nouveau message pour {email}.")
+                elif genre == "fin_releve":
+                    self._releve_en_cours.discard(charge)
                 elif genre in ("erreur", "info"):
                     self._statut(charge)
         except queue.Empty:

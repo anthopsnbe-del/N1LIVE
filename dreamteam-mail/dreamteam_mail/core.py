@@ -18,6 +18,17 @@ TTL_SECONDS = 3600        # duree de vie par defaut : 1 heure
 TTL_MIN_SECONDS = 300     # plancher : 5 minutes
 TTL_MAX_SECONDS = 86400   # plafond impose : 24 heures
 MAX_ACTIVE = 5            # garde-fou anti-abus
+RELEVE_AUTO_SECONDES = 30 # cadence du releve automatique
+
+# Parties locales que le generateur ne doit jamais produire : boites reelles du
+# domaine et adresses techniques. Sans cela, une adresse jetable pourrait tomber
+# sur une vraie boite et afficher son courrier dans la fenetre.
+ADRESSES_RESERVEES = frozenset({
+    "abuse", "admin", "administrateur", "administrator", "billing", "bounce",
+    "catchall", "clips", "contact", "contact-us", "facturation", "hostmaster",
+    "info", "mail", "mail_php", "mailer-daemon", "marketing", "no-reply",
+    "noreply", "postmaster", "root", "sales", "security", "support", "webmaster",
+})
 
 # Durees proposees dans l'interface (libelle -> secondes), 24 h au maximum.
 DUREES = (
@@ -205,12 +216,16 @@ class GestionnaireAdresses:
         domaine: str | None = None,
         fichier: Path | None = None,
         persister: bool = True,
+        reservees: Iterable[str] | None = None,
     ) -> None:
         self.ttl = valider_ttl(ttl)
         self.max_actives = max_actives
         self.domaine = valider_domaine(domaine) if domaine else domaine_configure()
         self.fichier = fichier or chemin_etat()
         self.persister = persister
+        self.reservees = frozenset(
+            m.strip().lower() for m in (reservees if reservees is not None else ADRESSES_RESERVEES)
+        )
         self._adresses: dict[str, Adresse] = {}
         self._verrou = threading.RLock()
         self._charger()
@@ -239,6 +254,12 @@ class GestionnaireAdresses:
                 )
             for _ in range(50):
                 part = valider_local_part(local) if local else generer_local_part(style)
+                if part in self.reservees:
+                    if local:
+                        raise ValueError(
+                            f"{part}@{self.domaine} est une adresse reservee du domaine."
+                        )
+                    continue  # tirage suivant : on ne marche pas sur une vraie boite
                 adresse = Adresse(local=part, domaine=self.domaine, ttl=duree)
                 if adresse.email not in self._adresses:
                     self._adresses[adresse.email] = adresse

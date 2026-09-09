@@ -1,10 +1,12 @@
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from dreamteam_mail.core import (  # noqa: E402
+    ADRESSES_RESERVEES,
     DOMAIN,
     Adresse,
     GestionnaireAdresses,
@@ -92,6 +94,39 @@ class TestCycleDeVie(unittest.TestCase):
     def test_compte_a_rebours(self):
         adresse = Adresse(local="test")
         self.assertEqual(adresse.compte_a_rebours(adresse.cree_a + 3600 - 65), "01:05")
+
+
+class TestAdressesReservees(unittest.TestCase):
+    def test_boites_reelles_du_domaine_protegees(self):
+        for reservee in ("clips", "contact", "postmaster", "abuse", "mail_php"):
+            self.assertIn(reservee, ADRESSES_RESERVEES)
+
+    def test_creation_explicite_refusee(self):
+        g = GestionnaireAdresses(persister=False)
+        for reservee in ("clips", "CONTACT", " postmaster "):
+            with self.assertRaises(ValueError, msg=reservee):
+                g.creer(local=reservee)
+
+    def test_generation_evite_les_reservees(self):
+        # Un generateur qui ne renverrait qu'une adresse reservee doit echouer
+        # plutot que de la creer.
+        g = GestionnaireAdresses(persister=False)
+        with mock.patch("dreamteam_mail.core.generer_local_part", return_value="contact"):
+            with self.assertRaises(RuntimeError):
+                g.creer()
+
+    def test_generation_repli_sur_une_adresse_libre(self):
+        g = GestionnaireAdresses(persister=False)
+        tirages = iter(["clips", "contact", "vif.nuage042"])
+        with mock.patch("dreamteam_mail.core.generer_local_part",
+                        side_effect=lambda *a, **k: next(tirages)):
+            self.assertEqual(g.creer().local, "vif.nuage042")
+
+    def test_liste_personnalisable(self):
+        g = GestionnaireAdresses(persister=False, reservees=["interdit"])
+        with self.assertRaises(ValueError):
+            g.creer(local="interdit")
+        self.assertTrue(g.creer(local="clips").email.startswith("clips@"))
 
 
 class TestDuree(unittest.TestCase):

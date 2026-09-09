@@ -64,6 +64,12 @@ messages destinés à l'alias sélectionné s'affichent.
   aussi effacés de la boîte catch-all (IMAP `STORE \Deleted` + `EXPUNGE`), pour
   éviter que la boîte ne gonfle indéfiniment. Décochable dans « Serveur… ».
 - Interface sombre orange/rouge à chasse fixe, dans l'esprit d'un terminal.
+- **Relevé automatique** toutes les 30 s sur l'adresse sélectionnée
+  (décochable dans la barre d'outils). Un relevé de fond qui échoue reste
+  silencieux ; le bouton « Relever » affiche les erreurs normalement.
+- **Adresses réservées** : le générateur ne peut jamais produire une boîte
+  réelle du domaine (`clips`, `contact`, `postmaster`, `abuse`…), et une
+  saisie manuelle de ces noms est refusée.
 
 ## Construire le `.exe`
 
@@ -99,10 +105,10 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-32 tests couvrent la durée de vie et son plafond de 24 h, la purge,
+37 tests couvrent la durée de vie et son plafond de 24 h, la purge,
 l'effacement des messages, la limite d'adresses, la validation du domaine, la
-non-réhydratation des adresses expirées et la suppression côté serveur (cible
-restreinte à l'alias, relevé en lecture seule).
+non-réhydratation des adresses expirées, les adresses réservées et la
+suppression côté serveur (cible restreinte à l'alias, relevé en lecture seule).
 
 ## Où sont stockés les mails
 
