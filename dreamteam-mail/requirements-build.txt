@@ -1,3 +1,4 @@
 # L'application n'utilise que la bibliotheque standard (tkinter, imaplib, email).
 # Seule la compilation en .exe demande une dependance :
 pyinstaller>=6.6
+pillow>=10.0   # conversion de assets/icone.png en .ico

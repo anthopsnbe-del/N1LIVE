@@ -63,16 +63,23 @@ messages destinés à l'alias sélectionné s'affichent.
 - **Suppression côté serveur** : à l'expiration, les messages de l'alias sont
   aussi effacés de la boîte catch-all (IMAP `STORE \Deleted` + `EXPUNGE`), pour
   éviter que la boîte ne gonfle indéfiniment. Décochable dans « Serveur… ».
-- Interface sombre orange/rouge à chasse fixe, dans l'esprit d'un terminal.
+- Interface sombre orange/rouge à chasse fixe, dans l'esprit d'un terminal,
+  avec **barre d'actions verticale à gauche** et crédit en pied de fenêtre.
 - **Boîte de réception façon Gmail** : liste des messages (expéditeur, objet +
   extrait, date), les non-lus en gras orange, volet de lecture en dessous, et
   compteur `non-lus/total` en face de chaque adresse.
-- **Relevé automatique** toutes les 30 s sur l'adresse sélectionnée
-  (décochable dans la barre d'outils). Un relevé de fond qui échoue reste
-  silencieux ; le bouton « Relever » affiche les erreurs normalement.
+- **Relevé automatique** toutes les 30 s sur l'adresse sélectionnée, toujours
+  actif. Un relevé de fond qui échoue reste silencieux ; le bouton « Relever »
+  affiche les erreurs normalement.
 - **Adresses réservées** : le générateur ne peut jamais produire une boîte
   réelle du domaine (`clips`, `contact`, `postmaster`, `abuse`…), et une
   saisie manuelle de ces noms est refusée.
+
+## Icône
+
+Dépose ton image carrée dans `assets/icone.png` : la compilation la convertit
+en `assets/icone.ico` multi-tailles et l'applique à l'exécutable. Sans ce
+fichier, le build réussit avec l'icône par défaut de PyInstaller.
 
 ## Construire le `.exe`
 

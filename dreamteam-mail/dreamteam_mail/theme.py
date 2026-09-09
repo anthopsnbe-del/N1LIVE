@@ -53,7 +53,18 @@ def appliquer(racine: tk.Misc) -> ttk.Style:
     style.configure("TFrame", background=FOND)
     style.configure("TPanedwindow", background=FOND)
     style.configure("TLabel", background=FOND, foreground=ROUGE)
+    # Etiquettes posees sur la barre laterale : meme fond qu'elle.
+    style.configure("Barre.TLabel", background=PANNEAU, foreground=ROUGE)
     style.configure("Titre.TLabel", foreground=ORANGE, font=grasse)
+    style.configure("Marque.TLabel", background=PANNEAU, foreground=ORANGE_VIF,
+                    font=police(13, gras=True))
+    style.configure("Discret.TLabel", background=PANNEAU, foreground=ROUGE_SOMBRE,
+                    font=police(9))
+    style.configure("Credit.TLabel", background=PANNEAU, foreground=ROUGE_SOMBRE,
+                    padding=(10, 5))
+    style.configure("Barre.TFrame", background=PANNEAU)
+    style.configure("Statut.TFrame", background=PANNEAU)
+    style.configure("TSeparator", background=BORDURE)
     style.configure("Statut.TLabel", background=PANNEAU, foreground=ORANGE_VIF,
                     relief="flat", padding=(10, 5))
 

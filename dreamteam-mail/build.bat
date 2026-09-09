@@ -14,9 +14,10 @@ call .venv\Scripts\activate.bat
 
 echo [3/4] Installation de PyInstaller...
 python -m pip install --upgrade pip >nul
-python -m pip install "pyinstaller>=6.6" || exit /b 1
+python -m pip install "pyinstaller>=6.6" pillow || exit /b 1
 
-echo [4/4] Compilation...
+echo [4/4] Icone puis compilation...
+python tools\creer_ico.py
 python -m PyInstaller --clean --noconfirm DreamTeamMail.spec || exit /b 1
 
 echo.

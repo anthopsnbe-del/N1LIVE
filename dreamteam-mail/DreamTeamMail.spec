@@ -1,7 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 """Recette PyInstaller : un seul .exe, sans console."""
 
+import os
+
 block_cipher = None
+
+# Icone personnalisee si assets/icone.ico a ete genere (voir tools/creer_ico.py).
+_ico = os.path.join("assets", "icone.ico")
+ICONE = _ico if os.path.exists(_ico) else None
 
 a = Analysis(
     ["main.py"],
@@ -34,4 +40,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=ICONE,
 )

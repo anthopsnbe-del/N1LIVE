@@ -29,6 +29,9 @@ from .core import (
 )
 
 
+CREDIT = "Email Destructor crée par mNzy | DreamTeam 2026"
+
+
 def titre(domaine: str) -> str:
     return f"DreamTeam Mail — adresses jetables @{domaine}"
 
@@ -57,39 +60,48 @@ class Application(tk.Tk):
 
     # ------------------------------------------------------------ construction
     def _construire(self) -> None:
-        barre = ttk.Frame(self, padding=(10, 8))
-        barre.pack(fill=tk.X)
+        # Barre laterale verticale : toutes les actions, de haut en bas.
+        barre = ttk.Frame(self, padding=(10, 10), style="Barre.TFrame")
+        barre.pack(fill=tk.Y, side=tk.LEFT)
 
-        ttk.Button(barre, text="Nouvelle adresse", command=self.creer_adresse).pack(side=tk.LEFT)
-        ttk.Button(barre, text="Copier", command=self.copier_adresse).pack(side=tk.LEFT, padx=(6, 0))
-        ttk.Button(barre, text="Relever", command=self.relever).pack(side=tk.LEFT, padx=(6, 0))
-        ttk.Button(barre, text="Supprimer", command=self.supprimer_adresse).pack(side=tk.LEFT, padx=(6, 0))
-        ttk.Button(barre, text="Tout detruire", command=self.tout_supprimer).pack(side=tk.LEFT, padx=(6, 0))
-        ttk.Button(barre, text="Serveur…", command=self.configurer_imap).pack(side=tk.RIGHT)
+        ttk.Label(barre, text="EMAIL", style="Marque.TLabel").pack(anchor=tk.W)
+        ttk.Label(barre, text="DESTRUCTOR", style="Marque.TLabel").pack(anchor=tk.W, pady=(0, 14))
 
-        self.var_auto = tk.BooleanVar(value=True)
-        ttk.Checkbutton(
-            barre, text=f"Releve auto ({RELEVE_AUTO_SECONDES} s)", variable=self.var_auto,
-        ).pack(side=tk.RIGHT, padx=(12, 12))
+        actions = (
+            ("Nouvelle adresse", self.creer_adresse),
+            ("Copier", self.copier_adresse),
+            ("Relever", self.relever),
+            ("Supprimer", self.supprimer_adresse),
+            ("Tout detruire", self.tout_supprimer),
+        )
+        for libelle, commande in actions:
+            ttk.Button(barre, text=libelle, command=commande, width=18).pack(
+                fill=tk.X, pady=3
+            )
 
-        self.var_style = tk.StringVar(value="mots")
-        ttk.Label(barre, text="Style :").pack(side=tk.RIGHT, padx=(12, 4))
-        ttk.Combobox(
-            barre, textvariable=self.var_style, values=("mots", "aleatoire"),
-            width=10, state="readonly",
-        ).pack(side=tk.RIGHT)
+        ttk.Separator(barre, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=12)
 
+        ttk.Label(barre, text="Duree de vie", style="Barre.TLabel").pack(anchor=tk.W, pady=(0, 4))
         self.durees = dict(DUREES)
         defaut = next(lib for lib, sec in DUREES if sec == TTL_SECONDS)
         self.var_duree = tk.StringVar(value=defaut)
-        ttk.Label(barre, text="Duree :").pack(side=tk.RIGHT, padx=(12, 4))
         ttk.Combobox(
             barre, textvariable=self.var_duree, values=[lib for lib, _ in DUREES],
-            width=12, state="readonly",
-        ).pack(side=tk.RIGHT)
+            width=16, state="readonly",
+        ).pack(fill=tk.X)
+
+        ttk.Label(
+            barre, text=f"Releve automatique\ntoutes les {RELEVE_AUTO_SECONDES} s",
+            style="Discret.TLabel", justify=tk.LEFT,
+        ).pack(anchor=tk.W, pady=(14, 0))
+
+        ttk.Frame(barre).pack(fill=tk.BOTH, expand=True)  # pousse le bouton en bas
+        ttk.Button(barre, text="Serveur…", command=self.configurer_imap, width=18).pack(
+            fill=tk.X
+        )
 
         corps = ttk.Panedwindow(self, orient=tk.HORIZONTAL)
-        corps.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 8))
+        corps.pack(fill=tk.BOTH, expand=True, padx=(0, 10), pady=(10, 8))
 
         gauche = ttk.Frame(corps)
         colonnes = ("email", "restant", "messages")
@@ -144,9 +156,12 @@ class Application(tk.Tk):
         self._signature_boite: tuple | None = None
         corps.add(droite, weight=3)
 
+        pied = ttk.Frame(self, style="Statut.TFrame")
+        pied.pack(fill=tk.X, side=tk.BOTTOM)
         self.var_statut = tk.StringVar()
-        ttk.Label(self, textvariable=self.var_statut, style="Statut.TLabel",
-                  anchor=tk.W).pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Label(pied, textvariable=self.var_statut, style="Statut.TLabel",
+                  anchor=tk.W).pack(fill=tk.X, side=tk.LEFT, expand=True)
+        ttk.Label(pied, text=CREDIT, style="Credit.TLabel", anchor=tk.E).pack(side=tk.RIGHT)
         self._statut(
             f"Domaine : @{self.gestionnaire.domaine} — duree reglable jusqu'a 24 h — "
             f"{MAX_ACTIVE} adresses max — source : {self.backend.nom}"
@@ -156,9 +171,7 @@ class Application(tk.Tk):
     def creer_adresse(self) -> None:
         libelle = self.var_duree.get()
         try:
-            adresse = self.gestionnaire.creer(
-                style=self.var_style.get(), ttl=self.durees.get(libelle, TTL_SECONDS)
-            )
+            adresse = self.gestionnaire.creer(ttl=self.durees.get(libelle, TTL_SECONDS))
         except (RuntimeError, ValueError) as err:
             messagebox.showwarning("Creation impossible", str(err), parent=self)
             return
@@ -220,10 +233,9 @@ class Application(tk.Tk):
     def _releve_automatique(self) -> None:
         """Relève l'adresse selectionnee a intervalle regulier, si l'option est active."""
         try:
-            if self.var_auto.get():
-                email = self._selection()
-                if email and self.gestionnaire.obtenir(email) is not None:
-                    self._lancer_releve(email, silencieux=True)
+            email = self._selection()
+            if email and self.gestionnaire.obtenir(email) is not None:
+                self._lancer_releve(email, silencieux=True)
         finally:
             self.after(RELEVE_AUTO_SECONDES * 1000, self._releve_automatique)
 

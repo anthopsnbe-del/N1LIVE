@@ -33,6 +33,9 @@ jobs:
       - name: Verification de l'interface graphique
         working-directory: dreamteam-mail
         run: python -c "import dreamteam_mail.gui; print('GUI OK')"
+      - name: Icone de l'application
+        working-directory: dreamteam-mail
+        run: python tools/creer_ico.py
       - name: Compilation PyInstaller
         working-directory: dreamteam-mail
         run: python -m PyInstaller --clean --noconfirm DreamTeamMail.spec
