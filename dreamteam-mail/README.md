@@ -64,6 +64,9 @@ messages destinés à l'alias sélectionné s'affichent.
   aussi effacés de la boîte catch-all (IMAP `STORE \Deleted` + `EXPUNGE`), pour
   éviter que la boîte ne gonfle indéfiniment. Décochable dans « Serveur… ».
 - Interface sombre orange/rouge à chasse fixe, dans l'esprit d'un terminal.
+- **Boîte de réception façon Gmail** : liste des messages (expéditeur, objet +
+  extrait, date), les non-lus en gras orange, volet de lecture en dessous, et
+  compteur `non-lus/total` en face de chaque adresse.
 - **Relevé automatique** toutes les 30 s sur l'adresse sélectionnée
   (décochable dans la barre d'outils). Un relevé de fond qui échoue reste
   silencieux ; le bouton « Relever » affiche les erreurs normalement.
@@ -105,7 +108,7 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-37 tests couvrent la durée de vie et son plafond de 24 h, la purge,
+42 tests couvrent la durée de vie et son plafond de 24 h, la purge,
 l'effacement des messages, la limite d'adresses, la validation du domaine, la
 non-réhydratation des adresses expirées, les adresses réservées et la
 suppression côté serveur (cible restreinte à l'alias, relevé en lecture seule).

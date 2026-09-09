@@ -39,8 +39,8 @@ class Application(tk.Tk):
         theme.appliquer(self)
         self.gestionnaire = gestionnaire or GestionnaireAdresses()
         self.title(titre(self.gestionnaire.domaine))
-        self.geometry("1040x620")
-        self.minsize(880, 540)
+        self.geometry("1240x700")
+        self.minsize(1000, 580)
 
         self.backend: Backend = backend_par_defaut()
         self.file_evenements: queue.Queue = queue.Queue()
@@ -99,7 +99,7 @@ class Application(tk.Tk):
         self.liste.heading("messages", text="Msg")
         self.liste.column("email", width=300)
         self.liste.column("restant", width=100, anchor=tk.CENTER)
-        self.liste.column("messages", width=50, anchor=tk.CENTER)
+        self.liste.column("messages", width=60, anchor=tk.CENTER)
         self.liste.pack(fill=tk.BOTH, expand=True, side=tk.LEFT)
         defilement = ttk.Scrollbar(gauche, orient=tk.VERTICAL, command=self.liste.yview)
         defilement.pack(fill=tk.Y, side=tk.RIGHT)
@@ -108,12 +108,41 @@ class Application(tk.Tk):
         corps.add(gauche, weight=1)
 
         droite = ttk.Frame(corps)
-        ttk.Label(droite, text="Boite de reception", style="Titre.TLabel",
+        self.var_boite = tk.StringVar(value="Boite de reception")
+        ttk.Label(droite, textvariable=self.var_boite, style="Titre.TLabel",
                   padding=(0, 0, 0, 6)).pack(anchor=tk.W)
-        self.zone = tk.Text(droite, wrap=tk.WORD, state=tk.DISABLED, height=20)
+
+        lecture = ttk.Panedwindow(droite, orient=tk.VERTICAL)
+        lecture.pack(fill=tk.BOTH, expand=True)
+
+        entete = ttk.Frame(lecture)
+        colonnes_msg = ("de", "objet", "date")
+        self.messages = ttk.Treeview(
+            entete, columns=colonnes_msg, show="headings", selectmode="browse"
+        )
+        self.messages.heading("de", text="De")
+        self.messages.heading("objet", text="Objet")
+        self.messages.heading("date", text="Date")
+        self.messages.column("de", width=170, stretch=False)
+        self.messages.column("objet", width=420)
+        self.messages.column("date", width=130, stretch=False, anchor=tk.E)
+        self.messages.tag_configure("nonlu", font=theme.police(gras=True), foreground=theme.ORANGE)
+        self.messages.tag_configure("lu", foreground=theme.ROUGE)
+        self.messages.pack(fill=tk.BOTH, expand=True, side=tk.LEFT)
+        defilement_msg = ttk.Scrollbar(entete, orient=tk.VERTICAL, command=self.messages.yview)
+        defilement_msg.pack(fill=tk.Y, side=tk.RIGHT)
+        self.messages.configure(yscrollcommand=defilement_msg.set)
+        self.messages.bind("<<TreeviewSelect>>", lambda _e: self._ouvrir_message())
+        lecture.add(entete, weight=2)
+
+        bas = ttk.Frame(lecture)
+        self.zone = tk.Text(bas, wrap=tk.WORD, state=tk.DISABLED, height=12)
         theme.habiller_texte(self.zone)
         self.zone.pack(fill=tk.BOTH, expand=True)
-        corps.add(droite, weight=2)
+        lecture.add(bas, weight=3)
+
+        self._signature_boite: tuple | None = None
+        corps.add(droite, weight=3)
 
         self.var_statut = tk.StringVar()
         ttk.Label(self, textvariable=self.var_statut, style="Statut.TLabel",
@@ -240,7 +269,9 @@ class Application(tk.Tk):
         vivants = set()
         for adresse in self.gestionnaire.actives():
             vivants.add(adresse.email)
-            valeurs = (adresse.email, adresse.compte_a_rebours(), len(adresse.messages))
+            non_lus = sum(1 for m in adresse.messages if not m.lu)
+            compteur = f"{non_lus}/{len(adresse.messages)}" if non_lus else str(len(adresse.messages))
+            valeurs = (adresse.email, adresse.compte_a_rebours(), compteur)
             if adresse.email in existants:
                 self.liste.item(adresse.email, values=valeurs)
             else:
@@ -252,28 +283,79 @@ class Application(tk.Tk):
         self._afficher_messages()
 
     def _afficher_messages(self) -> None:
+        """Met a jour la liste des messages de l'adresse selectionnee."""
         email = self._selection()
         adresse = self.gestionnaire.obtenir(email) if email else None
+        if adresse is None:
+            self.var_boite.set("Boite de reception")
+            if self._signature_boite is not None:
+                self.messages.delete(*self.messages.get_children())
+                self._ecrire_corps(("Aucune adresse selectionnee.", "discret"))
+                self._signature_boite = None
+            return
+
+        non_lus = sum(1 for m in adresse.messages if not m.lu)
+        titre_boite = f"{adresse.email} — expire dans {adresse.compte_a_rebours()}"
+        if non_lus:
+            titre_boite += f" — {non_lus} non lu(s)"
+        self.var_boite.set(titre_boite)
+
+        signature = (adresse.email, tuple((m.date, m.sujet, m.lu) for m in adresse.messages))
+        if signature == self._signature_boite:
+            return  # rien de neuf : on ne reconstruit pas la liste sous la souris
+        self._signature_boite = signature
+
+        choix = self.messages.selection()
+        precedent = choix[0] if choix else None
+        self.messages.delete(*self.messages.get_children())
+        for indice in range(len(adresse.messages) - 1, -1, -1):  # plus recent en haut
+            msg = adresse.messages[indice]
+            objet = msg.sujet or "(sans objet)"
+            apercu = msg.apercu()
+            self.messages.insert(
+                "", tk.END, iid=str(indice),
+                values=(msg.expediteur_court(), f"{objet}  —  {apercu}", msg.date),
+                tags=("lu" if msg.lu else "nonlu",),
+            )
+        if precedent and self.messages.exists(precedent):
+            self.messages.selection_set(precedent)
+        elif not adresse.messages:
+            self._ecrire_corps(
+                (f"{adresse.email}\n", "titre"),
+                (f"Expire dans {adresse.compte_a_rebours()}.\n\n", "accent"),
+                ("Boite vide. Le releve automatique tourne toutes les 30 s.\n", "discret"),
+            )
+
+    def _ouvrir_message(self) -> None:
+        """Affiche le message selectionne et le marque comme lu."""
+        email = self._selection()
+        adresse = self.gestionnaire.obtenir(email) if email else None
+        choix = self.messages.selection()
+        if adresse is None or not choix:
+            return
+        try:
+            msg = adresse.messages[int(choix[0])]
+        except (ValueError, IndexError):
+            return
+        self._ecrire_corps(
+            (f"{msg.sujet or '(sans objet)'}\n", "titre"),
+            (f"De   : {msg.expediteur}\n", "accent"),
+            (f"Date : {msg.date}\n", "accent"),
+            ("─" * 60 + "\n\n", "separateur"),
+            (f"{msg.corps}\n", None),
+        )
+        if not msg.lu:
+            msg.lu = True
+            self.messages.item(choix[0], tags=("lu",))
+            self.gestionnaire.sauver()
+            self._afficher_messages()
+
+    def _ecrire_corps(self, *morceaux: tuple) -> None:
+        """Remplit le volet de lecture : suite de (texte, style)."""
         self.zone.configure(state=tk.NORMAL)
         self.zone.delete("1.0", tk.END)
-        if adresse is None:
-            self.zone.insert(tk.END, "Aucune adresse selectionnee.\n", "discret")
-        elif not adresse.messages:
-            self.zone.insert(tk.END, f"{adresse.email}\n", "titre")
-            self.zone.insert(tk.END, f"Expire dans {adresse.compte_a_rebours()}.\n\n", "accent")
-            self.zone.insert(tk.END, "Boite vide. Clique sur « Relever ».\n", "discret")
-        else:
-            self.zone.insert(tk.END, f"{adresse.email}\n", "titre")
-            self.zone.insert(tk.END, f"Expire dans {adresse.compte_a_rebours()}\n", "accent")
-            for msg in reversed(adresse.messages):
-                self.zone.insert(tk.END, "\n" + "─" * 60 + "\n", "separateur")
-                self.zone.insert(tk.END, "De     : ", "accent")
-                self.zone.insert(tk.END, f"{msg.expediteur}\n")
-                self.zone.insert(tk.END, "Date   : ", "accent")
-                self.zone.insert(tk.END, f"{msg.date}\n")
-                self.zone.insert(tk.END, "Objet  : ", "accent")
-                self.zone.insert(tk.END, f"{msg.sujet}\n\n", "titre")
-                self.zone.insert(tk.END, f"{msg.corps}\n")
+        for texte, style in morceaux:
+            self.zone.insert(tk.END, texte, style) if style else self.zone.insert(tk.END, texte)
         self.zone.configure(state=tk.DISABLED)
 
     def _copier_presse_papier(self, texte: str) -> None:

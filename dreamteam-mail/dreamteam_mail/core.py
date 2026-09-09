@@ -9,7 +9,7 @@ import secrets
 import string
 import threading
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Callable, Iterable
 
@@ -100,6 +100,22 @@ class Message:
     sujet: str = ""
     date: str = ""
     corps: str = ""
+    lu: bool = False
+
+    def apercu(self, taille: int = 90) -> str:
+        """Debut du corps sur une ligne, comme l'extrait affiche par Gmail."""
+        texte = " ".join(self.corps.split())
+        return texte if len(texte) <= taille else texte[: taille - 1] + "…"
+
+    def expediteur_court(self) -> str:
+        """Nom affichable : « Jobat » plutot que « Jobat <no-reply@jobat.be> »."""
+        brut = self.expediteur.strip()
+        if "<" in brut:
+            nom = brut.split("<", 1)[0].strip().strip('"')
+            if nom:
+                return nom
+            brut = brut.split("<", 1)[1].rstrip(">")
+        return brut or "(expediteur inconnu)"
 
 
 @dataclass
@@ -141,7 +157,9 @@ class Adresse:
 
     @classmethod
     def from_dict(cls, d: dict) -> "Adresse":
-        msgs = [Message(**m) for m in d.get("messages", [])]
+        connus = {c.name for c in fields(Message)}
+        msgs = [Message(**{k: v for k, v in m.items() if k in connus})
+                for m in d.get("messages", [])]
         return cls(
             local=d["local"],
             domaine=d.get("domaine", DOMAIN),
@@ -299,6 +317,11 @@ class GestionnaireAdresses:
             if ajoutes:
                 self._sauver()
             return ajoutes
+
+    def sauver(self) -> None:
+        """Force l'ecriture de l'etat (ex. apres avoir marque un message comme lu)."""
+        with self._verrou:
+            self._sauver()
 
     def purger(self, maintenant: float | None = None) -> list[str]:
         """Detruit les adresses expirees (et leurs messages). Retourne les emails purges."""

@@ -168,6 +168,43 @@ class TestDuree(unittest.TestCase):
         )
 
 
+class TestMessages(unittest.TestCase):
+    def test_message_non_lu_par_defaut(self):
+        self.assertFalse(Message().lu)
+
+    def test_apercu_sur_une_ligne_tronque(self):
+        msg = Message(corps="Bonjour\n\n   Anthony,   voici\tune offre.")
+        self.assertEqual(msg.apercu(), "Bonjour Anthony, voici une offre.")
+        self.assertEqual(len(Message(corps="a" * 500).apercu(taille=20)), 20)
+
+    def test_expediteur_court(self):
+        self.assertEqual(Message(expediteur="Jobat <no@jobat.be>").expediteur_court(), "Jobat")
+        self.assertEqual(Message(expediteur="<no@jobat.be>").expediteur_court(), "no@jobat.be")
+        self.assertEqual(Message(expediteur="no@jobat.be").expediteur_court(), "no@jobat.be")
+        self.assertEqual(Message().expediteur_court(), "(expediteur inconnu)")
+
+    def test_etat_lu_persiste(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as dossier:
+            fichier = Path(dossier) / "etat.json"
+            g1 = GestionnaireAdresses(fichier=fichier)
+            adresse = g1.creer()
+            g1.ajouter_messages(adresse.email, [Message(sujet="s", date="d")])
+            g1.obtenir(adresse.email).messages[0].lu = True
+            g1.sauver()
+
+            g2 = GestionnaireAdresses(fichier=fichier)
+            self.assertTrue(g2.obtenir(adresse.email).messages[0].lu)
+
+    def test_ancien_etat_sans_champ_lu(self):
+        adresse = Adresse.from_dict(
+            {"local": "x", "messages": [{"sujet": "s", "corps": "c", "champ_inconnu": 1}]}
+        )
+        self.assertFalse(adresse.messages[0].lu)
+        self.assertEqual(adresse.messages[0].sujet, "s")
+
+
 class TestPersistance(unittest.TestCase):
     def test_expirees_non_rechargees(self):
         import tempfile
