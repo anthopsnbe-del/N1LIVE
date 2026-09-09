@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import email
 import imaplib
+import json as _json
 import json
 import os
 import random
@@ -11,6 +12,9 @@ import secrets
 from dataclasses import dataclass
 from email.header import decode_header, make_header
 from pathlib import Path
+from urllib import error as urlerror
+from urllib import parse as urlparse
+from urllib import request as urlrequest
 
 from .core import DOMAIN, Message, chemin_config, domaine_configure, valider_domaine
 
@@ -21,10 +25,10 @@ class Backend:
     nom = "backend"
     reel = False
 
-    def relever(self, email_adresse: str) -> list[Message]:
+    def relever(self, email_adresse: str, jeton: str = "") -> list[Message]:
         raise NotImplementedError
 
-    def supprimer_du_serveur(self, email_adresse: str) -> int:
+    def supprimer_du_serveur(self, email_adresse: str, jeton: str = "") -> int:
         """Efface les messages de l'alias cote serveur. 0 quand il n'y a pas de serveur."""
         return 0
 
@@ -47,7 +51,7 @@ class BackendDemo(Backend):
          "Une connexion a ete detectee. Si ce n'etait pas vous, ignorez ce message.\n"),
     )
 
-    def relever(self, email_adresse: str) -> list[Message]:
+    def relever(self, email_adresse: str, jeton: str = "") -> list[Message]:
         if random.random() < 0.45:
             return []
         expediteur, sujet, corps = random.choice(self._MODELES)
@@ -74,6 +78,7 @@ class ConfigIMAP:
     dossier: str = "INBOX"
     ssl: bool = True
     domaine: str = DOMAIN
+    api_url: str = ""  # si renseignee, on passe par l'API et pas par l'IMAP
     supprimer_serveur: bool = True  # vider la boite catch-all a l'expiration
 
     def est_complete(self) -> bool:
@@ -98,6 +103,7 @@ def charger_config() -> ConfigIMAP:
         ssl=bool(donnees.get("ssl", True)),
         domaine=domaine_configure(),
         supprimer_serveur=bool(donnees.get("supprimer_serveur", True)),
+        api_url=str(donnees.get("api_url", "")),
     )
     depuis_env = os.environ.get("DREAMTEAM_IMAP_PASSWORD")
     if depuis_env:
@@ -116,6 +122,7 @@ def sauver_config(config: ConfigIMAP, avec_mot_de_passe: bool = False) -> Path:
         "ssl": config.ssl,
         "domaine": valider_domaine(config.domaine or DOMAIN),
         "supprimer_serveur": config.supprimer_serveur,
+        "api_url": config.api_url,
     }
     if avec_mot_de_passe:
         donnees["mot_de_passe"] = config.mot_de_passe
@@ -169,7 +176,7 @@ class BackendIMAP(Backend):
             imap.select(self.config.dossier, readonly=True)
             return f"Connexion reussie a {self.config.hote} ({self.config.dossier})."
 
-    def relever(self, email_adresse: str) -> list[Message]:
+    def relever(self, email_adresse: str, jeton: str = "") -> list[Message]:
         messages: list[Message] = []
         with self._connexion() as imap:
             imap.select(self.config.dossier, readonly=True)
@@ -193,7 +200,7 @@ class BackendIMAP(Backend):
                 )
         return messages
 
-    def supprimer_du_serveur(self, email_adresse: str) -> int:
+    def supprimer_du_serveur(self, email_adresse: str, jeton: str = "") -> int:
         """Supprime definitivement les messages adresses a cet alias (IMAP EXPUNGE).
 
         Ne touche qu'aux messages dont l'en-tete To porte l'alias jetable : les
@@ -238,9 +245,99 @@ class BackendIMAP(Backend):
         return BackendIMAP._Session(imap)
 
 
+class BackendAPI(Backend):
+    """Parle a l'API PHP hebergee sur le domaine.
+
+    Le poste client ne connait aucun identifiant de messagerie : il obtient un
+    alias et un jeton, qui n'ouvrent que le courrier de cet alias.
+    """
+
+    nom = "API DreamTeam (reel)"
+    reel = True
+
+    def __init__(self, url: str, delai: int = 20) -> None:
+        url = url.strip()
+        if not url.startswith(("http://", "https://")):
+            raise ValueError("L'adresse de l'API doit commencer par https://")
+        self.url = url.rstrip("/")
+        self.delai = delai
+
+    # ------------------------------------------------------------------ appels
+    def _appeler(self, action: str, **champs: str) -> dict:
+        donnees = urlparse.urlencode({"action": action, **champs}).encode()
+        requete = urlrequest.Request(
+            self.url, data=donnees,
+            headers={"Content-Type": "application/x-www-form-urlencoded",
+                     "Accept": "application/json",
+                     "User-Agent": "DreamTeamMail"},
+        )
+        try:
+            with urlrequest.urlopen(requete, timeout=self.delai) as reponse:
+                charge = _json.loads(reponse.read().decode("utf-8", "replace"))
+        except urlerror.HTTPError as err:
+            detail = ""
+            try:
+                detail = _json.loads(err.read().decode("utf-8", "replace")).get("erreur", "")
+            except Exception:
+                pass
+            raise RuntimeError(detail or f"Le serveur a repondu {err.code}.") from None
+        except urlerror.URLError as err:
+            raise RuntimeError(f"Serveur injoignable : {err.reason}") from None
+        except ValueError:
+            raise RuntimeError("Reponse illisible du serveur.") from None
+        if isinstance(charge, dict) and charge.get("erreur"):
+            raise RuntimeError(str(charge["erreur"]))
+        return charge
+
+    def tester(self) -> str:
+        etat = self._appeler("etat")
+        maximum = int(etat.get("duree", {}).get("maximum", 0)) // 3600
+        return f"API joignable — domaine @{etat.get('domaine', '?')}, duree max {maximum} h."
+
+    def creer_alias(self, duree: int) -> dict:
+        """Demande un alias au serveur : c'est lui qui decide du nom et du delai."""
+        reponse = self._appeler("creer", duree=str(int(duree)))
+        for cle in ("alias", "jeton", "duree"):
+            if cle not in reponse:
+                raise RuntimeError("Reponse incomplete du serveur.")
+        return {
+            "local": str(reponse["alias"]),
+            "jeton": str(reponse["jeton"]),
+            "ttl": int(reponse["duree"]),
+            "domaine": str(reponse.get("email", "@")).split("@")[-1],
+        }
+
+    def relever(self, email_adresse: str, jeton: str = "") -> list[Message]:
+        reponse = self._appeler(
+            "relever", alias=email_adresse.split("@")[0], jeton=jeton
+        )
+        messages = []
+        for brut in reponse.get("messages", []):
+            messages.append(Message(
+                expediteur=str(brut.get("expediteur", "")),
+                sujet=str(brut.get("sujet", "")) or "(sans objet)",
+                date=str(brut.get("date", "")),
+                corps=str(brut.get("corps", "")),
+            ))
+        return messages
+
+    def supprimer_du_serveur(self, email_adresse: str, jeton: str = "") -> int:
+        if not jeton:
+            return 0
+        reponse = self._appeler(
+            "supprimer", alias=email_adresse.split("@")[0], jeton=jeton
+        )
+        return int(reponse.get("supprimes", 0))
+
+
 def backend_par_defaut() -> Backend:
-    """IMAP si la configuration est complete, sinon mode demo."""
+    """API si elle est configuree, sinon IMAP direct, sinon mode demo."""
     config = charger_config()
+    if config.api_url:
+        try:
+            return BackendAPI(config.api_url)
+        except ValueError:
+            pass
     if config.est_complete():
         try:
             return BackendIMAP(config)

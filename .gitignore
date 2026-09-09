@@ -7,3 +7,7 @@ dreamteam-mail/dist/
 dreamteam-mail/.venv/
 __pycache__/
 *.pyc
+
+# API : configuration et base locales, jamais versionnees
+dreamteam-mail/api/config.php
+dreamteam-mail/api/donnees/*.sqlite

@@ -53,7 +53,9 @@ class TestCycleDeVie(unittest.TestCase):
         adresse = g.creer()
         futur = adresse.cree_a + 3601
         self.assertTrue(adresse.est_expiree(futur))
-        self.assertEqual(g.purger(futur), [adresse.email])
+        self.assertEqual([a.email for a in g.purger(futur)], [adresse.email])
+        # L'adresse rendue garde son jeton : le serveur peut encore etre purge.
+        self.assertEqual(g.purger(futur), [])
         self.assertEqual(g.actives(), [])
         self.assertIsNone(g.obtenir(adresse.email))
 

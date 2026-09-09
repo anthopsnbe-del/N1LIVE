@@ -1,0 +1,6 @@
+# La configuration, la base et les bibliotheques ne sont jamais servies.
+<FilesMatch "^(config|config\.exemple)\.php$">
+    Require all denied
+</FilesMatch>
+RedirectMatch 404 ^/.*/(lib|donnees)/
+Options -Indexes

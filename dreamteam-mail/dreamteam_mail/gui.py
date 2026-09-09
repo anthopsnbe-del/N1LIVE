@@ -9,6 +9,7 @@ from tkinter import messagebox, ttk
 
 from .backends import (
     Backend,
+    BackendAPI,
     BackendDemo,
     BackendIMAP,
     ConfigIMAP,
@@ -170,11 +171,31 @@ class Application(tk.Tk):
     # ------------------------------------------------------------------ actions
     def creer_adresse(self) -> None:
         libelle = self.var_duree.get()
+        duree = self.durees.get(libelle, TTL_SECONDS)
+        if hasattr(self.backend, "creer_alias"):
+            # C'est le serveur qui attribue l'alias : appel reseau, donc en fond.
+            self._statut("Demande d'une adresse au serveur…")
+            backend = self.backend
+            threading.Thread(
+                target=lambda: self._alias_distant(backend, duree, libelle), daemon=True
+            ).start()
+            return
         try:
-            adresse = self.gestionnaire.creer(ttl=self.durees.get(libelle, TTL_SECONDS))
+            adresse = self.gestionnaire.creer(ttl=duree)
         except (RuntimeError, ValueError) as err:
             messagebox.showwarning("Creation impossible", str(err), parent=self)
             return
+        self._installer_adresse(adresse, libelle)
+
+    def _alias_distant(self, backend, duree: int, libelle: str) -> None:
+        try:
+            infos = backend.creer_alias(duree)
+        except Exception as err:
+            self.file_evenements.put(("erreur", f"Creation refusee : {err}"))
+            return
+        self.file_evenements.put(("alias", (infos, libelle)))
+
+    def _installer_adresse(self, adresse, libelle: str) -> None:
         self._rafraichir_liste(selection=adresse.email)
         self._copier_presse_papier(adresse.email)
         self._statut(f"{adresse.email} creee et copiee — auto-destruction dans {libelle}.")
@@ -189,19 +210,20 @@ class Application(tk.Tk):
         email = self._selection()
         if not email:
             return
-        if self.gestionnaire.supprimer(email):
+        adresse = self.gestionnaire.obtenir(email)
+        if adresse is not None and self.gestionnaire.supprimer(email):
             self._rafraichir_liste()
             self._statut(f"{email} detruite immediatement.")
-            self._effacer_du_serveur([email])
+            self._effacer_du_serveur([adresse])
 
     def tout_supprimer(self) -> None:
         if not messagebox.askyesno("Tout detruire", "Detruire toutes les adresses actives ?", parent=self):
             return
-        emails = [a.email for a in self.gestionnaire.actives()]
+        adresses = list(self.gestionnaire.actives())
         n = self.gestionnaire.tout_supprimer()
         self._rafraichir_liste()
         self._statut(f"{n} adresse(s) detruite(s).")
-        self._effacer_du_serveur(emails)
+        self._effacer_du_serveur(adresses)
 
     def relever(self) -> None:
         email = self._selection()
@@ -220,8 +242,9 @@ class Application(tk.Tk):
         ).start()
 
     def _relever_en_fond(self, email: str, silencieux: bool = False) -> None:
+        adresse = self.gestionnaire.obtenir(email)
         try:
-            messages = self.backend.relever(email)
+            messages = self.backend.relever(email, getattr(adresse, "jeton", ""))
         except Exception as err:  # reseau, auth, etc.
             if not silencieux:  # un relevé de fond echoue en silence
                 self.file_evenements.put(("erreur", f"Relevé impossible : {err}"))
@@ -244,17 +267,18 @@ class Application(tk.Tk):
         self.gestionnaire.domaine = valider_domaine(domaine)
         self.title(titre(self.gestionnaire.domaine))
 
-    def _effacer_du_serveur(self, emails: list[str]) -> None:
-        """Vide la boite catch-all des messages de ces alias, sans bloquer l'IHM."""
-        if not emails or not getattr(self.backend, "reel", False):
+    def _effacer_du_serveur(self, adresses: list) -> None:
+        """Vide le serveur des messages de ces alias, sans bloquer l'IHM."""
+        cibles = [(a.email, a.jeton) for a in adresses]
+        if not cibles or not getattr(self.backend, "reel", False):
             return
         backend = self.backend
 
         def travail() -> None:
             total = 0
-            for email in emails:
+            for email, jeton in cibles:
                 try:
-                    total += backend.supprimer_du_serveur(email)
+                    total += backend.supprimer_du_serveur(email, jeton)
                 except Exception as err:
                     self.file_evenements.put(
                         ("erreur", f"Effacement serveur impossible pour {email} : {err}")
@@ -395,6 +419,16 @@ class Application(tk.Tk):
                         self._statut(f"{ajoutes} nouveau(x) message(s) pour {email}.")
                     elif not silencieux:
                         self._statut(f"Aucun nouveau message pour {email}.")
+                elif genre == "alias":
+                    infos, libelle = charge
+                    try:
+                        adresse = self.gestionnaire.creer(
+                            local=infos["local"], ttl=infos["ttl"], jeton=infos["jeton"]
+                        )
+                    except (RuntimeError, ValueError) as err:
+                        self._statut(f"Adresse refusee localement : {err}")
+                    else:
+                        self._installer_adresse(adresse, libelle)
                 elif genre == "fin_releve":
                     self._releve_en_cours.discard(charge)
                 elif genre in ("erreur", "info"):
@@ -402,9 +436,8 @@ class Application(tk.Tk):
         except queue.Empty:
             pass
         if purge_signalee:
-            self._statut(
-                f"Auto-destruction : {', '.join(purge_signalee)} — adresse et messages effaces."
-            )
+            noms = ", ".join(a.email for a in purge_signalee)
+            self._statut(f"Auto-destruction : {noms} — adresse et messages effaces.")
             self._effacer_du_serveur(purge_signalee)
         self._rafraichir_liste()
         self.after(1000, self._vider_file)
@@ -434,6 +467,7 @@ class DialogueIMAP(tk.Toplevel):
             "mot_de_passe": tk.StringVar(value=config.mot_de_passe),
             "dossier": tk.StringVar(value=config.dossier),
             "domaine": tk.StringVar(value=parent.gestionnaire.domaine),
+            "api_url": tk.StringVar(value=config.api_url),
         }
         self.var_ssl = tk.BooleanVar(value=config.ssl)
         self.var_enregistrer_mdp = tk.BooleanVar(value=False)
@@ -444,14 +478,17 @@ class DialogueIMAP(tk.Toplevel):
         ttk.Label(
             cadre,
             text=(
-                "Indique le domaine que tu possedes et redirige *@<domaine> (catch-all)\n"
-                "vers la boite IMAP ci-dessous. Sans cela, l'application reste en\n"
-                "mode demonstration (aucun courrier reel)."
+                "Deux modes possibles.\n"
+                "• API (recommande) : renseigne seulement l'adresse de l'API installee\n"
+                "  sur ton hebergement. Aucun identifiant de messagerie sur ce poste.\n"
+                "• IMAP direct : reserve a ton usage personnel, la boite catch-all\n"
+                "  entiere est accessible depuis cette machine."
             ),
             justify=tk.LEFT,
         ).grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
 
         libelles = [
+            ("API (recommande)", "api_url"),
             ("Domaine", "domaine"), ("Hote IMAP", "hote"), ("Port", "port"),
             ("Utilisateur", "utilisateur"), ("Mot de passe", "mot_de_passe"),
             ("Dossier", "dossier"),
@@ -462,20 +499,21 @@ class DialogueIMAP(tk.Toplevel):
                 cadre, textvariable=self.vars[cle], width=34,
                 show="•" if cle == "mot_de_passe" else "",
             ).grid(row=i, column=1, sticky=tk.W, pady=3)
+        cadre.grid_columnconfigure(1, weight=1)
 
         ttk.Checkbutton(cadre, text="SSL/TLS (port 993)", variable=self.var_ssl).grid(
-            row=7, column=1, sticky=tk.W, pady=(6, 0))
+            row=8, column=1, sticky=tk.W, pady=(6, 0))
         ttk.Checkbutton(
             cadre, text="Enregistrer le mot de passe sur ce poste",
             variable=self.var_enregistrer_mdp,
-        ).grid(row=8, column=1, sticky=tk.W)
+        ).grid(row=9, column=1, sticky=tk.W)
         ttk.Checkbutton(
             cadre, text="Supprimer aussi les mails du serveur a l'expiration",
             variable=self.var_supprimer_serveur,
-        ).grid(row=9, column=1, sticky=tk.W)
+        ).grid(row=10, column=1, sticky=tk.W)
 
         boutons = ttk.Frame(cadre)
-        boutons.grid(row=10, column=0, columnspan=2, sticky=tk.E, pady=(12, 0))
+        boutons.grid(row=11, column=0, columnspan=2, sticky=tk.E, pady=(12, 0))
         ttk.Button(boutons, text="Tester", command=self.tester).pack(side=tk.LEFT)
         ttk.Button(boutons, text="Mode demo", command=self.mode_demo).pack(side=tk.LEFT, padx=6)
         ttk.Button(boutons, text="Enregistrer", command=self.enregistrer).pack(side=tk.LEFT)
@@ -494,11 +532,14 @@ class DialogueIMAP(tk.Toplevel):
             ssl=self.var_ssl.get(),
             domaine=self.vars["domaine"].get().strip().lower(),
             supprimer_serveur=self.var_supprimer_serveur.get(),
+            api_url=self.vars["api_url"].get().strip(),
         )
 
     def tester(self) -> None:
+        config = self._config()
         try:
-            message = BackendIMAP(self._config()).tester()
+            backend = BackendAPI(config.api_url) if config.api_url else BackendIMAP(config)
+            message = backend.tester()
         except Exception as err:
             messagebox.showerror("Echec", str(err), parent=self)
             return
@@ -518,14 +559,15 @@ class DialogueIMAP(tk.Toplevel):
         try:
             domaine = valider_domaine(config.domaine)
             config.domaine = domaine
-            backend = BackendIMAP(config)
+            backend = BackendAPI(config.api_url) if config.api_url else BackendIMAP(config)
         except ValueError as err:
             messagebox.showwarning("Configuration invalide", str(err), parent=self)
             return
         sauver_config(config, avec_mot_de_passe=self.var_enregistrer_mdp.get())
         self.parent.backend = backend
         self.parent.appliquer_domaine(domaine)
-        self.parent._statut(f"Source : {backend.nom} — {config.hote} — domaine @{domaine}")
+        origine = config.api_url or config.hote
+        self.parent._statut(f"Source : {backend.nom} — {origine} — domaine @{domaine}")
         self.destroy()
 
 

@@ -75,6 +75,18 @@ messages destinés à l'alias sélectionné s'affichent.
   réelle du domaine (`clips`, `contact`, `postmaster`, `abuse`…), et une
   saisie manuelle de ces noms est refusée.
 
+## Distribuer l'application : l'API PHP
+
+Tant que l'app reste sur ton poste, l'IMAP direct convient. **Pour la
+distribuer, il faut passer par `api/`** : un service PHP posé sur ton
+hébergement qui garde les identifiants de la boîte catch-all et ne remet au
+client qu'un alias et un jeton, valables pour ce seul alias. Aucun mot de passe
+de messagerie ne quitte alors le serveur, et personne ne peut envoyer de mail
+au nom du domaine. Installation en 10 minutes : voir `api/LISEZMOI.md`.
+
+Dans l'app : « Serveur… » → champ **API** → `https://ton-domaine/mail-api/index.php`.
+Le champ API l'emporte sur les réglages IMAP.
+
 ## Icône
 
 Dépose ton image carrée dans `assets/icone.png` : la compilation la convertit
@@ -115,10 +127,11 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-42 tests couvrent la durée de vie et son plafond de 24 h, la purge,
+49 tests couvrent la durée de vie et son plafond de 24 h, la purge,
 l'effacement des messages, la limite d'adresses, la validation du domaine, la
 non-réhydratation des adresses expirées, les adresses réservées et la
-suppression côté serveur (cible restreinte à l'alias, relevé en lecture seule).
+suppression côté serveur (cible restreinte à l'alias, relevé en lecture seule)
+et le client de l'API (jeton transmis, réponses incomplètes refusées).
 
 ## Où sont stockés les mails
 

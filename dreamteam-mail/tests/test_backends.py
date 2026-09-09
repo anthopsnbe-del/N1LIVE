@@ -118,3 +118,75 @@ class TestConfig(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBackendAPI(unittest.TestCase):
+    """Le client API, avec un faux transport : aucun appel reseau."""
+
+    def backend(self, reponse):
+        from dreamteam_mail.backends import BackendAPI
+
+        b = BackendAPI("https://asylum-games.fr/api/")
+        self.appels = []
+
+        def faux(action, **champs):
+            self.appels.append((action, champs))
+            return reponse
+
+        b._appeler = faux
+        return b
+
+    def test_url_normalisee_et_schema_impose(self):
+        from dreamteam_mail.backends import BackendAPI
+
+        self.assertEqual(BackendAPI("https://x.fr/api/").url, "https://x.fr/api")
+        for mauvais in ("x.fr/api", "ftp://x.fr", ""):
+            with self.assertRaises(ValueError):
+                BackendAPI(mauvais)
+
+    def test_creer_alias(self):
+        b = self.backend({"alias": "vif.nuage042", "jeton": "a" * 32,
+                          "duree": 900, "email": "vif.nuage042@asylum-games.fr"})
+        infos = b.creer_alias(900)
+        self.assertEqual(infos, {"local": "vif.nuage042", "jeton": "a" * 32,
+                                 "ttl": 900, "domaine": "asylum-games.fr"})
+        self.assertEqual(self.appels, [("creer", {"duree": "900"})])
+
+    def test_creer_alias_reponse_incomplete(self):
+        with self.assertRaises(RuntimeError):
+            self.backend({"alias": "x"}).creer_alias(900)
+
+    def test_relever_envoie_alias_et_jeton(self):
+        b = self.backend({"messages": [
+            {"expediteur": "a@b.fr", "sujet": "", "date": "d", "corps": "c"}
+        ]})
+        messages = b.relever("vif.nuage042@asylum-games.fr", "b" * 32)
+        self.assertEqual(self.appels,
+                         [("relever", {"alias": "vif.nuage042", "jeton": "b" * 32})])
+        self.assertEqual(messages[0].sujet, "(sans objet)")
+        self.assertFalse(messages[0].lu)
+
+    def test_supprimer_sans_jeton_ne_fait_rien(self):
+        b = self.backend({"supprimes": 3})
+        self.assertEqual(b.supprimer_du_serveur("x@asylum-games.fr", ""), 0)
+        self.assertEqual(self.appels, [])
+
+    def test_supprimer_avec_jeton(self):
+        b = self.backend({"supprimes": 3})
+        self.assertEqual(b.supprimer_du_serveur("vif.nuage042@asylum-games.fr", "c" * 32), 3)
+        self.assertEqual(self.appels,
+                         [("supprimer", {"alias": "vif.nuage042", "jeton": "c" * 32})])
+
+    def test_backend_par_defaut_prefere_l_api(self):
+        import tempfile
+
+        from dreamteam_mail.backends import BackendAPI, ConfigIMAP, backend_par_defaut, sauver_config
+
+        with tempfile.TemporaryDirectory() as dossier:
+            with mock.patch.dict("os.environ", {"DREAMTEAM_MAIL_HOME": dossier}):
+                sauver_config(ConfigIMAP(
+                    hote="mail.asylum-games.fr", utilisateur="catchall@asylum-games.fr",
+                    mot_de_passe="p", domaine="asylum-games.fr",
+                    api_url="https://asylum-games.fr/api/",
+                ))
+                self.assertIsInstance(backend_par_defaut(), BackendAPI)

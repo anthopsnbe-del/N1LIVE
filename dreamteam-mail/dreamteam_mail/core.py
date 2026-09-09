@@ -126,6 +126,7 @@ class Adresse:
     domaine: str = DOMAIN
     cree_a: float = field(default_factory=_now)
     ttl: int = TTL_SECONDS
+    jeton: str = ""  # capacite remise par l'API : n'ouvre que cet alias
     messages: list = field(default_factory=list)
 
     @property
@@ -165,6 +166,7 @@ class Adresse:
             domaine=d.get("domaine", DOMAIN),
             cree_a=float(d.get("cree_a", _now())),
             ttl=valider_ttl(int(d.get("ttl", TTL_SECONDS))),
+            jeton=str(d.get("jeton", "")),
             messages=msgs,
         )
 
@@ -260,7 +262,8 @@ class GestionnaireAdresses:
 
     # ---------------------------------------------------------------- ecriture
     def creer(
-        self, local: str | None = None, style: str = "mots", ttl: int | None = None
+        self, local: str | None = None, style: str = "mots", ttl: int | None = None,
+        jeton: str = "",
     ) -> Adresse:
         with self._verrou:
             duree = valider_ttl(ttl if ttl is not None else self.ttl)
@@ -278,7 +281,7 @@ class GestionnaireAdresses:
                             f"{part}@{self.domaine} est une adresse reservee du domaine."
                         )
                     continue  # tirage suivant : on ne marche pas sur une vraie boite
-                adresse = Adresse(local=part, domaine=self.domaine, ttl=duree)
+                adresse = Adresse(local=part, domaine=self.domaine, ttl=duree, jeton=jeton)
                 if adresse.email not in self._adresses:
                     self._adresses[adresse.email] = adresse
                     self._sauver()
@@ -323,17 +326,23 @@ class GestionnaireAdresses:
         with self._verrou:
             self._sauver()
 
-    def purger(self, maintenant: float | None = None) -> list[str]:
-        """Detruit les adresses expirees (et leurs messages). Retourne les emails purges."""
+    def purger(self, maintenant: float | None = None) -> list[Adresse]:
+        """Detruit les adresses expirees et leurs messages, et les retourne.
+
+        Les adresses rendues gardent leur jeton : l'appelant peut encore
+        demander au serveur d'effacer leur courrier.
+        """
         maintenant = maintenant or _now()
         with self._verrou:
             expirees = [e for e, a in self._adresses.items() if a.est_expiree(maintenant)]
+            purgees = []
             for email in expirees:
                 adresse = self._adresses.pop(email)
                 adresse.messages.clear()
-            if expirees:
+                purgees.append(adresse)
+            if purgees:
                 self._sauver()
-            return expirees
+            return purgees
 
     # ------------------------------------------------------------ persistance
     def _charger(self) -> None:
