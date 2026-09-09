@@ -20,6 +20,7 @@ from .backends import (
 from . import theme
 from .core import (
     DUREES,
+    date_courte,
     MAX_ACTIVE,
     RELEVE_AUTO_SECONDES,
     TTL_SECONDS,
@@ -34,7 +35,7 @@ CREDIT = "Email Destructor crée par mNzy | DreamTeam 2026"
 
 
 def titre(domaine: str) -> str:
-    return f"DreamTeam Mail — adresses jetables @{domaine}"
+    return f"Email Destructor — adresses jetables @{domaine}"
 
 
 class Application(tk.Tk):
@@ -136,9 +137,9 @@ class Application(tk.Tk):
         self.messages.heading("de", text="De")
         self.messages.heading("objet", text="Objet")
         self.messages.heading("date", text="Date")
-        self.messages.column("de", width=170, stretch=False)
-        self.messages.column("objet", width=420)
-        self.messages.column("date", width=130, stretch=False, anchor=tk.E)
+        self.messages.column("de", width=230, minwidth=140, stretch=False)
+        self.messages.column("objet", width=380, minwidth=200)
+        self.messages.column("date", width=170, minwidth=150, stretch=False, anchor=tk.E)
         self.messages.tag_configure("nonlu", font=theme.police(gras=True), foreground=theme.ORANGE)
         self.messages.tag_configure("lu", foreground=theme.ROUGE)
         self.messages.pack(fill=tk.BOTH, expand=True, side=tk.LEFT)
@@ -334,6 +335,8 @@ class Application(tk.Tk):
         titre_boite = f"{adresse.email} — expire dans {adresse.compte_a_rebours()}"
         if non_lus:
             titre_boite += f" — {non_lus} non lu(s)"
+        if not getattr(self.backend, "reel", False):
+            titre_boite += "   [DEMONSTRATION — aucun courrier reel]"
         self.var_boite.set(titre_boite)
 
         signature = (adresse.email, tuple((m.date, m.sujet, m.lu) for m in adresse.messages))
@@ -350,7 +353,7 @@ class Application(tk.Tk):
             apercu = msg.apercu()
             self.messages.insert(
                 "", tk.END, iid=str(indice),
-                values=(msg.expediteur_court(), f"{objet}  —  {apercu}", msg.date),
+                values=(msg.expediteur_court(), f"{objet}  —  {apercu}", date_courte(msg.date)),
                 tags=("lu" if msg.lu else "nonlu",),
             )
         if precedent and self.messages.exists(precedent):

@@ -9,6 +9,8 @@ import secrets
 import string
 import threading
 import time
+from datetime import datetime
+from email.utils import parsedate_to_datetime
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Callable, Iterable
@@ -52,6 +54,20 @@ _NOMS = (
 )
 
 _LOCAL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{0,30}[a-z0-9])?$")
+
+
+def date_courte(date: str) -> str:
+    """Raccourcit une date d'en-tete pour l'affichage en colonne : « 09/09 10:22 »."""
+    date = date.strip()
+    for motif in ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M"):
+        try:
+            return datetime.strptime(date, motif).strftime("%d/%m %H:%M")
+        except ValueError:
+            pass
+    try:  # en-tete RFC 5322 : « Tue, 09 Sep 2026 07:46:00 +0200 »
+        return parsedate_to_datetime(date).strftime("%d/%m %H:%M")
+    except (TypeError, ValueError):
+        return date[:16]
 
 
 def _now() -> float:

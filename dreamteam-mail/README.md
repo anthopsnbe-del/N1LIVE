@@ -67,7 +67,8 @@ messages destinés à l'alias sélectionné s'affichent.
   avec **barre d'actions verticale à gauche** et crédit en pied de fenêtre.
 - **Boîte de réception façon Gmail** : liste des messages (expéditeur, objet +
   extrait, date), les non-lus en gras orange, volet de lecture en dessous, et
-  compteur `non-lus/total` en face de chaque adresse.
+  compteur `non-lus/total` en face de chaque adresse. En mode démonstration,
+  le titre de la boîte le rappelle explicitement.
 - **Relevé automatique** toutes les 30 s sur l'adresse sélectionnée, toujours
   actif. Un relevé de fond qui échoue reste silencieux ; le bouton « Relever »
   affiche les erreurs normalement.
@@ -127,7 +128,7 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-49 tests couvrent la durée de vie et son plafond de 24 h, la purge,
+51 tests couvrent la durée de vie et son plafond de 24 h, la purge,
 l'effacement des messages, la limite d'adresses, la validation du domaine, la
 non-réhydratation des adresses expirées, les adresses réservées et la
 suppression côté serveur (cible restreinte à l'alias, relevé en lecture seule)

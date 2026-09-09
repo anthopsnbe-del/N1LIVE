@@ -13,6 +13,7 @@ from dreamteam_mail.core import (  # noqa: E402
     Message,
     DUREES,
     TTL_MAX_SECONDS,
+    date_courte,
     domaine_configure,
     generer_local_part,
     valider_ttl,
@@ -129,6 +130,17 @@ class TestAdressesReservees(unittest.TestCase):
         with self.assertRaises(ValueError):
             g.creer(local="interdit")
         self.assertTrue(g.creer(local="clips").email.startswith("clips@"))
+
+
+class TestDateCourte(unittest.TestCase):
+    def test_formats_reconnus(self):
+        self.assertEqual(date_courte("09/09/2026 10:22:59"), "09/09 10:22")
+        self.assertEqual(date_courte("09/09/2026 10:22"), "09/09 10:22")
+        self.assertEqual(date_courte("Tue, 09 Sep 2026 07:46:00 +0200"), "09/09 07:46")
+
+    def test_date_illisible_tronquee_sans_erreur(self):
+        self.assertEqual(date_courte(""), "")
+        self.assertEqual(date_courte("n'importe quoi du tout"), "n'importe quoi d")
 
 
 class TestDuree(unittest.TestCase):
