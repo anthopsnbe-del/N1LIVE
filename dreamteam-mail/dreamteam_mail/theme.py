@@ -107,6 +107,15 @@ def appliquer(racine: tk.Misc) -> ttk.Style:
               background=[("selected", SELECTION)],
               foreground=[("selected", TEXTE_SELECTION)])
 
+    # Onglets : meme registre sombre, l'onglet actif porte l'accent orange.
+    style.configure("TNotebook", background=FOND, bordercolor=BORDURE, tabmargins=(2, 6, 2, 0))
+    style.configure("TNotebook.Tab", background=PANNEAU, foreground=ROUGE_SOMBRE,
+                    padding=(18, 8), font=normale, bordercolor=BORDURE)
+    style.map("TNotebook.Tab",
+              background=[("selected", FOND), ("active", PANNEAU_HAUT)],
+              foreground=[("selected", ORANGE), ("active", ORANGE_VIF)],
+              font=[("selected", grasse)])
+
     style.configure("Vertical.TScrollbar", background=PANNEAU, troughcolor=FOND,
                     arrowcolor=ORANGE, bordercolor=FOND)
     style.map("Vertical.TScrollbar", background=[("active", SELECTION)])
@@ -120,9 +129,13 @@ def habiller_texte(zone: tk.Text) -> None:
         selectbackground=SELECTION, selectforeground=TEXTE_SELECTION,
         font=police(), relief="flat", borderwidth=0,
         highlightthickness=1, highlightbackground=BORDURE, highlightcolor=ORANGE,
-        padx=10, pady=8,
+        padx=16, pady=12,
+        spacing1=3,   # avant chaque paragraphe
+        spacing2=3,   # entre les lignes d'un meme paragraphe
+        spacing3=6,   # apres chaque paragraphe
     )
     zone.tag_configure("titre", foreground=ORANGE, font=police(gras=True))
     zone.tag_configure("accent", foreground=ORANGE_VIF)
     zone.tag_configure("discret", foreground=ROUGE_CLAIR)
     zone.tag_configure("separateur", foreground=ROUGE_SOMBRE)
+    zone.tag_configure("citation", foreground=ROUGE_SOMBRE, lmargin1=12, lmargin2=12)

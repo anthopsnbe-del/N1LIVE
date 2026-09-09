@@ -26,7 +26,8 @@ return [
     ],
 
     'duree' => [
-        'defaut' => 3600,          // 1 heure
+        'defaut' => 86400,         // 24 heures
+        'a_vie_autorisee' => true, // autorise duree=0 : adresse jamais detruite
         'minimum' => 300,          // 5 minutes
         'maximum' => 86400,        // 24 heures : plafond impose au client
     ],

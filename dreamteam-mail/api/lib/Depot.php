@@ -78,7 +78,8 @@ final class Depot
     public function expires(int $maintenant, int $limite = 200): array
     {
         $requete = $this->pdo->prepare(
-            'SELECT alias FROM alias_jetables WHERE expire_a <= ? ORDER BY expire_a LIMIT ' . (int) $limite
+            'SELECT alias FROM alias_jetables WHERE expire_a > 0 AND expire_a <= ?
+             ORDER BY expire_a LIMIT ' . (int) $limite
         );
         $requete->execute([$maintenant]);
         return array_column($requete->fetchAll(), 'alias');

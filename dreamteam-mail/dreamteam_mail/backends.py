@@ -5,6 +5,8 @@ from __future__ import annotations
 import email
 import imaplib
 import json as _json
+import smtplib
+from email.message import EmailMessage
 import json
 import os
 import random
@@ -31,6 +33,11 @@ class Backend:
     def supprimer_du_serveur(self, email_adresse: str, jeton: str = "") -> int:
         """Efface les messages de l'alias cote serveur. 0 quand il n'y a pas de serveur."""
         return 0
+
+    peut_envoyer = False
+
+    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "") -> None:
+        raise RuntimeError("Cette source ne permet pas d'envoyer de courrier.")
 
 
 class BackendDemo(Backend):
@@ -77,6 +84,7 @@ class ConfigIMAP:
     mot_de_passe: str = ""
     dossier: str = "INBOX"
     ssl: bool = True
+    smtp_port: int = 465
     domaine: str = DOMAIN
     api_url: str = ""  # si renseignee, on passe par l'API et pas par l'IMAP
     supprimer_serveur: bool = True  # vider la boite catch-all a l'expiration
@@ -100,6 +108,7 @@ def charger_config() -> ConfigIMAP:
         utilisateur=donnees.get("utilisateur", ""),
         mot_de_passe=donnees.get("mot_de_passe", ""),
         dossier=donnees.get("dossier", "INBOX"),
+        smtp_port=int(donnees.get("smtp_port", 465)),
         ssl=bool(donnees.get("ssl", True)),
         domaine=domaine_configure(),
         supprimer_serveur=bool(donnees.get("supprimer_serveur", True)),
@@ -111,8 +120,14 @@ def charger_config() -> ConfigIMAP:
     return config
 
 
-def sauver_config(config: ConfigIMAP, avec_mot_de_passe: bool = False) -> Path:
-    """Ecrit la config. Par defaut le mot de passe n'est PAS ecrit sur le disque."""
+def sauver_config(config: ConfigIMAP, avec_mot_de_passe: bool = True) -> Path:
+    """Ecrit la config.
+
+    Le mot de passe est conserve par defaut pour que le reglage tienne « a vie » :
+    il est alors en clair dans config.json, lisible par qui accede au compte
+    Windows. Passer avec_mot_de_passe=False pour ne rien ecrire et utiliser la
+    variable d'environnement DREAMTEAM_IMAP_PASSWORD.
+    """
     chemin = chemin_config()
     donnees = {
         "hote": config.hote,
@@ -120,6 +135,7 @@ def sauver_config(config: ConfigIMAP, avec_mot_de_passe: bool = False) -> Path:
         "utilisateur": config.utilisateur,
         "dossier": config.dossier,
         "ssl": config.ssl,
+        "smtp_port": config.smtp_port,
         "domaine": valider_domaine(config.domaine or DOMAIN),
         "supprimer_serveur": config.supprimer_serveur,
         "api_url": config.api_url,
@@ -221,6 +237,36 @@ class BackendIMAP(Backend):
             imap.expunge()
             return len(identifiants)
 
+    peut_envoyer = True
+
+    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "") -> None:
+        """Envoie une reponse via le SMTP du domaine, en signant avec l'alias.
+
+        Le serveur peut refuser un expediteur different du compte authentifie :
+        dans ce cas l'erreur SMTP est remontee telle quelle a l'utilisateur.
+        """
+        message = EmailMessage()
+        message["From"] = de
+        message["To"] = a
+        message["Subject"] = sujet
+        message["Reply-To"] = de
+        message.set_content(corps)
+
+        cfg = self.config
+        if cfg.smtp_port == 465:
+            client = smtplib.SMTP_SSL(cfg.hote, cfg.smtp_port, timeout=25)
+        else:
+            client = smtplib.SMTP(cfg.hote, cfg.smtp_port, timeout=25)
+            client.starttls()
+        try:
+            client.login(cfg.utilisateur, cfg.mot_de_passe)
+            client.send_message(message)
+        finally:
+            try:
+                client.quit()
+            except Exception:
+                pass
+
     class _Session:
         def __init__(self, imap: imaplib.IMAP4) -> None:
             self.imap = imap
@@ -321,6 +367,14 @@ class BackendAPI(Backend):
             ))
         return messages
 
+    peut_envoyer = True
+
+    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "") -> None:
+        self._appeler(
+            "envoyer", alias=de.split("@")[0], jeton=jeton,
+            destinataire=a, sujet=sujet, corps=corps,
+        )
+
     def supprimer_du_serveur(self, email_adresse: str, jeton: str = "") -> int:
         if not jeton:
             return 0
@@ -328,6 +382,12 @@ class BackendAPI(Backend):
             "supprimer", alias=email_adresse.split("@")[0], jeton=jeton
         )
         return int(reponse.get("supprimes", 0))
+
+
+def deja_configure(config: ConfigIMAP | None = None) -> bool:
+    """Vrai des qu'une source reelle est enregistree (API ou IMAP complet)."""
+    config = config or charger_config()
+    return bool(config.api_url) or config.est_complete()
 
 
 def backend_par_defaut() -> Backend:

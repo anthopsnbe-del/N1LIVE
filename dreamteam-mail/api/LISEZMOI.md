@@ -57,18 +57,27 @@ besoin d'un mot de passe de messagerie.
 | Action | Paramètres | Réponse |
 | --- | --- | --- |
 | `etat` | — | `{ok, domaine, duree}` |
-| `creer` | `duree` (secondes, optionnel) | `{alias, email, jeton, duree, expire_a}` |
+| `creer` | `duree` (secondes ; `0` = à vie) | `{alias, email, jeton, duree, expire_a}` |
 | `relever` | `alias`, `jeton` | `{messages: [{expediteur, sujet, date, corps}]}` |
 | `supprimer` | `alias`, `jeton` | `{supprimes: n}` |
+| `envoyer` | `alias`, `jeton`, `destinataire`, `sujet`, `corps` | `{envoye: true}` |
 | `purger` | `cle` | `{purges, messages_effaces}` |
 
 Codes d'erreur : 400 requête invalide, 403 jeton refusé, 410 alias expiré,
 429 trop de créations, 503 service saturé, 500 erreur interne (le détail reste
 dans les logs du serveur).
 
+## Adresses à vie
+
+`duree=0` crée un alias qui n'expire jamais (`expire_a = 0`), ignoré par la
+purge. Désactive-le avec `'a_vie_autorisee' => false` dans `config.php` si tu
+distribues l'application : sinon chacun peut se réserver un alias définitif.
+
 ## Ce qui n'est pas fait
 
-- Pas d'envoi de courrier : l'API lit et supprime, rien d'autre.
+- L'envoi passe par `mail()` de PHP : les en-têtes sont construits côté
+  serveur et les retours à la ligne retirés des champs, mais la délivrabilité
+  dépend entièrement de la configuration SPF/DKIM du domaine.
 - Pas de pièces jointes : seul le texte des messages est retourné.
 - Testé contre un serveur PHP local et un faux IMAP, **pas encore contre le
   serveur LWS réel** : le premier `?action=etat` puis un vrai relevé sont donc

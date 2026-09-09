@@ -108,12 +108,15 @@ class TestConfig(unittest.TestCase):
             with mock.patch.dict("os.environ", {"DREAMTEAM_MAIL_HOME": dossier}):
                 from dreamteam_mail.backends import charger_config, sauver_config
 
-                chemin = sauver_config(
-                    ConfigIMAP(hote="h", utilisateur="u", mot_de_passe="p",
-                               domaine="exemple.fr", supprimer_serveur=False)
-                )
-                self.assertNotIn("mot_de_passe", json.loads(chemin.read_text()))
+                config = ConfigIMAP(hote="h", utilisateur="u", mot_de_passe="p",
+                                    domaine="exemple.fr", supprimer_serveur=False)
+                # Par defaut le reglage tient « a vie » : le mot de passe est ecrit.
+                chemin = sauver_config(config)
+                self.assertEqual(json.loads(chemin.read_text())["mot_de_passe"], "p")
                 self.assertFalse(charger_config().supprimer_serveur)
+                # Et il reste possible de ne rien ecrire du tout.
+                chemin = sauver_config(config, avec_mot_de_passe=False)
+                self.assertNotIn("mot_de_passe", json.loads(chemin.read_text()))
 
 
 if __name__ == "__main__":
@@ -190,3 +193,37 @@ class TestBackendAPI(unittest.TestCase):
                     api_url="https://asylum-games.fr/api/",
                 ))
                 self.assertIsInstance(backend_par_defaut(), BackendAPI)
+
+
+class TestEnvoi(unittest.TestCase):
+    def test_demo_refuse_l_envoi(self):
+        from dreamteam_mail.backends import BackendDemo
+
+        backend = BackendDemo()
+        self.assertFalse(backend.peut_envoyer)
+        with self.assertRaises(RuntimeError):
+            backend.envoyer("a@b.fr", "c@d.fr", "sujet", "corps")
+
+    def test_api_transmet_alias_jeton_et_message(self):
+        from dreamteam_mail.backends import BackendAPI
+
+        backend = BackendAPI("https://asylum-games.fr/api")
+        appels = []
+        backend._appeler = lambda action, **champs: appels.append((action, champs)) or {}
+        backend.envoyer("vif.nuage042@asylum-games.fr", "cible@exemple.fr",
+                        "Re: test", "Bonjour", "d" * 32)
+        self.assertEqual(appels, [("envoyer", {
+            "alias": "vif.nuage042", "jeton": "d" * 32,
+            "destinataire": "cible@exemple.fr", "sujet": "Re: test", "corps": "Bonjour",
+        })])
+        self.assertTrue(backend.peut_envoyer)
+
+
+class TestDejaConfigure(unittest.TestCase):
+    def test_reconnait_les_sources_reelles(self):
+        from dreamteam_mail.backends import ConfigIMAP, deja_configure
+
+        self.assertFalse(deja_configure(ConfigIMAP()))
+        self.assertFalse(deja_configure(ConfigIMAP(hote="h")))  # incomplet
+        self.assertTrue(deja_configure(ConfigIMAP(api_url="https://x.fr/api")))
+        self.assertTrue(deja_configure(ConfigIMAP(hote="h", utilisateur="u", mot_de_passe="p")))

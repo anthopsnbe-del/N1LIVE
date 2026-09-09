@@ -57,18 +57,23 @@ messages destinés à l'alias sélectionné s'affichent.
 - Limite de 5 adresses actives (garde-fou anti-abus).
 - Les adresses expirées ne sont jamais rechargées au démarrage.
 - Domaine paramétrable (`asylum-games.fr` par défaut).
-- **Durée de vie réglable** dans la barre d'outils : 5 min, 15 min, 30 min, 1 h,
-  3 h, 6 h, 12 h, **24 h maximum** (plafond imposé par le code, non contournable
-  depuis l'interface).
+- **Deux régimes seulement** : `24 heures` (détruite automatiquement) ou
+  `À vie` (jamais détruite, seulement sur demande). Une adresse à vie reçoit un
+  **mot de passe aléatoire** affiché à sa création, qui permet de la restaurer
+  sur un autre poste (bouton « Restaurer… »).
 - **Suppression côté serveur** : à l'expiration, les messages de l'alias sont
   aussi effacés de la boîte catch-all (IMAP `STORE \Deleted` + `EXPUNGE`), pour
   éviter que la boîte ne gonfle indéfiniment. Décochable dans « Serveur… ».
 - Interface sombre orange/rouge à chasse fixe, dans l'esprit d'un terminal,
   avec **barre d'actions verticale à gauche** et crédit en pied de fenêtre.
-- **Boîte de réception façon Gmail** : liste des messages (expéditeur, objet +
-  extrait, date), les non-lus en gras orange, volet de lecture en dessous, et
-  compteur `non-lus/total` en face de chaque adresse. En mode démonstration,
-  le titre de la boîte le rappelle explicitement.
+- **Navigation par onglets** : `Emails` (liste des adresses, copie, suppression,
+  mot de passe) et `Messages` (liste façon Gmail, volet de lecture aéré,
+  bouton « Répondre »). En mode démonstration, le bandeau le rappelle.
+- **Réponse depuis l'adresse jetable** (SMTP en mode IMAP direct, `action=envoyer`
+  en mode API). Le serveur peut refuser un expéditeur différent du compte
+  authentifié : l'erreur est alors affichée telle quelle.
+- **Configuration une fois pour toutes** : après « Enregistrer », le bouton
+  « Serveur… » disparaît. `Ctrl+Shift+S` le rouvre.
 - **Relevé automatique** toutes les 30 s sur l'adresse sélectionnée, toujours
   actif. Un relevé de fond qui échoue reste silencieux ; le bouton « Relever »
   affiche les erreurs normalement.
@@ -128,7 +133,7 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-51 tests couvrent la durée de vie et son plafond de 24 h, la purge,
+62 tests couvrent la durée de vie et son plafond de 24 h, la purge,
 l'effacement des messages, la limite d'adresses, la validation du domaine, la
 non-réhydratation des adresses expirées, les adresses réservées et la
 suppression côté serveur (cible restreinte à l'alias, relevé en lecture seule)
@@ -150,8 +155,10 @@ Deux endroits, à ne pas confondre :
 Autres fichiers :
 
 - `config.json` (même dossier) : hôte, port, utilisateur, dossier, domaine,
-  option de suppression serveur. **Le mot de passe n'est pas écrit sur le
-  disque** sauf si tu coches la case ; sinon utilise `DREAMTEAM_IMAP_PASSWORD`.
+  ports IMAP/SMTP, option de suppression serveur, et **le mot de passe, écrit
+  en clair** pour que le réglage tienne sans ressaisie : quiconque accède à ta
+  session Windows peut le lire. Pour l'éviter, vide le champ et passe par la
+  variable `DREAMTEAM_IMAP_PASSWORD`.
 - Variables d'environnement : `DREAMTEAM_DOMAIN`, `DREAMTEAM_IMAP_PASSWORD`,
   `DREAMTEAM_MAIL_HOME` (déplacer le dossier de données).
 

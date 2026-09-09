@@ -10,6 +10,7 @@ declare(strict_types=1);
  *   POST ?action=creer      [duree]           -> {alias, jeton, expire_a}
  *   POST ?action=relever    alias, jeton      -> {messages: [...]}
  *   POST ?action=supprimer  alias, jeton      -> {supprimes: n}
+ *   POST ?action=envoyer    alias, jeton, destinataire, sujet, corps -> {envoye: true}
  *   GET  ?action=purger     cle               -> {purges: n}   (cron)
  *   GET  ?action=etat                         -> {ok, domaine, duree}
  */
@@ -74,7 +75,8 @@ function autoriser(Depot $depot, string $alias, string $jeton): array
     if ($ligne === null || !hash_equals($ligne['jeton_hash'], hash('sha256', $jeton))) {
         erreur('Alias inconnu ou jeton refuse.', 403);
     }
-    if ((int) $ligne['expire_a'] <= time()) {
+    $expireA = (int) $ligne['expire_a'];
+    if ($expireA !== 0 && $expireA <= time()) {
         erreur('Alias expire.', 410);
     }
     return $ligne;
@@ -101,8 +103,12 @@ try {
         if ($depot->nombreActifs() >= $config['limites']['alias_actifs_max']) {
             erreur('Service sature, reessaie plus tard.', 503);
         }
-        $duree = (int) (champ('duree') ?: $config['duree']['defaut']);
-        $duree = max($config['duree']['minimum'], min($config['duree']['maximum'], $duree));
+        $duree = champ('duree') === '' ? (int) $config['duree']['defaut'] : (int) champ('duree');
+        if ($duree === 0 && ($config['duree']['a_vie_autorisee'] ?? false)) {
+            $duree = 0;  // adresse conservee a vie : expire_a reste nul
+        } else {
+            $duree = max($config['duree']['minimum'], min($config['duree']['maximum'], $duree));
+        }
 
         $alias = null;
         for ($essai = 0; $essai < 40; $essai++) {
@@ -117,13 +123,14 @@ try {
         }
         $jeton = bin2hex(random_bytes(16));
         $maintenant = time();
-        $depot->creer($alias, hash('sha256', $jeton), $maintenant, $maintenant + $duree, $ip);
+        $expireA = $duree === 0 ? 0 : $maintenant + $duree;
+        $depot->creer($alias, hash('sha256', $jeton), $maintenant, $expireA, $ip);
         repondre([
             'alias' => $alias,
             'email' => $alias . '@' . $config['domaine'],
             'jeton' => $jeton,
             'duree' => $duree,
-            'expire_a' => $maintenant + $duree,
+            'expire_a' => $expireA,
         ]);
     }
 
@@ -164,11 +171,46 @@ try {
         repondre(['supprimes' => $supprimes]);
     }
 
+    if ($action === 'envoyer') {
+        $alias = champ('alias');
+        autoriser($depot, $alias, champ('jeton'));
+        $destinataire = champ('destinataire');
+        if (!filter_var($destinataire, FILTER_VALIDATE_EMAIL)) {
+            erreur('Destinataire invalide.', 400);
+        }
+        $sujet = mb_substr(champ('sujet'), 0, 200);
+        $corps = mb_substr((string) ($_POST['corps'] ?? ''), 0, 20000);
+        if (trim($corps) === '') {
+            erreur('Message vide.', 400);
+        }
+        $de = $alias . '@' . $config['domaine'];
+        // Les en-tetes sont construits ici : rien de ce que fournit le client
+        // n'y est injecte tel quel (les retours a la ligne sont retires).
+        $nettoyer = static fn (string $v): string => trim(str_replace(["\r", "\n"], ' ', $v));
+        $entetes = [
+            'From: ' . $nettoyer($de),
+            'Reply-To: ' . $nettoyer($de),
+            'Content-Type: text/plain; charset=UTF-8',
+            'MIME-Version: 1.0',
+        ];
+        $envoye = @mail(
+            $nettoyer($destinataire),
+            $nettoyer($sujet !== '' ? $sujet : '(sans objet)'),
+            $corps,
+            implode("\r\n", $entetes),
+            '-f' . $nettoyer($de)
+        );
+        if (!$envoye) {
+            erreur("Le serveur a refuse l'envoi.", 502);
+        }
+        repondre(['envoye' => true]);
+    }
+
     if ($action === 'purger') {
         if (!hash_equals((string) $config['cle_purge'], champ('cle'))) {
             erreur('Cle de purge refusee.', 403);
         }
-        $expires = $depot->expires(time());
+        $expires = $depot->expires(time());  // expire_a = 0 (a vie) est exclu
         if ($expires === []) {
             repondre(['purges' => 0, 'messages_effaces' => 0]);
         }

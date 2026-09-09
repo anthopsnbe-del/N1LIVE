@@ -13,6 +13,8 @@ from dreamteam_mail.core import (  # noqa: E402
     Message,
     DUREES,
     TTL_MAX_SECONDS,
+    TTL_PERMANENT,
+    generer_mot_de_passe,
     date_courte,
     domaine_configure,
     generer_local_part,
@@ -44,15 +46,16 @@ class TestCycleDeVie(unittest.TestCase):
         kw.setdefault("persister", False)
         return GestionnaireAdresses(**kw)
 
-    def test_ttl_par_defaut_une_heure(self):
+    def test_ttl_par_defaut_24h(self):
         adresse = self.gestionnaire().creer()
-        self.assertEqual(adresse.ttl, 3600)
-        self.assertAlmostEqual(adresse.expire_a - adresse.cree_a, 3600, delta=1)
+        self.assertEqual(adresse.ttl, 86400)
+        self.assertAlmostEqual(adresse.expire_a - adresse.cree_a, 86400, delta=1)
+        self.assertFalse(adresse.permanente)
 
     def test_expiration_et_purge(self):
         g = self.gestionnaire()
         adresse = g.creer()
-        futur = adresse.cree_a + 3601
+        futur = adresse.cree_a + 86401
         self.assertTrue(adresse.est_expiree(futur))
         self.assertEqual([a.email for a in g.purger(futur)], [adresse.email])
         # L'adresse rendue garde son jeton : le serveur peut encore etre purge.
@@ -63,15 +66,15 @@ class TestCycleDeVie(unittest.TestCase):
     def test_pas_expiree_avant_l_heure(self):
         g = self.gestionnaire()
         adresse = g.creer()
-        self.assertFalse(adresse.est_expiree(adresse.cree_a + 3599))
-        self.assertEqual(g.purger(adresse.cree_a + 3599), [])
+        self.assertFalse(adresse.est_expiree(adresse.cree_a + 86399))
+        self.assertEqual(g.purger(adresse.cree_a + 86399), [])
 
     def test_messages_effaces_a_la_purge(self):
         g = self.gestionnaire()
         adresse = g.creer()
         g.ajouter_messages(adresse.email, [Message(sujet="secret", corps="code 1234")])
         self.assertEqual(len(g.obtenir(adresse.email).messages), 1)
-        g.purger(adresse.cree_a + 3601)
+        g.purger(adresse.cree_a + 86401)
         self.assertEqual(adresse.messages, [])
 
     def test_deduplication_des_messages(self):
@@ -95,7 +98,7 @@ class TestCycleDeVie(unittest.TestCase):
             g.creer()
 
     def test_compte_a_rebours(self):
-        adresse = Adresse(local="test")
+        adresse = Adresse(local="test", ttl=3600)
         self.assertEqual(adresse.compte_a_rebours(adresse.cree_a + 3600 - 65), "01:05")
 
 
@@ -132,6 +135,56 @@ class TestAdressesReservees(unittest.TestCase):
         self.assertTrue(g.creer(local="clips").email.startswith("clips@"))
 
 
+class TestAdresseAVie(unittest.TestCase):
+    def gestionnaire(self):
+        return GestionnaireAdresses(persister=False)
+
+    def test_jamais_expiree(self):
+        adresse = self.gestionnaire().creer(ttl=TTL_PERMANENT)
+        self.assertTrue(adresse.permanente)
+        self.assertFalse(adresse.est_expiree(adresse.cree_a + 86400 * 365 * 50))
+        self.assertEqual(adresse.compte_a_rebours(), "a vie")
+        self.assertEqual(adresse.secondes_restantes(), -1)
+
+    def test_survit_a_la_purge(self):
+        g = self.gestionnaire()
+        a_vie = g.creer(ttl=TTL_PERMANENT)
+        jetable = g.creer(ttl=86400)
+        purgees = g.purger(jetable.cree_a + 86401)
+        self.assertEqual([a.email for a in purgees], [jetable.email])
+        self.assertIsNotNone(g.obtenir(a_vie.email))
+
+    def test_mot_de_passe_genere_pour_les_adresses_a_vie(self):
+        g = self.gestionnaire()
+        a_vie = g.creer(ttl=TTL_PERMANENT)
+        self.assertRegex(a_vie.mot_de_passe, r"^[A-Za-z2-9]{5}(-[A-Za-z2-9]{5}){3}$")
+        self.assertEqual(g.creer(ttl=86400).mot_de_passe, "")
+
+    def test_mots_de_passe_tous_differents(self):
+        mots = {generer_mot_de_passe() for _ in range(200)}
+        self.assertEqual(len(mots), 200)
+
+    def test_mot_de_passe_fourni_conserve(self):
+        adresse = self.gestionnaire().creer(ttl=TTL_PERMANENT, mot_de_passe="AAAAA-BBBBB")
+        self.assertEqual(adresse.mot_de_passe, "AAAAA-BBBBB")
+
+    def test_persistance_du_regime_a_vie(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as dossier:
+            fichier = Path(dossier) / "etat.json"
+            g1 = GestionnaireAdresses(fichier=fichier)
+            adresse = g1.creer(ttl=TTL_PERMANENT)
+            g2 = GestionnaireAdresses(fichier=fichier)
+            reprise = g2.obtenir(adresse.email)
+            self.assertIsNotNone(reprise)
+            self.assertTrue(reprise.permanente)
+            self.assertEqual(reprise.mot_de_passe, adresse.mot_de_passe)
+
+    def test_deux_regimes_proposes(self):
+        self.assertEqual(DUREES, (("24 heures", 86400), ("A vie", TTL_PERMANENT)))
+
+
 class TestDateCourte(unittest.TestCase):
     def test_formats_reconnus(self):
         self.assertEqual(date_courte("09/09/2026 10:22:59"), "09/09 10:22")
@@ -161,6 +214,9 @@ class TestDuree(unittest.TestCase):
         for libelle, secondes in DUREES:
             self.assertEqual(valider_ttl(secondes), secondes, libelle)
             self.assertLessEqual(secondes, TTL_MAX_SECONDS)
+
+    def test_zero_signifie_a_vie(self):
+        self.assertEqual(valider_ttl(TTL_PERMANENT), TTL_PERMANENT)
 
     def test_creation_avec_duree_choisie(self):
         g = GestionnaireAdresses(persister=False)
@@ -228,7 +284,7 @@ class TestPersistance(unittest.TestCase):
             g1 = GestionnaireAdresses(fichier=fichier)
             vivante = g1.creer()
             perimee = g1.creer()
-            g1.obtenir(perimee.email).cree_a -= 7200
+            g1.obtenir(perimee.email).cree_a -= 86400 * 2
             g1._sauver()
 
             g2 = GestionnaireAdresses(fichier=fichier)

@@ -16,9 +16,10 @@ from pathlib import Path
 from typing import Callable, Iterable
 
 DOMAIN = "asylum-games.fr"  # domaine par defaut ; modifiable dans l'application
-TTL_SECONDS = 3600        # duree de vie par defaut : 1 heure
-TTL_MIN_SECONDS = 300     # plancher : 5 minutes
-TTL_MAX_SECONDS = 86400   # plafond impose : 24 heures
+TTL_PERMANENT = 0         # adresse a vie : jamais detruite
+TTL_SECONDS = 86400       # duree de vie par defaut : 24 heures
+TTL_MIN_SECONDS = 300     # plancher des adresses temporaires
+TTL_MAX_SECONDS = 86400   # plafond des adresses temporaires
 MAX_ACTIVE = 5            # garde-fou anti-abus
 RELEVE_AUTO_SECONDES = 30 # cadence du releve automatique
 
@@ -32,16 +33,10 @@ ADRESSES_RESERVEES = frozenset({
     "noreply", "postmaster", "root", "sales", "security", "support", "webmaster",
 })
 
-# Durees proposees dans l'interface (libelle -> secondes), 24 h au maximum.
+# Deux regimes seulement : 24 heures, ou une adresse conservee a vie.
 DUREES = (
-    ("5 minutes", 300),
-    ("15 minutes", 900),
-    ("30 minutes", 1800),
-    ("1 heure", 3600),
-    ("3 heures", 10800),
-    ("6 heures", 21600),
-    ("12 heures", 43200),
-    ("24 heures", 86400),
+    ("24 heures", TTL_MAX_SECONDS),
+    ("A vie", TTL_PERMANENT),
 )
 
 _ADJECTIFS = (
@@ -84,14 +79,23 @@ def generer_local_part(style: str = "mots") -> str:
     )
 
 
+def generer_mot_de_passe(longueur: int = 20) -> str:
+    """Mot de passe d'une adresse a vie : imprevisible, sans caracteres ambigus."""
+    alphabet = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    brut = "".join(secrets.choice(alphabet) for _ in range(longueur))
+    return "-".join(brut[i:i + 5] for i in range(0, longueur, 5))
+
+
 def valider_ttl(ttl: int | None) -> int:
-    """Ramene une duree de vie dans les bornes autorisees (5 min a 24 h)."""
+    """Valide une duree de vie : 0 pour « a vie », sinon de 5 min a 24 h."""
     if ttl is None:
         return TTL_SECONDS
     try:
         ttl = int(ttl)
     except (TypeError, ValueError):
         raise ValueError("Duree de vie invalide.") from None
+    if ttl == TTL_PERMANENT:
+        return TTL_PERMANENT
     if ttl < TTL_MIN_SECONDS:
         raise ValueError(f"Duree de vie trop courte (minimum {TTL_MIN_SECONDS // 60} minutes).")
     if ttl > TTL_MAX_SECONDS:
@@ -118,6 +122,23 @@ class Message:
     corps: str = ""
     lu: bool = False
 
+    def adresse_expediteur(self) -> str:
+        """Adresse seule, extraite de « Nom <a@b.fr> »."""
+        brut = self.expediteur.strip()
+        if "<" in brut and ">" in brut:
+            return brut.split("<", 1)[1].split(">", 1)[0].strip()
+        return brut
+
+    def corps_aere(self) -> str:
+        """Corps lisible : lignes nettoyees, paragraphes separes, sans pave."""
+        lignes = [ligne.rstrip() for ligne in self.corps.replace("\r\n", "\n").split("\n")]
+        sortie: list[str] = []
+        for ligne in lignes:
+            if ligne == "" and sortie and sortie[-1] == "":
+                continue  # jamais plus d'une ligne vide d'affilee
+            sortie.append(ligne)
+        return "\n".join(sortie).strip()
+
     def apercu(self, taille: int = 90) -> str:
         """Debut du corps sur une ligne, comme l'extrait affiche par Gmail."""
         texte = " ".join(self.corps.split())
@@ -143,6 +164,7 @@ class Adresse:
     cree_a: float = field(default_factory=_now)
     ttl: int = TTL_SECONDS
     jeton: str = ""  # capacite remise par l'API : n'ouvre que cet alias
+    mot_de_passe: str = ""  # adresses a vie : sert a les restaurer ailleurs
     messages: list = field(default_factory=list)
 
     @property
@@ -150,16 +172,25 @@ class Adresse:
         return f"{self.local}@{self.domaine}"
 
     @property
+    def permanente(self) -> bool:
+        """Une adresse a vie n'est detruite que sur demande explicite."""
+        return self.ttl <= TTL_PERMANENT
+
+    @property
     def expire_a(self) -> float:
-        return self.cree_a + self.ttl
+        return float("inf") if self.permanente else self.cree_a + self.ttl
 
     def secondes_restantes(self, maintenant: float | None = None) -> int:
+        if self.permanente:
+            return -1
         return max(0, int(round(self.expire_a - (maintenant or _now()))))
 
     def est_expiree(self, maintenant: float | None = None) -> bool:
-        return (maintenant or _now()) >= self.expire_a
+        return not self.permanente and (maintenant or _now()) >= self.expire_a
 
     def compte_a_rebours(self, maintenant: float | None = None) -> str:
+        if self.permanente:
+            return "a vie"
         restant = self.secondes_restantes(maintenant)
         heures, reste = divmod(restant, 3600)
         minutes, secondes = divmod(reste, 60)
@@ -183,6 +214,7 @@ class Adresse:
             cree_a=float(d.get("cree_a", _now())),
             ttl=valider_ttl(int(d.get("ttl", TTL_SECONDS))),
             jeton=str(d.get("jeton", "")),
+            mot_de_passe=str(d.get("mot_de_passe", "")),
             messages=msgs,
         )
 
@@ -279,7 +311,7 @@ class GestionnaireAdresses:
     # ---------------------------------------------------------------- ecriture
     def creer(
         self, local: str | None = None, style: str = "mots", ttl: int | None = None,
-        jeton: str = "",
+        jeton: str = "", mot_de_passe: str = "",
     ) -> Adresse:
         with self._verrou:
             duree = valider_ttl(ttl if ttl is not None else self.ttl)
@@ -297,7 +329,11 @@ class GestionnaireAdresses:
                             f"{part}@{self.domaine} est une adresse reservee du domaine."
                         )
                     continue  # tirage suivant : on ne marche pas sur une vraie boite
-                adresse = Adresse(local=part, domaine=self.domaine, ttl=duree, jeton=jeton)
+                adresse = Adresse(
+                    local=part, domaine=self.domaine, ttl=duree, jeton=jeton,
+                    mot_de_passe=mot_de_passe
+                    or (generer_mot_de_passe() if duree == TTL_PERMANENT else ""),
+                )
                 if adresse.email not in self._adresses:
                     self._adresses[adresse.email] = adresse
                     self._sauver()
