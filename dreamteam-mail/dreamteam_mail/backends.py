@@ -5,8 +5,10 @@ from __future__ import annotations
 import email
 import imaplib
 import json as _json
+import mimetypes
 import smtplib
 from email.message import EmailMessage
+from email.utils import formatdate, make_msgid
 import json
 import os
 import random
@@ -34,9 +36,14 @@ class Backend:
         """Efface les messages de l'alias cote serveur. 0 quand il n'y a pas de serveur."""
         return 0
 
+    def supprimer_message(self, email_adresse: str, uid: str, jeton: str = "") -> bool:
+        """Efface un seul message cote serveur."""
+        return False
+
     peut_envoyer = False
 
-    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "") -> None:
+    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "",
+                pieces: list | None = None, repond_a: str = "") -> None:
         raise RuntimeError("Cette source ne permet pas d'envoyer de courrier.")
 
 
@@ -197,12 +204,12 @@ class BackendIMAP(Backend):
         with self._connexion() as imap:
             imap.select(self.config.dossier, readonly=True)
             critere = f'(TO "{email_adresse}")'
-            statut, donnees = imap.search(None, critere)
+            statut, donnees = imap.uid("SEARCH", None, critere)
             if statut != "OK" or not donnees or not donnees[0]:
                 return messages
             identifiants = donnees[0].split()[-50:]
             for ident in identifiants:
-                statut, brut = imap.fetch(ident, "(RFC822)")
+                statut, brut = imap.uid("FETCH", ident, "(RFC822)")
                 if statut != "OK" or not brut or not isinstance(brut[0], tuple):
                     continue
                 msg = email.message_from_bytes(brut[0][1])
@@ -212,6 +219,8 @@ class BackendIMAP(Backend):
                         sujet=_decoder(msg.get("Subject")) or "(sans objet)",
                         date=_decoder(msg.get("Date")),
                         corps=_corps_texte(msg),
+                        uid=ident.decode() if isinstance(ident, bytes) else str(ident),
+                        message_id=(msg.get("Message-ID") or "").strip(),
                     )
                 )
         return messages
@@ -228,29 +237,37 @@ class BackendIMAP(Backend):
             statut, _ = imap.select(self.config.dossier)  # ouverture en ecriture
             if statut != "OK":
                 return 0
-            statut, donnees = imap.search(None, f'(TO "{email_adresse}")')
+            statut, donnees = imap.uid("SEARCH", None, f'(TO "{email_adresse}")')
             if statut != "OK" or not donnees or not donnees[0]:
                 return 0
             identifiants = donnees[0].split()
             for ident in identifiants:
-                imap.store(ident, "+FLAGS", "\\Deleted")
+                imap.uid("STORE", ident, "+FLAGS", "\\Deleted")
             imap.expunge()
             return len(identifiants)
 
+    def supprimer_message(self, email_adresse: str, uid: str, jeton: str = "") -> bool:
+        """Supprime un unique message, designe par son UID serveur."""
+        if not uid:
+            return False
+        with self._connexion() as imap:
+            statut, _ = imap.select(self.config.dossier)
+            if statut != "OK":
+                return False
+            imap.uid("STORE", uid, "+FLAGS", "\\Deleted")
+            imap.expunge()
+            return True
+
     peut_envoyer = True
 
-    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "") -> None:
+    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "",
+                pieces: list | None = None, repond_a: str = "") -> None:
         """Envoie une reponse via le SMTP du domaine, en signant avec l'alias.
 
         Le serveur peut refuser un expediteur different du compte authentifie :
         dans ce cas l'erreur SMTP est remontee telle quelle a l'utilisateur.
         """
-        message = EmailMessage()
-        message["From"] = de
-        message["To"] = a
-        message["Subject"] = sujet
-        message["Reply-To"] = de
-        message.set_content(corps)
+        message = construire_message(de, a, sujet, corps, pieces, repond_a)
 
         cfg = self.config
         if cfg.smtp_port == 465:
@@ -364,16 +381,31 @@ class BackendAPI(Backend):
                 sujet=str(brut.get("sujet", "")) or "(sans objet)",
                 date=str(brut.get("date", "")),
                 corps=str(brut.get("corps", "")),
+                uid=str(brut.get("uid", "")),
+                message_id=str(brut.get("message_id", "")),
             ))
         return messages
 
+    def supprimer_message(self, email_adresse: str, uid: str, jeton: str = "") -> bool:
+        if not uid or not jeton:
+            return False
+        reponse = self._appeler(
+            "supprimer_message", alias=email_adresse.split("@")[0], jeton=jeton, uid=uid
+        )
+        return bool(reponse.get("supprime"))
+
     peut_envoyer = True
 
-    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "") -> None:
-        self._appeler(
-            "envoyer", alias=de.split("@")[0], jeton=jeton,
-            destinataire=a, sujet=sujet, corps=corps,
-        )
+    def envoyer(self, de: str, a: str, sujet: str, corps: str, jeton: str = "",
+                pieces: list | None = None, repond_a: str = "") -> None:
+        champs = {
+            "alias": de.split("@")[0], "jeton": jeton,
+            "destinataire": a, "sujet": sujet, "corps": corps, "repond_a": repond_a,
+        }
+        for i, (nom, contenu) in enumerate(encoder_pieces(pieces)):
+            champs[f"piece{i}_nom"] = nom
+            champs[f"piece{i}_donnees"] = contenu
+        self._appeler("envoyer", **champs)
 
     def supprimer_du_serveur(self, email_adresse: str, jeton: str = "") -> int:
         if not jeton:
@@ -382,6 +414,64 @@ class BackendAPI(Backend):
             "supprimer", alias=email_adresse.split("@")[0], jeton=jeton
         )
         return int(reponse.get("supprimes", 0))
+
+
+TAILLE_MAX_PIECES = 10 * 1024 * 1024  # 10 Mo au total : au-dela les serveurs refusent
+
+
+def verifier_pieces(pieces: list | None) -> list:
+    """Controle la taille cumulee des pieces jointes."""
+    pieces = [Path(p) for p in (pieces or [])]
+    total = 0
+    for chemin in pieces:
+        if not chemin.is_file():
+            raise ValueError(f"Fichier introuvable : {chemin}")
+        total += chemin.stat().st_size
+    if total > TAILLE_MAX_PIECES:
+        raise ValueError(
+            f"Pieces jointes trop lourdes ({total / 1e6:.1f} Mo) : "
+            f"{TAILLE_MAX_PIECES // 1024 // 1024} Mo au maximum."
+        )
+    return pieces
+
+
+def encoder_pieces(pieces: list | None) -> list[tuple[str, str]]:
+    """(nom, contenu base64) pour le transport vers l'API."""
+    import base64
+
+    return [
+        (chemin.name, base64.b64encode(chemin.read_bytes()).decode())
+        for chemin in verifier_pieces(pieces)
+    ]
+
+
+def construire_message(de: str, a: str, sujet: str, corps: str,
+                       pieces: list | None = None, repond_a: str = "") -> EmailMessage:
+    """Message complet : les en-tetes manquants font chuter la reputation.
+
+    Date, Message-ID et le chainage In-Reply-To/References sont attendus par
+    les filtres anti-spam ; une reponse sans eux part souvent en indesirables.
+    """
+    message = EmailMessage()
+    message["From"] = de
+    message["To"] = a
+    message["Subject"] = sujet or "(sans objet)"
+    message["Reply-To"] = de
+    message["Date"] = formatdate(localtime=True)
+    message["Message-ID"] = make_msgid(domain=de.split("@")[-1])
+    if repond_a:
+        message["In-Reply-To"] = repond_a
+        message["References"] = repond_a
+    message.set_content(corps)
+
+    for chemin in verifier_pieces(pieces):
+        type_mime, _ = mimetypes.guess_type(chemin.name)
+        principal, _, sous_type = (type_mime or "application/octet-stream").partition("/")
+        message.add_attachment(
+            chemin.read_bytes(), maintype=principal,
+            subtype=sous_type or "octet-stream", filename=chemin.name,
+        )
+    return message
 
 
 def deja_configure(config: ConfigIMAP | None = None) -> bool:

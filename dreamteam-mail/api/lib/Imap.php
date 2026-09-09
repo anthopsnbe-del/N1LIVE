@@ -76,6 +76,15 @@ final class Imap
         return null;
     }
 
+    /** Supprime un unique message designe par son UID. */
+    public function supprimerUn(string $uid): bool
+    {
+        if (!preg_match('/^\d+$/', $uid)) {
+            return false;
+        }
+        return $this->supprimer([$uid]) === 1;
+    }
+
     /** Marque puis efface definitivement les messages designes. */
     public function supprimer(array $uids): int
     {

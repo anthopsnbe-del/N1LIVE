@@ -10,6 +10,7 @@ declare(strict_types=1);
  *   POST ?action=creer      [duree]           -> {alias, jeton, expire_a}
  *   POST ?action=relever    alias, jeton      -> {messages: [...]}
  *   POST ?action=supprimer  alias, jeton      -> {supprimes: n}
+ *   POST ?action=supprimer_message alias, jeton, uid -> {supprime: bool}
  *   POST ?action=envoyer    alias, jeton, destinataire, sujet, corps -> {envoye: true}
  *   GET  ?action=purger     cle               -> {purges: n}   (cron)
  *   GET  ?action=etat                         -> {ok, domaine, duree}
@@ -147,7 +148,7 @@ try {
             foreach ($uids as $uid) {
                 $brut = $client->messageBrut($uid);
                 if ($brut !== null) {
-                    $messages[] = Mime::analyser($brut);
+                    $messages[] = ['uid' => (string) $uid] + Mime::analyser($brut);
                 }
             }
         } finally {
@@ -171,6 +172,28 @@ try {
         repondre(['supprimes' => $supprimes]);
     }
 
+    if ($action === 'supprimer_message') {
+        $alias = champ('alias');
+        autoriser($depot, $alias, champ('jeton'));
+        $uid = champ('uid');
+        if (!preg_match('/^\d+$/', $uid)) {
+            erreur('UID invalide.', 400);
+        }
+        $adresse = $alias . '@' . $config['domaine'];
+
+        $client = imap($config, false);
+        try {
+            // On ne supprime que si cet UID appartient bien a l'alias demande.
+            if (!in_array($uid, $client->chercherPourDestinataire($adresse), true)) {
+                erreur('Ce message n\'appartient pas a cet alias.', 403);
+            }
+            $supprime = $client->supprimerUn($uid);
+        } finally {
+            $client->fermer();
+        }
+        repondre(['supprime' => $supprime]);
+    }
+
     if ($action === 'envoyer') {
         $alias = champ('alias');
         autoriser($depot, $alias, champ('jeton'));
@@ -187,16 +210,68 @@ try {
         // Les en-tetes sont construits ici : rien de ce que fournit le client
         // n'y est injecte tel quel (les retours a la ligne sont retires).
         $nettoyer = static fn (string $v): string => trim(str_replace(["\r", "\n"], ' ', $v));
+
+        // Pieces jointes : piece0_nom / piece0_donnees (base64), piece1_..., etc.
+        $pieces = [];
+        $poids = 0;
+        for ($i = 0; $i < 10; $i++) {
+            $nom = (string) ($_POST["piece{$i}_nom"] ?? '');
+            $donnees = (string) ($_POST["piece{$i}_donnees"] ?? '');
+            if ($nom === '' || $donnees === '') {
+                continue;
+            }
+            $binaire = base64_decode($donnees, true);
+            if ($binaire === false) {
+                erreur('Piece jointe illisible.', 400);
+            }
+            $poids += strlen($binaire);
+            if ($poids > 10 * 1024 * 1024) {
+                erreur('Pieces jointes trop lourdes (10 Mo au maximum).', 413);
+            }
+            // Le nom de fichier est reduit a sa base : pas de chemin, pas de saut de ligne.
+            $pieces[] = ['nom' => basename($nettoyer($nom)), 'donnees' => $binaire];
+        }
+
+        // Des en-tetes complets (Date, Message-ID, chainage) evitent le dossier
+        // indesirables : les filtres penalisent lourdement leur absence.
         $entetes = [
             'From: ' . $nettoyer($de),
             'Reply-To: ' . $nettoyer($de),
-            'Content-Type: text/plain; charset=UTF-8',
+            'Date: ' . date(DATE_RFC2822),
+            'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . $config['domaine'] . '>',
             'MIME-Version: 1.0',
         ];
+        $repondA = $nettoyer(champ('repond_a'));
+        if ($repondA !== '' && str_starts_with($repondA, '<')) {
+            $entetes[] = 'In-Reply-To: ' . $repondA;
+            $entetes[] = 'References: ' . $repondA;
+        }
+
+        if ($pieces === []) {
+            $entetes[] = 'Content-Type: text/plain; charset=UTF-8';
+            $contenu = $corps;
+        } else {
+            $limite = 'LIMITE-' . bin2hex(random_bytes(12));
+            $entetes[] = 'Content-Type: multipart/mixed; boundary="' . $limite . '"';
+            $morceaux = ["--{$limite}",
+                'Content-Type: text/plain; charset=UTF-8',
+                'Content-Transfer-Encoding: 8bit', '', $corps, ''];
+            foreach ($pieces as $piece) {
+                $morceaux[] = "--{$limite}";
+                $morceaux[] = 'Content-Type: application/octet-stream; name="' . $piece['nom'] . '"';
+                $morceaux[] = 'Content-Transfer-Encoding: base64';
+                $morceaux[] = 'Content-Disposition: attachment; filename="' . $piece['nom'] . '"';
+                $morceaux[] = '';
+                $morceaux[] = chunk_split(base64_encode($piece['donnees']), 76, "\r\n");
+            }
+            $morceaux[] = "--{$limite}--";
+            $contenu = implode("\r\n", $morceaux);
+        }
+
         $envoye = @mail(
             $nettoyer($destinataire),
             $nettoyer($sujet !== '' ? $sujet : '(sans objet)'),
-            $corps,
+            $contenu,
             implode("\r\n", $entetes),
             '-f' . $nettoyer($de)
         );

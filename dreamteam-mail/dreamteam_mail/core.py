@@ -121,6 +121,8 @@ class Message:
     date: str = ""
     corps: str = ""
     lu: bool = False
+    uid: str = ""          # identifiant serveur : permet de supprimer ce message
+    message_id: str = ""   # en-tete Message-ID : sert au chainage des reponses
 
     def adresse_expediteur(self) -> str:
         """Adresse seule, extraite de « Nom <a@b.fr> »."""
@@ -356,15 +358,32 @@ class GestionnaireAdresses:
             self._sauver()
             return n
 
+    @staticmethod
+    def _cle_message(message: Message) -> tuple:
+        """Identite d'un message : l'UID serveur s'il existe, sinon ses en-tetes."""
+        if message.uid:
+            return ("uid", message.uid)
+        return ("entetes", message.date, message.sujet, message.expediteur)
+
+    def supprimer_message(self, email: str, indice: int) -> Message | None:
+        """Retire un message de la copie locale et le retourne."""
+        with self._verrou:
+            adresse = self._adresses.get(email.lower())
+            if adresse is None or not (0 <= indice < len(adresse.messages)):
+                return None
+            message = adresse.messages.pop(indice)
+            self._sauver()
+            return message
+
     def ajouter_messages(self, email: str, messages: Iterable[Message]) -> int:
         with self._verrou:
             adresse = self._adresses.get(email.lower())
             if adresse is None:
                 return 0
-            connus = {(m.date, m.sujet, m.expediteur) for m in adresse.messages}
+            connus = {self._cle_message(m) for m in adresse.messages}
             ajoutes = 0
             for m in messages:
-                cle = (m.date, m.sujet, m.expediteur)
+                cle = self._cle_message(m)
                 if cle not in connus:
                     adresse.messages.append(m)
                     connus.add(cle)

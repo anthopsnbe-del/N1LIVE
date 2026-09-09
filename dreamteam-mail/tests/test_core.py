@@ -338,3 +338,40 @@ class TestDomaine(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSuppressionMessage(unittest.TestCase):
+    def gestionnaire(self):
+        return GestionnaireAdresses(persister=False)
+
+    def test_supprime_par_indice(self):
+        g = self.gestionnaire()
+        a = g.creer()
+        g.ajouter_messages(a.email, [Message(uid="1", sujet="a"), Message(uid="2", sujet="b")])
+        self.assertEqual(g.supprimer_message(a.email, 0).uid, "1")
+        self.assertEqual([m.uid for m in g.obtenir(a.email).messages], ["2"])
+
+    def test_indice_hors_bornes_et_adresse_inconnue(self):
+        g = self.gestionnaire()
+        a = g.creer()
+        self.assertIsNone(g.supprimer_message(a.email, 0))
+        self.assertIsNone(g.supprimer_message("inconnue@asylum-games.fr", 0))
+
+    def test_deduplication_par_uid(self):
+        g = self.gestionnaire()
+        a = g.creer()
+        # Meme UID, en-tetes differents : c'est le meme message cote serveur.
+        self.assertEqual(g.ajouter_messages(a.email, [Message(uid="7", sujet="x")]), 1)
+        self.assertEqual(g.ajouter_messages(a.email, [Message(uid="7", sujet="y")]), 0)
+        # Sans UID, on retombe sur la comparaison des en-tetes.
+        self.assertEqual(g.ajouter_messages(a.email, [Message(sujet="z", date="d")]), 1)
+        self.assertEqual(g.ajouter_messages(a.email, [Message(sujet="z", date="d")]), 0)
+
+    def test_message_supprime_ne_revient_pas_par_hasard(self):
+        g = self.gestionnaire()
+        a = g.creer()
+        g.ajouter_messages(a.email, [Message(uid="5", sujet="s")])
+        g.supprimer_message(a.email, 0)
+        # Un relevé ulterieur le remettrait s'il est encore sur le serveur :
+        # c'est pour cela que la suppression serveur suit la suppression locale.
+        self.assertEqual(g.ajouter_messages(a.email, [Message(uid="5", sujet="s")]), 1)

@@ -5,11 +5,13 @@ from __future__ import annotations
 import queue
 import threading
 import tkinter as tk
-from tkinter import messagebox, ttk
+from pathlib import Path
+from tkinter import filedialog, messagebox, ttk
 
 from . import theme
 from .backends import (
     Backend,
+    verifier_pieces,
     BackendAPI,
     BackendDemo,
     BackendIMAP,
@@ -83,13 +85,6 @@ class Application(tk.Tk):
         ttk.Label(barre, text="EMAIL", style="Marque.TLabel").pack(anchor=tk.W)
         ttk.Label(barre, text="DESTRUCTOR", style="Marque.TLabel").pack(anchor=tk.W, pady=(0, 14))
 
-        ttk.Button(barre, text="Emails", width=18,
-                   command=lambda: self.onglets.select(0)).pack(fill=tk.X, pady=3)
-        ttk.Button(barre, text="Messages", width=18,
-                   command=lambda: self.onglets.select(1)).pack(fill=tk.X, pady=3)
-
-        ttk.Separator(barre, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=12)
-
         ttk.Label(barre, text="Duree de vie", style="Barre.TLabel").pack(anchor=tk.W, pady=(0, 4))
         self.durees = dict(DUREES)
         defaut = next(lib for lib, sec in DUREES if sec == TTL_SECONDS)
@@ -154,6 +149,8 @@ class Application(tk.Tk):
         ttk.Button(actions, text="Relever", command=self.relever).pack(side=tk.LEFT)
         self.bouton_repondre = ttk.Button(actions, text="Repondre", command=self.repondre)
         self.bouton_repondre.pack(side=tk.LEFT, padx=6)
+        ttk.Button(actions, text="Supprimer le message",
+                   command=self.supprimer_message).pack(side=tk.LEFT)
         self.var_boite = tk.StringVar(value="Aucune adresse selectionnee")
         ttk.Label(actions, textvariable=self.var_boite,
                   style="Titre.TLabel").pack(side=tk.LEFT, padx=(12, 0))
@@ -318,6 +315,50 @@ class Application(tk.Tk):
         finally:
             self.after(RELEVE_AUTO_SECONDES * 1000, self._releve_automatique)
 
+    def supprimer_message(self) -> None:
+        email = self._selection()
+        adresse = self.gestionnaire.obtenir(email or "")
+        choix = self.messages.selection()
+        if adresse is None or not choix:
+            self._statut("Selectionne un message a supprimer.")
+            return
+        try:
+            indice = int(choix[0])
+        except ValueError:
+            return
+        message = adresse.messages[indice] if indice < len(adresse.messages) else None
+        if message is None:
+            return
+        if not messagebox.askyesno(
+            "Supprimer le message",
+            f"Supprimer definitivement « {message.sujet or '(sans objet)'} » ?\n\n"
+            "Le message sera aussi efface du serveur.",
+            parent=self,
+        ):
+            return
+        self.gestionnaire.supprimer_message(email, indice)
+        self._signature_boite = None  # force la reconstruction de la liste
+        self._ecrire_corps(("Message supprime.\n", "discret"))
+        self._afficher_messages()
+        self._statut(f"Message supprime pour {email}.")
+        self._effacer_message_serveur(email, message, adresse.jeton)
+
+    def _effacer_message_serveur(self, email: str, message, jeton: str) -> None:
+        if not message.uid or not getattr(self.backend, "reel", False):
+            return
+        backend = self.backend
+
+        def travail() -> None:
+            try:
+                efface = backend.supprimer_message(email, message.uid, jeton)
+            except Exception as err:
+                self.file_evenements.put(("erreur", f"Effacement serveur refuse : {err}"))
+                return
+            if efface:
+                self.file_evenements.put(("info", "Message efface aussi du serveur."))
+
+        threading.Thread(target=travail, daemon=True).start()
+
     def repondre(self) -> None:
         adresse = self.gestionnaire.obtenir(self._selection() or "")
         message = self._message_choisi(adresse)
@@ -334,14 +375,16 @@ class Application(tk.Tk):
             return
         DialogueReponse(self, adresse, message)
 
-    def envoyer_reponse(self, adresse, destinataire: str, sujet: str, corps: str) -> None:
+    def envoyer_reponse(self, adresse, destinataire: str, sujet: str, corps: str,
+                        pieces: list | None = None, repond_a: str = "") -> None:
         """Envoi en tache de fond : le reseau ne doit pas figer la fenetre."""
         backend = self.backend
         self._statut(f"Envoi vers {destinataire}…")
 
         def travail() -> None:
             try:
-                backend.envoyer(adresse.email, destinataire, sujet, corps, adresse.jeton)
+                backend.envoyer(adresse.email, destinataire, sujet, corps, adresse.jeton,
+                                pieces, repond_a)
             except Exception as err:
                 self.file_evenements.put(("erreur", f"Envoi refuse : {err}"))
                 return
@@ -654,6 +697,7 @@ class DialogueReponse(tk.Toplevel):
         super().__init__(parent)
         self.parent = parent
         self.adresse = adresse
+        self.message_id = message.message_id
         self.title(f"Repondre — {adresse.email}")
         self.configure(background=theme.FOND)
         self.geometry("760x560")
@@ -686,10 +730,49 @@ class DialogueReponse(tk.Toplevel):
         self.corps.insert("1.0", f"\n\n--- Le {message.date}, {message.expediteur_court()} :\n{citation}\n")
         self.corps.mark_set(tk.INSERT, "1.0")
 
+        self.pieces: list[Path] = []
+        pied = ttk.Frame(cadre)
+        pied.grid(row=4, column=0, columnspan=2, sticky=tk.EW, pady=(10, 0))
+        ttk.Button(pied, text="Joindre un fichier…", command=self.joindre).pack(side=tk.LEFT)
+        self.var_pieces = tk.StringVar(value="Aucune piece jointe")
+        ttk.Label(pied, textvariable=self.var_pieces, style="Discret.TLabel").pack(
+            side=tk.LEFT, padx=10)
+        ttk.Button(pied, text="Retirer", command=self.retirer_pieces).pack(side=tk.LEFT)
+
         boutons = ttk.Frame(cadre)
-        boutons.grid(row=4, column=0, columnspan=2, sticky=tk.E, pady=(12, 0))
+        boutons.grid(row=5, column=0, columnspan=2, sticky=tk.E, pady=(12, 0))
         ttk.Button(boutons, text="Annuler", command=self.destroy).pack(side=tk.RIGHT)
         ttk.Button(boutons, text="Envoyer", command=self.envoyer).pack(side=tk.RIGHT, padx=6)
+
+    def joindre(self) -> None:
+        choisis = filedialog.askopenfilenames(
+            parent=self, title="Joindre des fichiers",
+            filetypes=[("Documents et images", "*.pdf *.png *.jpg *.jpeg *.gif *.webp *.txt"),
+                       ("PDF", "*.pdf"), ("Images", "*.png *.jpg *.jpeg *.gif *.webp"),
+                       ("Tous les fichiers", "*.*")],
+        )
+        if not choisis:
+            return
+        candidates = self.pieces + [Path(c) for c in choisis]
+        try:
+            verifier_pieces(candidates)
+        except ValueError as err:
+            messagebox.showwarning("Pieces jointes", str(err), parent=self)
+            return
+        self.pieces = candidates
+        self._resumer_pieces()
+
+    def retirer_pieces(self) -> None:
+        self.pieces = []
+        self._resumer_pieces()
+
+    def _resumer_pieces(self) -> None:
+        if not self.pieces:
+            self.var_pieces.set("Aucune piece jointe")
+            return
+        poids = sum(chemin.stat().st_size for chemin in self.pieces) / 1e6
+        noms = ", ".join(chemin.name for chemin in self.pieces)
+        self.var_pieces.set(f"{len(self.pieces)} fichier(s) — {poids:.1f} Mo : {noms}")
 
     def envoyer(self) -> None:
         destinataire = self.var_a.get().strip()
@@ -699,7 +782,10 @@ class DialogueReponse(tk.Toplevel):
                 "Message incomplet", "Il faut un destinataire et un texte.", parent=self
             )
             return
-        self.parent.envoyer_reponse(self.adresse, destinataire, self.var_sujet.get().strip(), corps)
+        self.parent.envoyer_reponse(
+            self.adresse, destinataire, self.var_sujet.get().strip(), corps,
+            list(self.pieces), self.message_id,
+        )
         self.destroy()
 
 

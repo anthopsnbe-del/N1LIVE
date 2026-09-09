@@ -69,9 +69,13 @@ messages destinés à l'alias sélectionné s'affichent.
 - **Navigation par onglets** : `Emails` (liste des adresses, copie, suppression,
   mot de passe) et `Messages` (liste façon Gmail, volet de lecture aéré,
   bouton « Répondre »). En mode démonstration, le bandeau le rappelle.
-- **Réponse depuis l'adresse jetable** (SMTP en mode IMAP direct, `action=envoyer`
-  en mode API). Le serveur peut refuser un expéditeur différent du compte
-  authentifié : l'erreur est alors affichée telle quelle.
+- **Réponse depuis l'adresse jetable**, avec **pièces jointes** (PDF, images,
+  10 Mo au total) : SMTP en mode IMAP direct, `action=envoyer` en mode API. Les
+  messages portent `Date`, `Message-ID` et le chaînage `In-Reply-To` attendus
+  par les filtres anti-spam — le reste dépend du DNS du domaine, voir
+  « Pourquoi mes réponses partent en indésirables » dans `api/LISEZMOI.md`.
+- **Suppression d'un message reçu** : retiré de la copie locale *et* du serveur
+  (l'UID est vérifié comme appartenant bien à l'alias avant l'effacement).
 - **Configuration une fois pour toutes** : après « Enregistrer », le bouton
   « Serveur… » disparaît. `Ctrl+Shift+S` le rouvre.
 - **Relevé automatique** toutes les 30 s sur l'adresse sélectionnée, toujours
@@ -133,7 +137,7 @@ python main.py
 python -m unittest discover -s tests -v
 ```
 
-62 tests couvrent la durée de vie et son plafond de 24 h, la purge,
+80 tests couvrent la durée de vie et son plafond de 24 h, la purge,
 l'effacement des messages, la limite d'adresses, la validation du domaine, la
 non-réhydratation des adresses expirées, les adresses réservées et la
 suppression côté serveur (cible restreinte à l'alias, relevé en lecture seule)

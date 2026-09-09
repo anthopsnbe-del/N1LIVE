@@ -82,3 +82,39 @@ distribues l'application : sinon chacun peut se réserver un alias définitif.
 - Testé contre un serveur PHP local et un faux IMAP, **pas encore contre le
   serveur LWS réel** : le premier `?action=etat` puis un vrai relevé sont donc
   à faire avant de distribuer l'application.
+
+## Pourquoi mes réponses partent en indésirables
+
+Un message peut être filtré pour deux familles de raisons. Le code n'en couvre
+qu'une.
+
+### Ce que l'application fait déjà
+
+Chaque message envoyé porte `From`, `To`, `Subject`, `Reply-To`, `Date`, un
+`Message-ID` du domaine, et `In-Reply-To`/`References` quand c'est une réponse.
+Un message sans `Date` ni `Message-ID` est presque automatiquement classé
+indésirable : c'était le cas des toutes premières versions.
+
+### Ce qui dépend de ton domaine, et de lui seul
+
+1. **SPF** — le panel LWS doit afficher SPF actif pour `asylum-games.fr`. Il
+   autorise les serveurs LWS à écrire en ton nom.
+2. **DKIM** — signature cryptographique de chaque message. Sans elle, Gmail
+   affiche « ne peut pas vérifier que ce message vient de asylum-games.fr ».
+3. **DMARC** — publie au minimum `v=DMARC1; p=none; rua=mailto:toi@…`.
+4. **PTR / réputation de l'IP** — sur un hébergement mutualisé, tu partages
+   l'IP d'envoi avec des inconnus. C'est la cause la plus fréquente de
+   classement en spam, et **aucune ligne de code ne la corrige**. LWS vend une
+   IP dédiée pour cette raison.
+5. **L'alias n'existe pas comme boîte** — certains filtres testent l'adresse
+   d'expédition. Une réponse envoyée depuis `vif.nuage042@` alors que seule
+   `catchall@` existe peut être jugée suspecte. Pour une correspondance
+   sérieuse, réponds depuis une adresse à vie à laquelle tu as fait
+   correspondre une vraie boîte, ou depuis `contact@`.
+
+### Mesurer plutôt que deviner
+
+Envoie une réponse à l'adresse jetable que te donne **https://www.mail-tester.com**,
+puis consulte la note. Le rapport dit précisément ce qui manque (SPF, DKIM,
+contenu, réputation d'IP). Corrige d'abord ce que ce rapport pointe : c'est
+plus efficace que de modifier le message au hasard.

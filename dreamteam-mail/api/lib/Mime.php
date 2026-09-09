@@ -14,6 +14,7 @@ final class Mime
             'expediteur' => self::decoderEntete($entetes['from'] ?? ''),
             'sujet'      => self::decoderEntete($entetes['subject'] ?? ''),
             'date'       => self::decoderEntete($entetes['date'] ?? ''),
+            'message_id' => trim($entetes['message-id'] ?? ''),
             'corps'      => self::extraireTexte($corps, $type, $encodage),
         ];
     }
