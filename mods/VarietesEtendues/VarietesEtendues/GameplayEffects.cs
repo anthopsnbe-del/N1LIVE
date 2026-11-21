@@ -98,7 +98,7 @@ internal static class GameplayEffects
 			if (UnityEngine.Mathf.Approximately(effectTuning.Speed, 1f))
 			{
 				Il2CppScheduleOne.Tools.FloatStack.StackEntry val2 = default(Il2CppScheduleOne.Tools.FloatStack.StackEntry);
-				if (owner.MoveSpeedMultiplierStack != null && owner.MoveSpeedMultiplierStack.TryGetEntry("VX_666_Movement", ref val2))
+				if (owner.MoveSpeedMultiplierStack != null && owner.MoveSpeedMultiplierStack.TryGetEntry("VX_666_Movement", out val2))
 				{
 					owner.MoveSpeedMultiplierStack.Remove("VX_666_Movement");
 				}

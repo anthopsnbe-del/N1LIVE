@@ -125,7 +125,7 @@ internal static class Regression
 			list.Add(((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val10).ID);
 		}
 		Il2CppScheduleOne.Persistence.Datas.DeserializedItemSet val11 = default(Il2CppScheduleOne.Persistence.Datas.DeserializedItemSet);
-		if (!Il2CppScheduleOne.Persistence.Datas.ItemSet.TryDeserialize(new ItemSet(val).GetJSON(), ref val11) || ((val11 != null) ? val11.Items : null) == null || ((Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<Il2CppScheduleOne.ItemFramework.ItemInstance>)(object)val11.Items).Length != list.Count)
+		if (!Il2CppScheduleOne.Persistence.Datas.ItemSet.TryDeserialize(new ItemSet(val).GetJSON(), out val11) || ((val11 != null) ? val11.Items : null) == null || ((Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<Il2CppScheduleOne.ItemFramework.ItemInstance>)(object)val11.Items).Length != list.Count)
 		{
 			throw new InvalidDataException("Échec du chargement des objets sérialisés");
 		}

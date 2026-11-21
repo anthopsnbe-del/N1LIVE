@@ -78,7 +78,7 @@ internal static class SupplierUI
 				{
 					deliveryShop.Initialize();
 				}
-				current.Button.onClick = new ButtonClickedEvent();
+				current.Button.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
 				((UnityEngine.Events.UnityEvent)current.Button.onClick).AddListener(((System.Action)delegate
 				{
 					app2.OpenShop(deliveryShop);

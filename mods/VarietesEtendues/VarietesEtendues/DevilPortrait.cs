@@ -74,7 +74,7 @@ internal static class DevilPortrait
 				val6.Apply();
 				Image = UnityEngine.Sprite.Create(val6, new Rect(0f, 0f, 384f, 384f), new Vector2(0.5f, 0.5f));
 				UnityEngine.Object.DontDestroyOnLoad((UnityEngine.Object)(object)val6);
-				UnityEngine.Object.DontDestroyOnLoad((UnityEngine.Object)(object)UnityEngine.UI.Image);
+				UnityEngine.Object.DontDestroyOnLoad((UnityEngine.Object)(object)Image);
 				((S1API.Entities.NPC)lucien).Icon = Image;
 				string text = System.IO.Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, "VarietesEtendues", "Apercus");
 				System.IO.Directory.CreateDirectory(text);

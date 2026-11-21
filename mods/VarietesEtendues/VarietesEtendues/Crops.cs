@@ -36,7 +36,7 @@ internal static class Crops
 			builder.Append(", Name = ");
 			builder.Append((object?)Name);
 			builder.Append(", Effect = ");
-			builder.Append((object?)Il2CppScheduleOne.Effects.Effect);
+			builder.Append((object?)Effect);
 			builder.Append(", SeedPrice = ");
 			builder.Append(SeedPrice.ToString());
 			builder.Append(", BasePrice = ");

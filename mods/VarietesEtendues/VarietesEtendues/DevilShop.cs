@@ -191,7 +191,7 @@ internal static class DevilShop
 			return value;
 		}
 		UnityEngine.Color val = default(UnityEngine.Color);
-		UnityEngine.ColorUtility.TryParseHtmlString(hex, ref val);
+		UnityEngine.ColorUtility.TryParseHtmlString(hex, out val);
 		UnityEngine.Color[] array = (UnityEngine.Color[])(object)new UnityEngine.Color[1024];
 		for (int i = 0; i < 32; i++)
 		{
@@ -439,7 +439,7 @@ internal static class DevilShop
 			if (UnityEngine.GUI.Button(new Rect(980f, 750f, 276f, 35f), Localization.Text("VALIDER LA COMMANDE", "CONFIRM ORDER", "BESTELLUNG BESTÄTIGEN", "CONFIRMAR PEDIDO"), checkout))
 			{
 				string text2 = default(string);
-				if (flag ? delivery.CanOrder(ref text2) : val.Cart.CanCheckout(ref text2))
+				if (flag ? delivery.CanOrder(out text2) : val.Cart.CanCheckout(out text2))
 				{
 					if (flag)
 					{

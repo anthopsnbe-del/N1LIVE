@@ -27,7 +27,7 @@ internal static class AvatarFrame
 			builder.Append(", Size = ");
 			builder.Append(Size.ToString());
 			builder.Append(", Avatar = ");
-			builder.Append(Il2CppScheduleOne.AvatarFramework.Avatar);
+			builder.Append((object?)Avatar);
 			return true;
 		}
 	}
