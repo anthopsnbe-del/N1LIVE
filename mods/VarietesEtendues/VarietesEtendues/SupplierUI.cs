@@ -83,7 +83,7 @@ internal static class SupplierUI
 					deliveryShop.Initialize();
 				}
 				current.Button.onClick = new ButtonClickedEvent();
-				((UnityEvent)current.Button.onClick).AddListener(UnityAction.op_Implicit((Action)delegate
+				((UnityEvent)current.Button.onClick).AddListener(((Action)delegate
 				{
 					app2.OpenShop(deliveryShop);
 				}));
@@ -168,7 +168,7 @@ internal static class SupplierUI
 			return true;
 		}
 		Rect rect = ((Graphic)image).rectTransform.rect;
-		Vector2 val = ((Rect)(ref rect)).size;
+		Vector2 val = rect.size;
 		if (val.x < 1f || val.y < 1f)
 		{
 			val = ((Graphic)image).rectTransform.sizeDelta;

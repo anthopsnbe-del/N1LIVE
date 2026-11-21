@@ -92,12 +92,12 @@ internal sealed class DemonVisual
 		ParticleSystem obj = val.AddComponent<ParticleSystem>();
 		obj.Stop(true, (ParticleSystemStopBehavior)0);
 		MainModule main = obj.main;
-		main.startColor = MinMaxGradient.op_Implicit(color);
-		main.startSize = MinMaxCurve.op_Implicit(size);
-		main.startSpeed = MinMaxCurve.op_Implicit(speed);
-		main.startLifetime = MinMaxCurve.op_Implicit(lifetime);
+		main.startColor = (color);
+		main.startSize = (size);
+		main.startSpeed = (speed);
+		main.startLifetime = (lifetime);
 		main.maxParticles = 150;
-		obj.emission.rateOverTime = MinMaxCurve.op_Implicit(rate);
+		obj.emission.rateOverTime = (rate);
 		ShapeModule shape = obj.shape;
 		shape.shapeType = (ParticleSystemShapeType)4;
 		shape.radius = radius;
@@ -160,16 +160,16 @@ internal sealed class DemonVisual
 		if ((Object)(object)val != (Object)null)
 		{
 			Bounds bounds = ((Renderer)val).bounds;
-			Vector3 size = ((Bounds)(ref bounds)).size;
-			if (((Vector3)(ref size)).magnitude > 0.1f)
+			Vector3 size = bounds.size;
+			if (size.magnitude > 0.1f)
 			{
-				size = ((Bounds)(ref bounds)).size;
-				if (((Vector3)(ref size)).magnitude < 1.2f && Vector3.Distance(((Bounds)(ref bounds)).center, frame.Eyes) < 0.5f)
+				size = bounds.size;
+				if (size.magnitude < 1.2f && Vector3.Distance(bounds.center, frame.Eyes) < 0.5f)
 				{
 					num = float.MinValue;
 					for (int i = 0; i < 8; i++)
 					{
-						Vector3 val2 = ((Bounds)(ref bounds)).center + Vector3.Scale(((Bounds)(ref bounds)).extents, new Vector3((float)((((uint)i & (true ? 1u : 0u)) != 0) ? 1 : (-1)), (float)((((uint)i & 2u) != 0) ? 1 : (-1)), (float)((((uint)i & 4u) != 0) ? 1 : (-1))));
+						Vector3 val2 = bounds.center + Vector3.Scale(bounds.extents, new Vector3((float)((((uint)i & (true ? 1u : 0u)) != 0) ? 1 : (-1)), (float)((((uint)i & 2u) != 0) ? 1 : (-1)), (float)((((uint)i & 4u) != 0) ? 1 : (-1))));
 						num = Mathf.Max(num, Vector3.Dot(val2 - frame.Eyes, frame.Up));
 					}
 					num = Mathf.Clamp(num, frame.Size * 0.4f, frame.Size * 0.85f);

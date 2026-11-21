@@ -24,10 +24,10 @@ internal static class AvatarFrame
 			//IL_003a: Unknown result type (might be due to invalid IL or missing references)
 			builder.Append("Eyes = ");
 			Vector3 eyes = Eyes;
-			builder.Append(((object)(Vector3)(ref eyes)).ToString());
+			builder.Append(eyes.ToString());
 			builder.Append(", Rotation = ");
 			Quaternion rotation = Rotation;
-			builder.Append(((object)(Quaternion)(ref rotation)).ToString());
+			builder.Append(rotation.ToString());
 			builder.Append(", Size = ");
 			builder.Append(Size.ToString());
 			builder.Append(", Avatar = ");
@@ -150,16 +150,16 @@ internal static class AvatarFrame
 		if ((Object)(object)val != (Object)null && (Object)(object)val2 != (Object)null)
 		{
 			Bounds bounds = ((Renderer)val).bounds;
-			Vector3 center = ((Bounds)(ref bounds)).center;
+			Vector3 center = bounds.center;
 			bounds = ((Renderer)val2).bounds;
-			Vector3 center2 = ((Bounds)(ref bounds)).center;
+			Vector3 center2 = bounds.center;
 			float num = Vector3.Distance(center, center2);
 			if (num > 0.015f && num < 0.5f && Vector3.Distance((center + center2) * 0.5f, actor.position) < 4f)
 			{
 				eyes3 = (center + center2) * 0.5f;
 				size = Mathf.Clamp(num * 2.7f, 0.16f, 0.42f);
 				Vector3 val3 = center2 - center;
-				Vector3 val4 = ((Vector3)(ref val3)).normalized;
+				Vector3 val4 = val3.normalized;
 				if (Vector3.Dot(val4, actor.right) < 0f)
 				{
 					val4 = -val4;
@@ -169,14 +169,14 @@ internal static class AvatarFrame
 				if ((Object)(object)((effects != null) ? effects.HeadBone : null) != (Object)null && (Object)(object)componentInChildren.Effects.NeckBone != (Object)null)
 				{
 					Vector3 val6 = componentInChildren.Effects.HeadBone.position - componentInChildren.Effects.NeckBone.position;
-					if (((Vector3)(ref val6)).magnitude > 0.015f && ((Vector3)(ref val6)).magnitude < 0.5f)
+					if (val6.magnitude > 0.015f && val6.magnitude < 0.5f)
 					{
-						val5 = ((Vector3)(ref val6)).normalized;
+						val5 = val6.normalized;
 					}
 				}
 				val3 = Vector3.Cross(val4, val5);
-				Vector3 normalized = ((Vector3)(ref val3)).normalized;
-				if (((Vector3)(ref normalized)).sqrMagnitude > 0.1f)
+				Vector3 normalized = val3.normalized;
+				if (normalized.sqrMagnitude > 0.1f)
 				{
 					rotation = Quaternion.LookRotation(normalized, Vector3.Cross(normalized, val4));
 				}

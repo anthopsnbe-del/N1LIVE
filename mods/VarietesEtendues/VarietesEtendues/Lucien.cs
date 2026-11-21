@@ -29,8 +29,8 @@ public sealed class Lucien : NPC
 			//IL_0105: Unknown result type (might be due to invalid IL or missing references)
 			//IL_0123: Unknown result type (might be due to invalid IL or missing references)
 			a.SkinColor = new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue);
-			a.LeftEyeLidColor = Color32.op_Implicit(new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue));
-			a.RightEyeLidColor = Color32.op_Implicit(new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue));
+			a.LeftEyeLidColor = (new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue));
+			a.RightEyeLidColor = (new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue));
 			a.HairPath = "Avatar/Hair/longslicked/LongSlicked";
 			a.HairColor = new Color(0.16f, 0.1f, 0.055f);
 			a.LeftEye = (0.62f, 0.5f);

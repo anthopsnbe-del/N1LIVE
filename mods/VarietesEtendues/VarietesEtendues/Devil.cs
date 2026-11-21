@@ -33,7 +33,7 @@ internal static class Devil
 					array[i * 64 + j] = new Color(1f, 1f, 1f, num2 * num2 * 0.65f);
 				}
 			}
-			smoke.SetPixels(Il2CppStructArray<Color>.op_Implicit(array));
+			smoke.SetPixels((array));
 			smoke.Apply();
 			Object.DontDestroyOnLoad((Object)(object)smoke);
 			return smoke;

@@ -103,12 +103,12 @@ internal static class RealModels
 		Mesh val2 = new Mesh
 		{
 			name = "VX_Procedural_" + name,
-			vertices = Il2CppStructArray<Vector3>.op_Implicit(v.ToArray()),
-			triangles = Il2CppStructArray<int>.op_Implicit(t.ToArray())
+			vertices = (v.ToArray()),
+			triangles = (t.ToArray())
 		};
 		if (uv != null)
 		{
-			val2.uv = Il2CppStructArray<Vector2>.op_Implicit(uv.ToArray());
+			val2.uv = (uv.ToArray());
 		}
 		val2.RecalculateNormals();
 		val2.RecalculateBounds();
@@ -233,7 +233,7 @@ internal static class RealModels
 					array[m * 256 + n] = new Color(Mathf.Clamp01(val2.r + num10), Mathf.Clamp01(val2.g + num10 * 0.8f), Mathf.Clamp01(val2.b + num10 * 0.55f), 1f);
 				}
 			}
-			value.SetPixels(Il2CppStructArray<Color>.op_Implicit(array));
+			value.SetPixels((array));
 			value.Apply();
 			((Texture)value).wrapMode = (TextureWrapMode)0;
 			skins[key] = value;
@@ -281,8 +281,8 @@ internal static class RealModels
 		//IL_00f3: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = Vector3.Cross(((Vector3)(ref direction)).normalized, Vector3.forward);
-		if (((Vector3)(ref val)).sqrMagnitude < 0.1f)
+		Vector3 val = Vector3.Cross(direction.normalized, Vector3.forward);
+		if (val.sqrMagnitude < 0.1f)
 		{
 			val = Vector3.right;
 		}
@@ -821,7 +821,7 @@ internal static class RealModels
 						{
 							float num3 = (float)k * (float)Math.PI * 2f / 15f + (float)j * 0.4f;
 							float num4 = (float)j * (float)Math.PI / 10f;
-							((Vector3)(ref val2))._002Ector(Mathf.Cos(num3) * Mathf.Sin(num4), Mathf.Cos(num4), Mathf.Sin(num3) * Mathf.Sin(num4));
+							val2 = new Vector3(Mathf.Cos(num3) * Mathf.Sin(num4), Mathf.Cos(num4), Mathf.Sin(num3) * Mathf.Sin(num4));
 							Spike(transform, new Vector3(val2.x * 0.063f, 0.09f + val2.y * 0.084f, val2.z * 0.055f), val2, 0.008f, 0.017f, new Color(0.38f, 0.4f, 0.08f));
 						}
 					}
@@ -935,23 +935,23 @@ internal static class RealModels
 					num9 = (flag2 ? 0.1f : (flag3 ? 0.14f : (flag5 ? 0.25f : ((key == "cyclo") ? 0.105f : ((!(key == "paranox")) ? (flag6 ? 0.19f : 0.17f) : 0.13f)))));
 					if (key == "syrup")
 					{
-						((Color)(ref val3))._002Ector(0.28f, 0.09f, 0.025f);
+						val3 = new Color(0.28f, 0.09f, 0.025f);
 					}
 					else if (flag5)
 					{
-						((Color)(ref val3))._002Ector(0.055f, 0.3f, 0.07f);
+						val3 = new Color(0.055f, 0.3f, 0.07f);
 					}
 					else if (key == "focalix")
 					{
-						((Color)(ref val3))._002Ector(0.91f, 0.36f, 0.025f);
+						val3 = new Color(0.91f, 0.36f, 0.025f);
 					}
 					else if (key == "paranox")
 					{
-						((Color)(ref val3))._002Ector(0.7f, 0.025f, 0.04f);
+						val3 = new Color(0.7f, 0.025f, 0.04f);
 					}
 					else if (flag2)
 					{
-						((Color)(ref val3))._002Ector(0.46f, 0.25f, 0.09f);
+						val3 = new Color(0.46f, 0.25f, 0.09f);
 					}
 					else
 					{

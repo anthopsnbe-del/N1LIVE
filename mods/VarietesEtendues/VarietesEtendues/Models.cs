@@ -58,7 +58,7 @@ internal static class Models
 		using MemoryStream memoryStream = new MemoryStream();
 		stream.CopyTo(memoryStream);
 		Texture2D val = new Texture2D(2, 2, (TextureFormat)4, false);
-		ImageConversion.LoadImage(val, Il2CppStructArray<byte>.op_Implicit(memoryStream.ToArray()));
+		ImageConversion.LoadImage(val, (memoryStream.ToArray()));
 		((Texture)val).filterMode = (FilterMode)1;
 		((Texture)val).wrapMode = (TextureWrapMode)1;
 		textures[text] = val;

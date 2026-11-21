@@ -48,7 +48,7 @@ internal static class SkinPatterns
 				});
 			}
 		}
-		value.SetPixels(Il2CppStructArray<Color>.op_Implicit(array));
+		value.SetPixels((array));
 		value.Apply();
 		((Texture)value).wrapMode = (TextureWrapMode)0;
 		Object.DontDestroyOnLoad((Object)(object)value);

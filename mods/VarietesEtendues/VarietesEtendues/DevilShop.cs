@@ -216,7 +216,7 @@ internal static class DevilShop
 		}
 		Texture2D val3 = new Texture2D(32, 32, (TextureFormat)4, false);
 		((Object)val3).hideFlags = (HideFlags)32;
-		val3.SetPixels(Il2CppStructArray<Color>.op_Implicit(array));
+		val3.SetPixels((array));
 		val3.Apply();
 		fills[hex] = val3;
 		return val3;

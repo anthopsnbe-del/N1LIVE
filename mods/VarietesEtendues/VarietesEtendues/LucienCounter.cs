@@ -60,7 +60,7 @@ internal static class LucienCounter
 				onChoosen = new UnityEvent(),
 				Priority = 100
 			};
-			val2.onChoosen.AddListener(UnityAction.op_Implicit((Action)delegate
+			val2.onChoosen.AddListener(((Action)delegate
 			{
 				if (!((Object)(object)supplier == (Object)null) && !((Object)(object)supplier.Shop == (Object)null) && ((NPC)lucien2).IsVisible)
 				{

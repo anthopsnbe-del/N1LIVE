@@ -107,7 +107,7 @@ internal static class DevilPortrait
 				((NPC)lucien).Icon = Image;
 				string text = Path.Combine(MelonEnvironment.UserDataDirectory, "VarietesEtendues", "Apercus");
 				Directory.CreateDirectory(text);
-				File.WriteAllBytes(Path.Combine(text, "lucien_666.png"), Il2CppArrayBase<byte>.op_Implicit((Il2CppArrayBase<byte>)(object)ImageConversion.EncodeToPNG(val6)));
+				File.WriteAllBytes(Path.Combine(text, "lucien_666.png"), ((Il2CppArrayBase<byte>)(object)ImageConversion.EncodeToPNG(val6)));
 				if ((Object)(object)SupplierUI.App != (Object)null)
 				{
 					SupplierUI.Refresh(SupplierUI.App);

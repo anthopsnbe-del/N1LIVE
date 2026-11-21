@@ -47,10 +47,10 @@ internal static class Crops
 			builder.Append(BasePrice.ToString());
 			builder.Append(", Bud = ");
 			Color val = Bud;
-			builder.Append(((object)(Color)(ref val)).ToString());
+			builder.Append(val.ToString());
 			builder.Append(", Leaf = ");
 			val = Leaf;
-			builder.Append(((object)(Color)(ref val)).ToString());
+			builder.Append(val.ToString());
 			return true;
 		}
 	}
@@ -148,7 +148,7 @@ internal static class Crops
 				bool flag = text.Contains("leaf") || text.Contains("leaves") || text.Contains("stem");
 				array[i].color = (flag ? Color.Lerp(Color.white, variety.Leaf, 0.55f) : variety.Bud);
 			}
-			componentsInChild.materials = Il2CppReferenceArray<Material>.op_Implicit(array);
+			componentsInChild.materials = (array);
 		}
 	}
 
@@ -205,7 +205,7 @@ internal static class Crops
 				((ProductDefinition)val2).MarketValue = variety.BasePrice;
 				((PropertyItemDefinition)val2).Properties = new List<Effect>();
 				((PropertyItemDefinition)val2).Properties.Add(Mixing.Native(Mod.Resolve(variety.Effect).ID));
-				val2.appearance = new WeedAppearanceSettings(Color32.op_Implicit(variety.Bud), Color32.op_Implicit(Color.Lerp(variety.Bud, Color.white, 0.25f)), Color32.op_Implicit(variety.Leaf), new Color32((byte)113, (byte)133, (byte)66, byte.MaxValue));
+				val2.appearance = new WeedAppearanceSettings((variety.Bud), (Color.Lerp(variety.Bud, Color.white, 0.25f)), (variety.Leaf), new Color32((byte)113, (byte)133, (byte)66, byte.MaxValue));
 				if ((Object)(object)val.MainMat != (Object)null)
 				{
 					val2.MainMat = new Material(val.MainMat);

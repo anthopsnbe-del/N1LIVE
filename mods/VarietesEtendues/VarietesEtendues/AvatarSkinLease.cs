@@ -78,7 +78,7 @@ internal sealed class AvatarSkinLease
 			Eye leftEye = eyes.LeftEye;
 			obj = ((leftEye != null) ? new Color?(leftEye._eyeballColor) : null);
 		}
-		leftColor = (Color)(((_003F?)obj) ?? Color.white);
+		leftColor = (((Color?)obj) ?? Color.white);
 		Color? obj2;
 		if (eyes == null)
 		{
@@ -89,7 +89,7 @@ internal sealed class AvatarSkinLease
 			Eye rightEye = eyes.RightEye;
 			obj2 = ((rightEye != null) ? new Color?(rightEye._eyeballColor) : null);
 		}
-		rightColor = (Color)(((_003F?)obj2) ?? Color.white);
+		rightColor = (((Color?)obj2) ?? Color.white);
 		float? obj3;
 		if (eyes == null)
 		{
@@ -167,7 +167,7 @@ internal sealed class AvatarSkinLease
 					}
 				}
 			}
-			componentsInChild.sharedMaterials = Il2CppReferenceArray<Material>.op_Implicit(array2);
+			componentsInChild.sharedMaterials = (array2);
 			slots[((Object)componentsInChild).GetInstanceID()] = new Slot(componentsInChild, array, array2, skin);
 		}
 	}
@@ -225,48 +225,48 @@ internal sealed class AvatarSkinLease
 		Color val = Color.black;
 		if (Has("mango"))
 		{
-			((Color)(ref white))._002Ector(1f, 0.77f, 0.43f);
+			white = new Color(1f, 0.77f, 0.43f);
 			num = 0.15f;
 		}
 		if (Has("melon"))
 		{
-			((Color)(ref white))._002Ector(0.65f, 0.9f, 0.8f);
+			white = new Color(0.65f, 0.9f, 0.8f);
 			num = 0.1f;
 		}
 		if (Has("syrup"))
 		{
-			((Color)(ref white))._002Ector(0.7f, 0.66f, 0.62f);
+			white = new Color(0.7f, 0.66f, 0.62f);
 			num = 0.2f;
 		}
 		if (Has("patee"))
 		{
-			((Color)(ref white))._002Ector(0.62f, 0.44f, 0.25f);
+			white = new Color(0.62f, 0.44f, 0.25f);
 			num = 0.2f;
 		}
 		if (Has("fizz"))
 		{
-			((Color)(ref white))._002Ector(0.35f, 0.65f, 0.8f);
+			white = new Color(0.35f, 0.65f, 0.8f);
 			num = 0.25f;
 		}
 		if (Has("lithium"))
 		{
-			((Color)(ref white))._002Ector(0.45f, 0.63f, 0.83f);
+			white = new Color(0.45f, 0.63f, 0.83f);
 			num = 0.12f;
-			((Color)(ref val))._002Ector(0.005f, 0.015f, 0.035f);
+			val = new Color(0.005f, 0.015f, 0.035f);
 		}
 		if (Has("durian"))
 		{
-			((Color)(ref white))._002Ector(0.4f, 0.42f, 0.22f);
+			white = new Color(0.4f, 0.42f, 0.22f);
 			num = 0.65f;
 		}
 		if (Has("dragon"))
 		{
-			((Color)(ref white))._002Ector(0.43f, 0.24f, 0.57f);
+			white = new Color(0.43f, 0.24f, 0.57f);
 			num = 0.75f;
 		}
 		if (Has("nitro"))
 		{
-			((Color)(ref white))._002Ector(0.68f, 0.85f, 0.95f);
+			white = new Color(0.68f, 0.85f, 0.95f);
 			num = 0.65f;
 		}
 		if (Has("glow"))
@@ -300,7 +300,7 @@ internal sealed class AvatarSkinLease
 				{
 					Color color2 = val3.GetColor("_EmissionColor");
 					val2.SetColor("_EmissionColor", flag2 ? Color.black : (value.Skin ? (color2 + val) : color2));
-					if ((!flag2 && value.Skin && ((Color)(ref val)).maxColorComponent > 0f) || val3.IsKeywordEnabled("_EMISSION"))
+					if ((!flag2 && value.Skin && val.maxColorComponent > 0f) || val3.IsKeywordEnabled("_EMISSION"))
 					{
 						val2.EnableKeyword("_EMISSION");
 					}
@@ -520,7 +520,7 @@ internal sealed class AvatarSkinLease
 						array[i] = value.Original[i];
 					}
 				}
-				value.Renderer.sharedMaterials = Il2CppReferenceArray<Material>.op_Implicit(array);
+				value.Renderer.sharedMaterials = (array);
 			}
 			Material[] owned = value.Owned;
 			foreach (Material val in owned)

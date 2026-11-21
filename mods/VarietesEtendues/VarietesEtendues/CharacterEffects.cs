@@ -296,7 +296,7 @@ internal static class CharacterEffects
 				}
 				if ((Object)(object)state.Details != (Object)null)
 				{
-					_003F val;
+					Vector3 val;
 					if (!(text == "spines"))
 					{
 						val = frame.Eyes - frame.Up * 0.035f + frame.Forward * 0.1f;
@@ -314,7 +314,7 @@ internal static class CharacterEffects
 							Transform middleSpine = avatar2.MiddleSpine;
 							obj2 = ((middleSpine != null) ? new Vector3?(middleSpine.position) : null);
 						}
-						val = ((_003F?)obj2) ?? (frame.Eyes - frame.Up * 0.4f);
+						val = ((Vector3?)obj2) ?? (frame.Eyes - frame.Up * 0.4f);
 					}
 					Vector3 position = (Vector3)val;
 					AvatarFrame.Place(state.Details.transform, position, frame.Rotation);
@@ -405,12 +405,12 @@ internal static class CharacterEffects
 			ParticleSystem val = s.Details.AddComponent<ParticleSystem>();
 			val.Stop(true, (ParticleSystemStopBehavior)0);
 			MainModule main = val.main;
-			main.startColor = MinMaxGradient.op_Implicit(new Color(0.75f, 0.9f, 1f, 0.12f));
-			main.startLifetime = MinMaxCurve.op_Implicit(0.65f);
-			main.startSpeed = MinMaxCurve.op_Implicit(0.07f);
-			main.startSize = MinMaxCurve.op_Implicit(0.035f);
+			main.startColor = (new Color(0.75f, 0.9f, 1f, 0.12f));
+			main.startLifetime = (0.65f);
+			main.startSpeed = (0.07f);
+			main.startSize = (0.035f);
 			main.maxParticles = 8;
-			val.emission.rateOverTime = MinMaxCurve.op_Implicit(3f);
+			val.emission.rateOverTime = (3f);
 			ShapeModule shape = val.shape;
 			shape.shapeType = (ParticleSystemShapeType)4;
 			shape.radius = 0.012f;

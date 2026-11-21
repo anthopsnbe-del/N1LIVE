@@ -120,13 +120,13 @@ internal static class Presentation
 				continue;
 			}
 			val2 = ((Renderer)item).bounds;
-			Vector3 size = ((Bounds)(ref val2)).size;
-			if (((Vector3)(ref size)).sqrMagnitude > 0f)
+			Vector3 size = val2.size;
+			if (size.sqrMagnitude > 0f)
 			{
 				if (val.HasValue)
 				{
 					Bounds value = val.Value;
-					((Bounds)(ref value)).Encapsulate(((Renderer)item).bounds);
+					value.Encapsulate(((Renderer)item).bounds);
 					val = value;
 				}
 				else
@@ -145,7 +145,7 @@ internal static class Presentation
 				if (val4.HasValue)
 				{
 					Bounds value2 = val4.Value;
-					((Bounds)(ref value2)).Encapsulate(componentsInChild.bounds);
+					value2.Encapsulate(componentsInChild.bounds);
 					val4 = value2;
 				}
 				else
@@ -158,9 +158,9 @@ internal static class Presentation
 				Transform transform = val3.transform;
 				Vector3 position = transform.position;
 				val2 = val.Value;
-				Vector3 center = ((Bounds)(ref val2)).center;
+				Vector3 center = val2.center;
 				val2 = val4.Value;
-				transform.position = position + (center - ((Bounds)(ref val2)).center);
+				transform.position = position + (center - val2.center);
 			}
 		}
 		MeshRenderer val5 = ((IEnumerable<MeshRenderer>)componentsInChildren).FirstOrDefault((Func<MeshRenderer, bool>)((MeshRenderer r) => ((Renderer)r).enabled && ((Component)r).gameObject.activeSelf));

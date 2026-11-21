@@ -303,7 +303,7 @@ public sealed class Mod : MelonMod
 					icons[num].item.Icon = val3;
 					string text = Path.Combine(MelonEnvironment.UserDataDirectory, "VarietesEtendues", "Apercus");
 					Directory.CreateDirectory(text);
-					File.WriteAllBytes(Path.Combine(text, icons[num].item.ID + ".png"), Il2CppArrayBase<byte>.op_Implicit((Il2CppArrayBase<byte>)(object)ImageConversion.EncodeToPNG(val3.texture)));
+					File.WriteAllBytes(Path.Combine(text, icons[num].item.ID + ".png"), ((Il2CppArrayBase<byte>)(object)ImageConversion.EncodeToPNG(val3.texture)));
 					MelonLogger.Msg("Icône 3D prête : " + icons[num].item.ID);
 					icons.RemoveAt(num);
 				}
@@ -422,11 +422,11 @@ public sealed class Mod : MelonMod
 				foreach (MeshRenderer componentsInChild in val4.GetComponentsInChildren<MeshRenderer>())
 				{
 					Bounds bounds = ((Renderer)componentsInChild).bounds;
-					float x = ((Bounds)(ref bounds)).size.x;
+					float x = bounds.size.x;
 					bounds = ((Renderer)componentsInChild).bounds;
-					float y = ((Bounds)(ref bounds)).size.y;
+					float y = bounds.size.y;
 					bounds = ((Renderer)componentsInChild).bounds;
-					if (Mathf.Max(x, Mathf.Max(y, ((Bounds)(ref bounds)).size.z)) > 0.5f)
+					if (Mathf.Max(x, Mathf.Max(y, bounds.size.z)) > 0.5f)
 					{
 						throw new InvalidDataException("L'effet Diable hérite d'une échelle de squelette excessive");
 					}
