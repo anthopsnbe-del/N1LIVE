@@ -3,11 +3,11 @@ using Il2CppScheduleOne.PlayerScripts;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(PlayerMovement), "Update")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.PlayerScripts.PlayerMovement), "Update")]
 internal static class ScopedMovementUpdate
 {
 	[HarmonyPrefix]
-	private static void Prefix(PlayerMovement __instance, out bool __state)
+	private static void Prefix(Il2CppScheduleOne.PlayerScripts.PlayerMovement __instance, out bool __state)
 	{
 		__state = MovementScope.Enter(__instance);
 	}

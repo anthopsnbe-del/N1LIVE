@@ -11,51 +11,49 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(WeedPlant), "GetHarvestedProduct")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.Growing.WeedPlant), "GetHarvestedProduct")]
 internal static class VarietyHarvest
 {
 	[HarmonyPrefix]
-	private static void Prefix(WeedPlant __instance, out SeedDefinition? __state)
+	private static void Prefix(Il2CppScheduleOne.Growing.WeedPlant __instance, out Il2CppScheduleOne.Growing.SeedDefinition? __state)
 	{
 		__state = null;
-		SeedDefinition seedDefinition = ((Plant)__instance).SeedDefinition;
-		if (!((Object)(object)seedDefinition == (Object)null) && Crops.Seeds.ContainsKey(((BaseItemDefinition)seedDefinition).ID) && Crops.SourceId != null)
+		Il2CppScheduleOne.Growing.SeedDefinition seedDefinition = ((Il2CppScheduleOne.Growing.Plant)__instance).SeedDefinition;
+		if (!((UnityEngine.Object)(object)seedDefinition == (UnityEngine.Object)null) && Crops.Seeds.ContainsKey(((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)seedDefinition).ID) && Crops.SourceId != null)
 		{
-			ItemDefinition item = Registry.GetItem(Crops.SourceId);
-			SeedDefinition seedDefinition2 = ((item != null) ? ((Il2CppObjectBase)item).TryCast<SeedDefinition>() : null) ?? throw new InvalidDataException("Graine native de référence absente : " + Crops.SourceId);
+			Il2CppScheduleOne.ItemFramework.ItemDefinition item = Il2CppScheduleOne.Registry.GetItem(Crops.SourceId);
+			Il2CppScheduleOne.Growing.SeedDefinition seedDefinition2 = ((item != null) ? ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)item).TryCast<Il2CppScheduleOne.Growing.SeedDefinition>() : null) ?? throw new InvalidDataException("Graine native de référence absente : " + Crops.SourceId);
 			__state = seedDefinition;
-			((Plant)__instance).SeedDefinition = seedDefinition2;
+			((Il2CppScheduleOne.Growing.Plant)__instance).SeedDefinition = seedDefinition2;
 		}
 	}
 
 	[HarmonyPostfix]
-	private static void Postfix(WeedPlant __instance, SeedDefinition? __state, int __0, ref ItemInstance __result)
+	private static void Postfix(Il2CppScheduleOne.Growing.WeedPlant __instance, Il2CppScheduleOne.Growing.SeedDefinition? __state, int __0, ref Il2CppScheduleOne.ItemFramework.ItemInstance __result)
 	{
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
-		SeedDefinition __state2 = __state;
-		if ((Object)(object)__state2 == (Object)null)
+		Il2CppScheduleOne.Growing.SeedDefinition __state2 = __state;
+		if ((UnityEngine.Object)(object)__state2 == (UnityEngine.Object)null)
 		{
 			return;
 		}
-		((Plant)__instance).SeedDefinition = __state2;
-		Crops.Variety variety = Crops.Varieties.First((Crops.Variety v) => Crops.SeedId(v) == ((BaseItemDefinition)__state2).ID);
-		ItemInstance obj = __result;
-		EQuality? obj2;
+		((Il2CppScheduleOne.Growing.Plant)__instance).SeedDefinition = __state2;
+		Crops.Variety variety = Crops.Varieties.First((Crops.Variety v) => Crops.SeedId(v) == ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)__state2).ID);
+		Il2CppScheduleOne.ItemFramework.ItemInstance obj = __result;
+		Il2CppScheduleOne.ItemFramework.EQuality? obj2;
 		if (obj == null)
 		{
 			obj2 = null;
 		}
 		else
 		{
-			QualityItemInstance obj3 = ((Il2CppObjectBase)obj).TryCast<QualityItemInstance>();
-			obj2 = ((obj3 != null) ? new EQuality?(obj3.Quality) : null);
+			Il2CppScheduleOne.ItemFramework.QualityItemInstance obj3 = ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)obj).TryCast<Il2CppScheduleOne.ItemFramework.QualityItemInstance>();
+			obj2 = ((obj3 != null) ? new Il2CppScheduleOne.ItemFramework.EQuality?(obj3.Quality) : null);
 		}
-		EQuality? val = obj2;
-		__result = ((ItemDefinition)((Il2CppObjectBase)Registry.GetItem("vx_" + variety.Key)).Cast<WeedDefinition>()).GetDefaultInstance(__0);
+		Il2CppScheduleOne.ItemFramework.EQuality? val = obj2;
+		__result = ((Il2CppScheduleOne.ItemFramework.ItemDefinition)((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)Il2CppScheduleOne.Registry.GetItem("vx_" + variety.Key)).Cast<Il2CppScheduleOne.Product.WeedDefinition>()).GetDefaultInstance(__0);
 		if (val.HasValue)
 		{
-			QualityItemInstance obj4 = ((Il2CppObjectBase)__result).TryCast<QualityItemInstance>();
+			Il2CppScheduleOne.ItemFramework.QualityItemInstance obj4 = ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)__result).TryCast<Il2CppScheduleOne.ItemFramework.QualityItemInstance>();
 			if (obj4 != null)
 			{
 				obj4.SetQuality(val.Value);
@@ -64,11 +62,11 @@ internal static class VarietyHarvest
 	}
 
 	[HarmonyFinalizer]
-	private static void Finalizer(WeedPlant __instance, SeedDefinition? __state)
+	private static void Finalizer(Il2CppScheduleOne.Growing.WeedPlant __instance, Il2CppScheduleOne.Growing.SeedDefinition? __state)
 	{
-		if ((Object)(object)__state != (Object)null)
+		if ((UnityEngine.Object)(object)__state != (UnityEngine.Object)null)
 		{
-			((Plant)__instance).SeedDefinition = __state;
+			((Il2CppScheduleOne.Growing.Plant)__instance).SeedDefinition = __state;
 		}
 	}
 }

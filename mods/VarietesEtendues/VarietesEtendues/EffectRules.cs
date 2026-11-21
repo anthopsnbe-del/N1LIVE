@@ -103,10 +103,10 @@ internal static class EffectRules
 		};
 	}
 
-	internal static EffectTuning Combine(IEnumerable<string> effects, bool sprinting = false, float devilSpeed = 1.3f)
+	internal static EffectTuning Combine(System.Collections.Generic.IEnumerable<string> effects, bool sprinting = false, float devilSpeed = 1.3f)
 	{
 		EffectTuning effectTuning = EffectTuning.Neutral;
-		HashSet<string> hashSet = new HashSet<string>(StringComparer.Ordinal);
+		System.Collections.Generic.HashSet<string> hashSet = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
 		foreach (string effect in effects)
 		{
 			if (hashSet.Add(effect))
@@ -115,34 +115,34 @@ internal static class EffectRules
 				effectTuning = effectTuning with
 				{
 					Speed = effectTuning.Speed * effectTuning2.Speed,
-					Jump = Math.Max(effectTuning.Jump, effectTuning2.Jump),
-					Gravity = Math.Min(effectTuning.Gravity, effectTuning2.Gravity),
-					Drain = Math.Min(effectTuning.Drain, effectTuning2.Drain),
-					Regen = Math.Max(effectTuning.Regen, effectTuning2.Regen),
-					Acceleration = Math.Max(effectTuning.Acceleration, effectTuning2.Acceleration),
-					Crouch = Math.Max(effectTuning.Crouch, effectTuning2.Crouch),
-					DamageTaken = Math.Min(effectTuning.DamageTaken, effectTuning2.DamageTaken),
-					Strength = Math.Max(effectTuning.Strength, effectTuning2.Strength),
-					Fall = Math.Min(effectTuning.Fall, effectTuning2.Fall),
-					Animation = Math.Min(effectTuning.Animation, effectTuning2.Animation),
+					Jump = System.Math.Max(effectTuning.Jump, effectTuning2.Jump),
+					Gravity = System.Math.Min(effectTuning.Gravity, effectTuning2.Gravity),
+					Drain = System.Math.Min(effectTuning.Drain, effectTuning2.Drain),
+					Regen = System.Math.Max(effectTuning.Regen, effectTuning2.Regen),
+					Acceleration = System.Math.Max(effectTuning.Acceleration, effectTuning2.Acceleration),
+					Crouch = System.Math.Max(effectTuning.Crouch, effectTuning2.Crouch),
+					DamageTaken = System.Math.Min(effectTuning.DamageTaken, effectTuning2.DamageTaken),
+					Strength = System.Math.Max(effectTuning.Strength, effectTuning2.Strength),
+					Fall = System.Math.Min(effectTuning.Fall, effectTuning2.Fall),
+					Animation = System.Math.Min(effectTuning.Animation, effectTuning2.Animation),
 					God = (effectTuning.God || effectTuning2.God)
 				};
 			}
 		}
-		float num = Math.Clamp(effectTuning.Speed, 0.65f, 1.6f);
+		float num = System.Math.Clamp(effectTuning.Speed, 0.65f, 1.6f);
 		if (effectTuning.God)
 		{
-			num = (sprinting ? Math.Clamp(devilSpeed, 1f, 2f) : Math.Clamp(num, 0.65f, 1.25f));
+			num = (sprinting ? Math.Clamp(devilSpeed, 1f, 2f) : System.Math.Clamp(num, 0.65f, 1.25f));
 		}
 		return effectTuning with
 		{
 			Speed = num,
-			Jump = Math.Clamp(effectTuning.Jump, 1f, 1.6f),
-			Gravity = Math.Clamp(effectTuning.Gravity, 0.4f, 1f),
-			Drain = Math.Clamp(effectTuning.Drain, 0.5f, 1f),
-			Regen = Math.Clamp(effectTuning.Regen, 1f, 1.5f),
-			DamageTaken = Math.Clamp(effectTuning.DamageTaken, 0.65f, 1f),
-			Strength = Math.Clamp(effectTuning.Strength, 1f, 1.35f)
+			Jump = System.Math.Clamp(effectTuning.Jump, 1f, 1.6f),
+			Gravity = System.Math.Clamp(effectTuning.Gravity, 0.4f, 1f),
+			Drain = System.Math.Clamp(effectTuning.Drain, 0.5f, 1f),
+			Regen = System.Math.Clamp(effectTuning.Regen, 1f, 1.5f),
+			DamageTaken = System.Math.Clamp(effectTuning.DamageTaken, 0.65f, 1f),
+			Strength = System.Math.Clamp(effectTuning.Strength, 1f, 1.35f)
 		};
 	}
 }

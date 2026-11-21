@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-public sealed class Lucien : NPC
+public sealed class Lucien : S1API.Entities.NPC
 {
 	public static string NPCId => "vx_lucien";
 
@@ -14,20 +14,10 @@ public sealed class Lucien : NPC
 
 	public override bool IsPhysical => true;
 
-	protected override void ConfigurePrefab(NPCPrefabBuilder builder)
+	protected override void ConfigurePrefab(S1API.Entities.NPCPrefabBuilder builder)
 	{
-		builder.WithIdentity(NPCId, "Lucien", "").WithAppearanceDefaults((Action<AvatarDefaultsBuilder>)delegate(AvatarDefaultsBuilder a)
+		builder.WithIdentity(NPCId, "Lucien", "").WithAppearanceDefaults((System.Action<S1API.Entities.NPCPrefabBuilder.AvatarDefaultsBuilder>)delegate(S1API.Entities.NPCPrefabBuilder.AvatarDefaultsBuilder a)
 		{
-			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-			//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0105: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0123: Unknown result type (might be due to invalid IL or missing references)
 			a.SkinColor = new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue);
 			a.LeftEyeLidColor = (new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue));
 			a.RightEyeLidColor = (new Color32((byte)213, (byte)168, (byte)126, byte.MaxValue));
@@ -37,13 +27,13 @@ public sealed class Lucien : NPC
 			a.RightEye = (0.62f, 0.5f);
 			a.EyebrowThickness = 0.8f;
 			a.Weight = 0.43f;
-			a.WithFaceLayer("Avatar/Layers/Face/Face_SlightSmile", Color.white).WithFaceLayer("Avatar/Layers/Face/FacialHair_Stubble", new Color(0.24f, 0.16f, 0.09f)).WithBodyLayer("Avatar/Layers/Top/Buttonup", new Color(0.16f, 0.33f, 0.25f))
+			a.WithFaceLayer("Avatar/Layers/Face/Face_SlightSmile", UnityEngine.Color.white).WithFaceLayer("Avatar/Layers/Face/FacialHair_Stubble", new Color(0.24f, 0.16f, 0.09f)).WithBodyLayer("Avatar/Layers/Top/Buttonup", new Color(0.16f, 0.33f, 0.25f))
 				.WithBodyLayer("Avatar/Layers/Bottom/Jeans", new Color(0.12f, 0.18f, 0.25f));
-		}).WithRelationshipDefaults((Action<NPCRelationshipDataBuilder>)delegate(NPCRelationshipDataBuilder r)
+		}).WithRelationshipDefaults((System.Action<S1API.Entities.Relation.NPCRelationshipDataBuilder>)delegate(S1API.Entities.Relation.NPCRelationshipDataBuilder r)
 		{
 			r.SetUnlocked(true).WithDelta(5f);
 		})
-			.WithSupplierDefaults((Action<SupplierDataBuilder>)delegate(SupplierDataBuilder s)
+			.WithSupplierDefaults((System.Action<S1API.Entities.Supplier.SupplierDataBuilder>)delegate(S1API.Entities.Supplier.SupplierDataBuilder s)
 			{
 				s.WithPersistentId("vx_lucien_supplier").WithOrderLimits(2000f, 10000f).WithUnlockHint("The Comptoir des Variétés is available by phone.");
 				Entry[] catalogue = Mod.Catalogue;

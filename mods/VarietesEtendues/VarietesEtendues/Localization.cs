@@ -27,7 +27,7 @@ internal enum Lang
 /// </summary>
 internal static class Localization
 {
-	private static MelonPreferences_Entry<string>? language;
+	private static MelonLoader.MelonPreferences_Entry<string>? language;
 
 	private static Lang? detected;
 
@@ -85,8 +85,8 @@ internal static class Localization
 
 	internal static void Initialize()
 	{
-		language = MelonPreferences.CreateCategory("VarietesEtendues").CreateEntry<string>("Language", "Auto", "Language / Langue / Sprache / Idioma : Auto, fr, en, de, es", (string)null, false, false, (ValueValidator)null, (string)null);
-		MelonLogger.Msg("Langue du mod : " + Current);
+		language = MelonLoader.MelonPreferences.CreateCategory("VarietesEtendues").CreateEntry<string>("Language", "Auto", "Language / Langue / Sprache / Idioma : Auto, fr, en, de, es", (string)null, false, false, (MelonLoader.Preferences.ValueValidator)null, (string)null);
+		MelonLoader.MelonLogger.Msg("Langue du mod : " + Current);
 	}
 
 	private static Lang? FromCode(string? code)
@@ -190,28 +190,28 @@ internal static class Localization
 			{
 				if (j != current)
 				{
-					value = value.Replace(array[j], array[current], StringComparison.Ordinal);
+					value = value.Replace(array[j], array[current], System.StringComparison.Ordinal);
 				}
 			}
 		}
 		return value;
 	}
 
-	internal static void Refresh(MSGConversation convo)
+	internal static void Refresh(Il2CppScheduleOne.Messaging.MSGConversation convo)
 	{
 		string? text = convo?._sender?._npcId;
 		if (text != "vx_lucien")
 		{
 			return;
 		}
-		if ((Object)(object)convo!.container != (Object)null)
+		if ((UnityEngine.Object)(object)convo!.container != (UnityEngine.Object)null)
 		{
-			foreach (Text componentsInChild in ((Component)convo.container).GetComponentsInChildren<Text>(true))
+			foreach (UnityEngine.UI.Text componentsInChild in ((UnityEngine.Component)convo.container).GetComponentsInChildren<UnityEngine.UI.Text>(true))
 			{
 				componentsInChild.text = Translate(componentsInChild.text);
 			}
 		}
-		if ((Object)(object)convo.entryPreviewText != (Object)null)
+		if ((UnityEngine.Object)(object)convo.entryPreviewText != (UnityEngine.Object)null)
 		{
 			convo.entryPreviewText.text = Translate(convo.entryPreviewText.text);
 		}

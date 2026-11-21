@@ -14,32 +14,30 @@ namespace VarietesEtendues;
 
 internal static class Presentation
 {
-	private static GameObject? cache;
+	private static UnityEngine.GameObject? cache;
 
-	internal static void Cache(GameObject prefab)
+	internal static void Cache(UnityEngine.GameObject prefab)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Expected O, but got Unknown
-		if ((Object)(object)cache == (Object)null)
+		if ((UnityEngine.Object)(object)cache == (UnityEngine.Object)null)
 		{
 			cache = new GameObject("VX_Prefabs");
 			cache.SetActive(false);
-			Object.DontDestroyOnLoad((Object)(object)cache);
+			UnityEngine.Object.DontDestroyOnLoad((UnityEngine.Object)(object)cache);
 		}
 		prefab.transform.SetParent(cache.transform, false);
 		prefab.SetActive(true);
 	}
 
-	internal static void Layer(Transform root, int layer)
+	internal static void Layer(UnityEngine.Transform root, int layer)
 	{
-		((Component)root).gameObject.layer = layer;
+		((UnityEngine.Component)root).gameObject.layer = layer;
 		for (int i = 0; i < root.childCount; i++)
 		{
 			Layer(root.GetChild(i), layer);
 		}
 	}
 
-	internal static StorableItemDefinition Template(Entry entry)
+	internal static Il2CppScheduleOne.ItemFramework.StorableItemDefinition Template(Entry entry)
 	{
 		string text;
 		switch (entry.Key)
@@ -81,70 +79,47 @@ internal static class Presentation
 			text = "banana";
 			break;
 		}
-		ItemDefinition item = Registry.GetItem(text);
-		return ((item != null) ? ((Il2CppObjectBase)item).TryCast<StorableItemDefinition>() : null) ?? ((Il2CppObjectBase)Registry.GetItem("banana")).Cast<StorableItemDefinition>();
+		Il2CppScheduleOne.ItemFramework.ItemDefinition item = Il2CppScheduleOne.Registry.GetItem(text);
+		return ((item != null) ? ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)item).TryCast<Il2CppScheduleOne.ItemFramework.StorableItemDefinition>() : null) ?? ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)Il2CppScheduleOne.Registry.GetItem("banana")).Cast<Il2CppScheduleOne.ItemFramework.StorableItemDefinition>();
 	}
 
-	internal static GameObject ReplaceMeshes(GameObject scaffold, Entry entry)
+	internal static UnityEngine.GameObject ReplaceMeshes(UnityEngine.GameObject scaffold, Entry entry)
 	{
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0119: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0159: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0160: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0165: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0169: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0170: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0175: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0179: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0183: Unknown result type (might be due to invalid IL or missing references)
-		Il2CppArrayBase<MeshRenderer> componentsInChildren = scaffold.GetComponentsInChildren<MeshRenderer>(true);
-		Bounds? val = null;
-		Bounds val2;
-		foreach (MeshRenderer item in componentsInChildren)
+		Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.MeshRenderer> componentsInChildren = scaffold.GetComponentsInChildren<UnityEngine.MeshRenderer>(true);
+		UnityEngine.Bounds? val = null;
+		UnityEngine.Bounds val2;
+		foreach (UnityEngine.MeshRenderer item in componentsInChildren)
 		{
-			if (!((Renderer)item).enabled || !((Component)item).gameObject.activeSelf)
+			if (!((UnityEngine.Renderer)item).enabled || !((UnityEngine.Component)item).gameObject.activeSelf)
 			{
 				continue;
 			}
-			val2 = ((Renderer)item).bounds;
-			Vector3 size = val2.size;
+			val2 = ((UnityEngine.Renderer)item).bounds;
+			UnityEngine.Vector3 size = val2.size;
 			if (size.sqrMagnitude > 0f)
 			{
 				if (val.HasValue)
 				{
-					Bounds value = val.Value;
-					value.Encapsulate(((Renderer)item).bounds);
+					UnityEngine.Bounds value = val.Value;
+					value.Encapsulate(((UnityEngine.Renderer)item).bounds);
 					val = value;
 				}
 				else
 				{
-					val = ((Renderer)item).bounds;
+					val = ((UnityEngine.Renderer)item).bounds;
 				}
 			}
 		}
-		GameObject val3 = Models.Make(entry.Key, entry.Name);
+		UnityEngine.GameObject val3 = Models.Make(entry.Key, entry.Name);
 		val3.transform.SetParent(scaffold.transform, false);
 		if (val.HasValue)
 		{
-			Bounds? val4 = null;
-			foreach (Renderer componentsInChild in val3.GetComponentsInChildren<Renderer>(true))
+			UnityEngine.Bounds? val4 = null;
+			foreach (UnityEngine.Renderer componentsInChild in val3.GetComponentsInChildren<UnityEngine.Renderer>(true))
 			{
 				if (val4.HasValue)
 				{
-					Bounds value2 = val4.Value;
+					UnityEngine.Bounds value2 = val4.Value;
 					value2.Encapsulate(componentsInChild.bounds);
 					val4 = value2;
 				}
@@ -155,56 +130,56 @@ internal static class Presentation
 			}
 			if (val4.HasValue)
 			{
-				Transform transform = val3.transform;
-				Vector3 position = transform.position;
+				UnityEngine.Transform transform = val3.transform;
+				UnityEngine.Vector3 position = transform.position;
 				val2 = val.Value;
-				Vector3 center = val2.center;
+				UnityEngine.Vector3 center = val2.center;
 				val2 = val4.Value;
 				transform.position = position + (center - val2.center);
 			}
 		}
-		MeshRenderer val5 = ((IEnumerable<MeshRenderer>)componentsInChildren).FirstOrDefault((Func<MeshRenderer, bool>)((MeshRenderer r) => ((Renderer)r).enabled && ((Component)r).gameObject.activeSelf));
-		int layer = (((Object)(object)val5 != (Object)null) ? ((Component)val5).gameObject.layer : scaffold.layer);
+		UnityEngine.MeshRenderer val5 = ((System.Collections.Generic.IEnumerable<UnityEngine.MeshRenderer>)componentsInChildren).FirstOrDefault((System.Func<UnityEngine.MeshRenderer, bool>)((UnityEngine.MeshRenderer r) => ((UnityEngine.Renderer)r).enabled && ((UnityEngine.Component)r).gameObject.activeSelf));
+		int layer = (((UnityEngine.Object)(object)val5 != (UnityEngine.Object)null) ? ((UnityEngine.Component)val5).gameObject.layer : scaffold.layer);
 		Layer(val3.transform, layer);
-		foreach (MeshRenderer item2 in componentsInChildren)
+		foreach (UnityEngine.MeshRenderer item2 in componentsInChildren)
 		{
-			((Renderer)item2).enabled = false;
+			((UnityEngine.Renderer)item2).enabled = false;
 		}
 		return val3;
 	}
 
-	internal static void ConfigureHeld(StorableItemDefinition source, StorableItemDefinition target, Entry entry)
+	internal static void ConfigureHeld(Il2CppScheduleOne.ItemFramework.StorableItemDefinition source, Il2CppScheduleOne.ItemFramework.StorableItemDefinition target, Entry entry)
 	{
-		if ((Object)(object)((ItemDefinition)source).Equippable == (Object)null)
+		if ((UnityEngine.Object)(object)((Il2CppScheduleOne.ItemFramework.ItemDefinition)source).Equippable == (UnityEngine.Object)null)
 		{
 			throw new InvalidOperationException("Modèle tenu de référence absent");
 		}
-		Equippable val = Object.Instantiate<Equippable>(((ItemDefinition)source).Equippable);
-		((Object)val).name = "VX_EnMain_" + entry.Key;
-		Equippable_Viewmodel val2 = ((Il2CppObjectBase)val).TryCast<Equippable_Viewmodel>();
-		if ((Object)(object)((val2 != null) ? val2.AvatarEquippable : null) != (Object)null)
+		Il2CppScheduleOne.Equipping.Equippable val = UnityEngine.Object.Instantiate<Il2CppScheduleOne.Equipping.Equippable>(((Il2CppScheduleOne.ItemFramework.ItemDefinition)source).Equippable);
+		((UnityEngine.Object)val).name = "VX_EnMain_" + entry.Key;
+		Il2CppScheduleOne.Equipping.Equippable_Viewmodel val2 = ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)val).TryCast<Il2CppScheduleOne.Equipping.Equippable_Viewmodel>();
+		if ((UnityEngine.Object)(object)((val2 != null) ? val2.AvatarEquippable : null) != (UnityEngine.Object)null)
 		{
-			AvatarEquippable val3 = Object.Instantiate<AvatarEquippable>(val2.AvatarEquippable);
-			((Object)val3).name = "VX_Avatar_" + entry.Key;
-			ReplaceMeshes(((Component)val3).gameObject, entry);
+			Il2CppScheduleOne.AvatarFramework.Equipping.AvatarEquippable val3 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.AvatarFramework.Equipping.AvatarEquippable>(val2.AvatarEquippable);
+			((UnityEngine.Object)val3).name = "VX_Avatar_" + entry.Key;
+			ReplaceMeshes(((UnityEngine.Component)val3).gameObject, entry);
 			string text2 = (val3.AssetPath = "Equippables/VarietesEtendues/" + entry.Key);
 			string text3 = text2;
-			if (!AvatarEquippableRegistry.RegisterAvatarEquippable(text3, ((Component)val3).gameObject))
+			if (!S1API.Items.AvatarEquippableRegistry.RegisterAvatarEquippable(text3, ((UnityEngine.Component)val3).gameObject))
 			{
 				throw new InvalidOperationException("Présentation réseau non enregistrée : " + text3);
 			}
-			Cache(((Component)val3).gameObject);
+			Cache(((UnityEngine.Component)val3).gameObject);
 			val2.AvatarEquippable = val3;
-			if ((Object)(object)((Il2CppObjectBase)val).TryCast<Equippable_AvatarViewmodel>() == (Object)null)
+			if ((UnityEngine.Object)(object)((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)val).TryCast<Il2CppScheduleOne.Equipping.Equippable_AvatarViewmodel>() == (UnityEngine.Object)null)
 			{
-				ReplaceMeshes(((Component)val).gameObject, entry);
+				ReplaceMeshes(((UnityEngine.Component)val).gameObject, entry);
 			}
 		}
 		else
 		{
-			ReplaceMeshes(((Component)val).gameObject, entry);
+			ReplaceMeshes(((UnityEngine.Component)val).gameObject, entry);
 		}
-		Cache(((Component)val).gameObject);
-		((ItemDefinition)target).Equippable = val;
+		Cache(((UnityEngine.Component)val).gameObject);
+		((Il2CppScheduleOne.ItemFramework.ItemDefinition)target).Equippable = val;
 	}
 }

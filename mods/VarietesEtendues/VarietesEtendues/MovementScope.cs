@@ -21,13 +21,13 @@ internal static class MovementScope
 
 	private static float acceleration;
 
-	internal static bool Enter(PlayerMovement movement)
+	internal static bool Enter(Il2CppScheduleOne.PlayerScripts.PlayerMovement movement)
 	{
-		if ((Object)(object)movement == (Object)null || (Object)(object)movement.Player == (Object)null || !movement.Player.IsLocalPlayer)
+		if ((UnityEngine.Object)(object)movement == (UnityEngine.Object)null || (UnityEngine.Object)(object)movement.Player == (UnityEngine.Object)null || !movement.Player.IsLocalPlayer)
 		{
 			return false;
 		}
-		EffectTuning effectTuning = CharacterEffects.Tuning(((Component)movement.Player).transform, movement.IsSprinting);
+		EffectTuning effectTuning = CharacterEffects.Tuning(((UnityEngine.Component)movement.Player).transform, movement.IsSprinting);
 		if (depth == 0 && effectTuning == EffectTuning.Neutral)
 		{
 			return false;
@@ -36,18 +36,18 @@ internal static class MovementScope
 		{
 			return true;
 		}
-		jump = PlayerMovement.JumpMultiplier;
-		gravity = PlayerMovement.GravityMultiplier;
-		drain = PlayerMovement.StaminaDrainRate;
-		regen = PlayerMovement.StaminaRestoreRate;
-		crouch = PlayerMovement.CrouchSpeedMultipler;
-		acceleration = PlayerMovement.SprintChangeRate;
-		PlayerMovement.JumpMultiplier = jump * effectTuning.Jump;
-		PlayerMovement.GravityMultiplier = gravity * effectTuning.Gravity;
-		PlayerMovement.StaminaDrainRate = drain * effectTuning.Drain;
-		PlayerMovement.StaminaRestoreRate = regen * effectTuning.Regen;
-		PlayerMovement.CrouchSpeedMultipler = crouch * effectTuning.Crouch;
-		PlayerMovement.SprintChangeRate = acceleration * effectTuning.Acceleration;
+		jump = Il2CppScheduleOne.PlayerScripts.PlayerMovement.JumpMultiplier;
+		gravity = Il2CppScheduleOne.PlayerScripts.PlayerMovement.GravityMultiplier;
+		drain = Il2CppScheduleOne.PlayerScripts.PlayerMovement.StaminaDrainRate;
+		regen = Il2CppScheduleOne.PlayerScripts.PlayerMovement.StaminaRestoreRate;
+		crouch = Il2CppScheduleOne.PlayerScripts.PlayerMovement.CrouchSpeedMultipler;
+		acceleration = Il2CppScheduleOne.PlayerScripts.PlayerMovement.SprintChangeRate;
+		Il2CppScheduleOne.PlayerScripts.PlayerMovement.JumpMultiplier = jump * effectTuning.Jump;
+		Il2CppScheduleOne.PlayerScripts.PlayerMovement.GravityMultiplier = gravity * effectTuning.Gravity;
+		Il2CppScheduleOne.PlayerScripts.PlayerMovement.StaminaDrainRate = drain * effectTuning.Drain;
+		Il2CppScheduleOne.PlayerScripts.PlayerMovement.StaminaRestoreRate = regen * effectTuning.Regen;
+		Il2CppScheduleOne.PlayerScripts.PlayerMovement.CrouchSpeedMultipler = crouch * effectTuning.Crouch;
+		Il2CppScheduleOne.PlayerScripts.PlayerMovement.SprintChangeRate = acceleration * effectTuning.Acceleration;
 		return true;
 	}
 
@@ -55,12 +55,12 @@ internal static class MovementScope
 	{
 		if (entered && --depth <= 0)
 		{
-			PlayerMovement.JumpMultiplier = jump;
-			PlayerMovement.GravityMultiplier = gravity;
-			PlayerMovement.StaminaDrainRate = drain;
-			PlayerMovement.StaminaRestoreRate = regen;
-			PlayerMovement.CrouchSpeedMultipler = crouch;
-			PlayerMovement.SprintChangeRate = acceleration;
+			Il2CppScheduleOne.PlayerScripts.PlayerMovement.JumpMultiplier = jump;
+			Il2CppScheduleOne.PlayerScripts.PlayerMovement.GravityMultiplier = gravity;
+			Il2CppScheduleOne.PlayerScripts.PlayerMovement.StaminaDrainRate = drain;
+			Il2CppScheduleOne.PlayerScripts.PlayerMovement.StaminaRestoreRate = regen;
+			Il2CppScheduleOne.PlayerScripts.PlayerMovement.CrouchSpeedMultipler = crouch;
+			Il2CppScheduleOne.PlayerScripts.PlayerMovement.SprintChangeRate = acceleration;
 		}
 	}
 }

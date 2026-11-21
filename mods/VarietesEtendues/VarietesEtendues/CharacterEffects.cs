@@ -16,27 +16,27 @@ internal static class CharacterEffects
 {
 	private sealed class State
 	{
-		internal Transform Actor;
+		internal UnityEngine.Transform Actor;
 
-		internal readonly HashSet<string> Ids = new HashSet<string>(StringComparer.Ordinal);
+		internal readonly System.Collections.Generic.HashSet<string> Ids = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
 
 		/// <summary>PNJ : heure d'application de chaque effet (pour l'arrêt après EffectDuration).</summary>
-		internal readonly Dictionary<string, float> Since = new Dictionary<string, float>(StringComparer.Ordinal);
+		internal readonly System.Collections.Generic.Dictionary<string, float> Since = new System.Collections.Generic.Dictionary<string, float>(System.StringComparer.Ordinal);
 
 		/// <summary>Effets permanents (ex. Lucien, toujours en Diable) : jamais expirés.</summary>
-		internal readonly HashSet<string> Permanent = new HashSet<string>(StringComparer.Ordinal);
+		internal readonly System.Collections.Generic.HashSet<string> Permanent = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
 
-		internal readonly Dictionary<int, AvatarSkinLease> Skins = new Dictionary<int, AvatarSkinLease>();
+		internal readonly System.Collections.Generic.Dictionary<int, AvatarSkinLease> Skins = new System.Collections.Generic.Dictionary<int, AvatarSkinLease>();
 
 		internal DemonVisual? Demon;
 
-		internal GameObject? Details;
+		internal UnityEngine.GameObject? Details;
 
-		internal ParticleSystem? Breath;
+		internal UnityEngine.ParticleSystem? Breath;
 
 		internal string DetailKind = "";
 
-		internal NavMeshAgent? Agent;
+		internal UnityEngine.AI.NavMeshAgent? Agent;
 
 		internal float BaseSpeed;
 
@@ -49,59 +49,59 @@ internal static class CharacterEffects
 		internal int Failures;
 	}
 
-	private static readonly Dictionary<int, State> states = new Dictionary<int, State>();
+	private static readonly System.Collections.Generic.Dictionary<int, State> states = new System.Collections.Generic.Dictionary<int, State>();
 
 	/// <summary>
 	/// PNJ dont l'effet a expiré : on ignore les ré-applications du même effet
 	/// jusqu'à ce que le jeu/S1API appelle le « clear » correspondant.
 	/// </summary>
-	private static readonly Dictionary<int, HashSet<string>> expired = new Dictionary<int, HashSet<string>>();
+	private static readonly System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<string>> expired = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<string>>();
 
-	internal static string[] Ids(Transform actor)
+	internal static string[] Ids(UnityEngine.Transform actor)
 	{
-		if (!ActiveConsumption.IsPlayer(actor, out Player player))
+		if (!ActiveConsumption.IsPlayer(actor, out Il2CppScheduleOne.PlayerScripts.Player player))
 		{
-			if (!((Object)(object)actor != (Object)null) || !states.TryGetValue(((Object)actor).GetInstanceID(), out State value))
+			if (!((UnityEngine.Object)(object)actor != (UnityEngine.Object)null) || !states.TryGetValue(((UnityEngine.Object)actor).GetInstanceID(), out State value))
 			{
-				return Array.Empty<string>();
+				return System.Array.Empty<string>();
 			}
 			return value.Ids.ToArray();
 		}
 		return ActiveConsumption.PlayerIds(player);
 	}
 
-	internal static bool Has(Transform actor, string id)
+	internal static bool Has(UnityEngine.Transform actor, string id)
 	{
-		return ((ReadOnlySpan<string>)Ids(actor)).Contains(id);
+		return ((System.ReadOnlySpan<string>)Ids(actor)).Contains(id);
 	}
 
-	internal static bool DemonReady(Transform actor)
+	internal static bool DemonReady(UnityEngine.Transform actor)
 	{
-		if ((Object)(object)actor != (Object)null && states.TryGetValue(((Object)actor).GetInstanceID(), out State value) && value.Demon != null)
+		if ((UnityEngine.Object)(object)actor != (UnityEngine.Object)null && states.TryGetValue(((UnityEngine.Object)actor).GetInstanceID(), out State value) && value.Demon != null)
 		{
 			return value.Skins.Count > 0;
 		}
 		return false;
 	}
 
-	internal static EffectTuning Tuning(Transform actor, bool sprint = false)
+	internal static EffectTuning Tuning(UnityEngine.Transform actor, bool sprint = false)
 	{
 		return EffectRules.Combine(Ids(actor), sprint, GameplayEffects.DevilSprint);
 	}
 
-	internal static void Add(Transform actor, string id, bool permanent = false)
+	internal static void Add(UnityEngine.Transform actor, string id, bool permanent = false)
 	{
-		if ((Object)(object)actor == (Object)null)
+		if ((UnityEngine.Object)(object)actor == (UnityEngine.Object)null)
 		{
 			return;
 		}
-		bool flag = ActiveConsumption.IsPlayer(actor, out Player player);
-		if (flag && !((ReadOnlySpan<string>)ActiveConsumption.PlayerIds(player)).Contains(id))
+		bool flag = ActiveConsumption.IsPlayer(actor, out Il2CppScheduleOne.PlayerScripts.Player player);
+		if (flag && !((System.ReadOnlySpan<string>)ActiveConsumption.PlayerIds(player)).Contains(id))
 		{
 			return;
 		}
-		int instanceID = ((Object)actor).GetInstanceID();
-		if (!flag && !permanent && expired.TryGetValue(instanceID, out HashSet<string> value2) && value2.Contains(id))
+		int instanceID = ((UnityEngine.Object)actor).GetInstanceID();
+		if (!flag && !permanent && expired.TryGetValue(instanceID, out System.Collections.Generic.HashSet<string> value2) && value2.Contains(id))
 		{
 			return;
 		}
@@ -115,7 +115,7 @@ internal static class CharacterEffects
 		}
 		if (value.Ids.Add(id) || !value.Since.ContainsKey(id))
 		{
-			value.Since[id] = Time.time;
+			value.Since[id] = UnityEngine.Time.time;
 		}
 		if (permanent)
 		{
@@ -123,13 +123,13 @@ internal static class CharacterEffects
 		}
 	}
 
-	internal static void Remove(Transform actor, string id)
+	internal static void Remove(UnityEngine.Transform actor, string id)
 	{
-		if ((Object)(object)actor != (Object)null && expired.TryGetValue(((Object)actor).GetInstanceID(), out HashSet<string> value2))
+		if ((UnityEngine.Object)(object)actor != (UnityEngine.Object)null && expired.TryGetValue(((UnityEngine.Object)actor).GetInstanceID(), out System.Collections.Generic.HashSet<string> value2))
 		{
 			value2.Remove(id);
 		}
-		if (!((Object)(object)actor == (Object)null) && states.TryGetValue(((Object)actor).GetInstanceID(), out State value))
+		if (!((UnityEngine.Object)(object)actor == (UnityEngine.Object)null) && states.TryGetValue(((UnityEngine.Object)actor).GetInstanceID(), out State value))
 		{
 			value.Ids.Remove(id);
 			value.Since.Remove(id);
@@ -141,16 +141,16 @@ internal static class CharacterEffects
 		}
 	}
 
-	internal static void Reconcile(Transform actor, IEnumerable<string> desired)
+	internal static void Reconcile(UnityEngine.Transform actor, System.Collections.Generic.IEnumerable<string> desired)
 	{
-		if ((Object)(object)actor == (Object)null)
+		if ((UnityEngine.Object)(object)actor == (UnityEngine.Object)null)
 		{
 			return;
 		}
-		HashSet<string> hashSet = new HashSet<string>(desired, StringComparer.Ordinal);
+		System.Collections.Generic.HashSet<string> hashSet = new System.Collections.Generic.HashSet<string>(desired, System.StringComparer.Ordinal);
 		if (hashSet.Count == 0)
 		{
-			if (states.TryGetValue(((Object)actor).GetInstanceID(), out State value))
+			if (states.TryGetValue(((UnityEngine.Object)actor).GetInstanceID(), out State value))
 			{
 				Dispose(value);
 			}
@@ -160,17 +160,17 @@ internal static class CharacterEffects
 		{
 			Add(actor, item);
 		}
-		if (states.TryGetValue(((Object)actor).GetInstanceID(), out State value2))
+		if (states.TryGetValue(((UnityEngine.Object)actor).GetInstanceID(), out State value2))
 		{
 			value2.Ids.IntersectWith(hashSet);
 		}
 	}
 
-	private static void BindAvatar(State state, Avatar? avatar)
+	private static void BindAvatar(State state, Il2CppScheduleOne.AvatarFramework.Avatar? avatar)
 	{
-		if (!((Object)(object)avatar == (Object)null))
+		if (!((UnityEngine.Object)(object)avatar == (UnityEngine.Object)null))
 		{
-			int instanceID = ((Object)avatar).GetInstanceID();
+			int instanceID = ((UnityEngine.Object)avatar).GetInstanceID();
 			if (!state.Skins.ContainsKey(instanceID))
 			{
 				state.Skins[instanceID] = new AvatarSkinLease(avatar);
@@ -180,31 +180,15 @@ internal static class CharacterEffects
 
 	internal static void Tick()
 	{
-		//IL_023b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0242: Unknown result type (might be due to invalid IL or missing references)
-		//IL_024c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0251: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0258: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0262: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0267: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02e6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_029a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02b1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02c7: Unknown result type (might be due to invalid IL or missing references)
 		State[] array = states.Values.ToArray();
 		foreach (State state in array)
 		{
-			if ((Object)(object)state.Actor == (Object)null)
+			if ((UnityEngine.Object)(object)state.Actor == (UnityEngine.Object)null)
 			{
 				Dispose(state);
 				continue;
 			}
-			if (ActiveConsumption.IsPlayer(state.Actor, out Player player))
+			if (ActiveConsumption.IsPlayer(state.Actor, out Il2CppScheduleOne.PlayerScripts.Player player))
 			{
 				state.Ids.IntersectWith(ActiveConsumption.PlayerIds(player));
 				if (state.Ids.Count == 0)
@@ -218,14 +202,14 @@ internal static class CharacterEffects
 				// PNJ : arrêt net après EffectDuration (sauf effets permanents).
 				foreach (string item2 in state.Ids.ToArray())
 				{
-					if (!state.Permanent.Contains(item2) && state.Since.TryGetValue(item2, out float value3) && Time.time - value3 >= Settings.EffectDuration)
+					if (!state.Permanent.Contains(item2) && state.Since.TryGetValue(item2, out float value3) && UnityEngine.Time.time - value3 >= Settings.EffectDuration)
 					{
 						state.Ids.Remove(item2);
 						state.Since.Remove(item2);
-						int instanceID = ((Object)state.Actor).GetInstanceID();
-						if (!expired.TryGetValue(instanceID, out HashSet<string> value4))
+						int instanceID = ((UnityEngine.Object)state.Actor).GetInstanceID();
+						if (!expired.TryGetValue(instanceID, out System.Collections.Generic.HashSet<string> value4))
 						{
-							value4 = (expired[instanceID] = new HashSet<string>(StringComparer.Ordinal));
+							value4 = (expired[instanceID] = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal));
 						}
 						value4.Add(item2);
 					}
@@ -236,7 +220,7 @@ internal static class CharacterEffects
 					continue;
 				}
 			}
-			if (Time.unscaledTime < state.RetryAt)
+			if (UnityEngine.Time.unscaledTime < state.RetryAt)
 			{
 				continue;
 			}
@@ -244,7 +228,7 @@ internal static class CharacterEffects
 			{
 				AvatarFrame.Frame frame = AvatarFrame.Read(state.Actor);
 				BindAvatar(state, frame.Avatar);
-				Avatar? avatar = frame.Avatar;
+				Il2CppScheduleOne.AvatarFramework.Avatar? avatar = frame.Avatar;
 				object obj;
 				if (avatar == null)
 				{
@@ -252,14 +236,14 @@ internal static class CharacterEffects
 				}
 				else
 				{
-					AvatarEffects effects = avatar.Effects;
+					Il2CppScheduleOne.AvatarFramework.AvatarEffects effects = avatar.Effects;
 					obj = ((effects != null) ? effects.MirrorEffectsTo : null);
 				}
 				if (obj != null)
 				{
-					foreach (AvatarEffects item in (Il2CppArrayBase<AvatarEffects>)(object)frame.Avatar.Effects.MirrorEffectsTo)
+					foreach (Il2CppScheduleOne.AvatarFramework.AvatarEffects item in (Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<Il2CppScheduleOne.AvatarFramework.AvatarEffects>)(object)frame.Avatar.Effects.MirrorEffectsTo)
 					{
-						if ((Object)(object)item != (Object)null)
+						if ((UnityEngine.Object)(object)item != (UnityEngine.Object)null)
 						{
 							BindAvatar(state, item.Avatar);
 						}
@@ -267,7 +251,7 @@ internal static class CharacterEffects
 				}
 				foreach (AvatarSkinLease value in state.Skins.Values)
 				{
-					value.Apply(state.Ids, Time.time);
+					value.Apply(state.Ids, UnityEngine.Time.time);
 				}
 				bool num = state.Ids.Contains("vx_diable");
 				if (num)
@@ -294,39 +278,39 @@ internal static class CharacterEffects
 						BuildDetails(state, frame, text);
 					}
 				}
-				if ((Object)(object)state.Details != (Object)null)
+				if ((UnityEngine.Object)(object)state.Details != (UnityEngine.Object)null)
 				{
-					Vector3 val;
+					UnityEngine.Vector3 val;
 					if (!(text == "spines"))
 					{
 						val = frame.Eyes - frame.Up * 0.035f + frame.Forward * 0.1f;
 					}
 					else
 					{
-						Avatar? avatar2 = frame.Avatar;
-						Vector3? obj2;
+						Il2CppScheduleOne.AvatarFramework.Avatar? avatar2 = frame.Avatar;
+						UnityEngine.Vector3? obj2;
 						if (avatar2 == null)
 						{
 							obj2 = null;
 						}
 						else
 						{
-							Transform middleSpine = avatar2.MiddleSpine;
-							obj2 = ((middleSpine != null) ? new Vector3?(middleSpine.position) : null);
+							UnityEngine.Transform middleSpine = avatar2.MiddleSpine;
+							obj2 = ((middleSpine != null) ? new UnityEngine.Vector3?(middleSpine.position) : null);
 						}
-						val = ((Vector3?)obj2) ?? (frame.Eyes - frame.Up * 0.4f);
+						val = ((UnityEngine.Vector3?)obj2) ?? (frame.Eyes - frame.Up * 0.4f);
 					}
-					Vector3 position = (Vector3)val;
+					UnityEngine.Vector3 position = (UnityEngine.Vector3)val;
 					AvatarFrame.Place(state.Details.transform, position, frame.Rotation);
 				}
 				ApplyNpcSpeed(state);
 			}
-			catch (Exception ex)
+			catch (System.Exception ex)
 			{
-				state.RetryAt = Time.unscaledTime + 2f;
+				state.RetryAt = UnityEngine.Time.unscaledTime + 2f;
 				if (state.Failures++ == 0)
 				{
-					MelonLogger.Warning("Effet visuel en attente : " + ex.Message);
+					MelonLoader.MelonLogger.Warning("Effet visuel en attente : " + ex.Message);
 				}
 			}
 		}
@@ -335,20 +319,20 @@ internal static class CharacterEffects
 
 	private static void ApplyNpcSpeed(State s)
 	{
-		if ((Object)(object)((Component)s.Actor).GetComponent<Player>() != (Object)null)
+		if ((UnityEngine.Object)(object)((UnityEngine.Component)s.Actor).GetComponent<Il2CppScheduleOne.PlayerScripts.Player>() != (UnityEngine.Object)null)
 		{
 			return;
 		}
-		NPC component = ((Component)s.Actor).GetComponent<NPC>();
-		if ((Object)(object)component == (Object)null || !((NetworkBehaviour)component).IsServerInitialized)
+		Il2CppScheduleOne.NPCs.NPC component = ((UnityEngine.Component)s.Actor).GetComponent<Il2CppScheduleOne.NPCs.NPC>();
+		if ((UnityEngine.Object)(object)component == (UnityEngine.Object)null || !((Il2CppFishNet.Object.NetworkBehaviour)component).IsServerInitialized)
 		{
 			return;
 		}
 		if (s.Agent == null)
 		{
-			s.Agent = ((Component)s.Actor).GetComponentInChildren<NavMeshAgent>(true);
+			s.Agent = ((UnityEngine.Component)s.Actor).GetComponentInChildren<UnityEngine.AI.NavMeshAgent>(true);
 		}
-		if (!((Object)(object)s.Agent == (Object)null) && ((Behaviour)s.Agent).enabled)
+		if (!((UnityEngine.Object)(object)s.Agent == (UnityEngine.Object)null) && ((UnityEngine.Behaviour)s.Agent).enabled)
 		{
 			float speed = Tuning(s.Actor).Speed;
 			if (!s.AgentChanged)
@@ -357,7 +341,7 @@ internal static class CharacterEffects
 				s.LastSpeed = s.BaseSpeed;
 				s.AgentChanged = true;
 			}
-			else if (!Mathf.Approximately(s.Agent.speed, s.LastSpeed))
+			else if (!UnityEngine.Mathf.Approximately(s.Agent.speed, s.LastSpeed))
 			{
 				s.BaseSpeed = s.Agent.speed;
 			}
@@ -367,20 +351,6 @@ internal static class CharacterEffects
 
 	private static void BuildDetails(State s, AvatarFrame.Frame frame, string kind)
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Expected O, but got Unknown
-		//IL_015d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e9: Expected O, but got Unknown
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fe: Unknown result type (might be due to invalid IL or missing references)
 		s.Details = new GameObject("VX_BodyDetail_" + kind);
 		s.Details.transform.SetParent(s.Actor, false);
 		if (kind == "spines")
@@ -389,35 +359,35 @@ internal static class CharacterEffects
 			{
 				for (int j = -1; j <= 1; j += 2)
 				{
-					GameObject obj = RealModels.Lathe(s.Details.transform, "VX_BackSpine", (Vector2[])(object)new Vector2[3]
+					UnityEngine.GameObject obj = RealModels.Lathe(s.Details.transform, "VX_BackSpine", (UnityEngine.Vector2[])(object)new UnityEngine.Vector2[3]
 					{
 						new Vector2(0.009f, 0f),
 						new Vector2(0.006f, 0.018f),
 						new Vector2(0f, 0.038f)
 					}, new Color(0.22f, 0.26f, 0.11f), 10);
 					obj.transform.localPosition = new Vector3((float)j * 0.08f, 0.12f - (float)i * 0.09f, -0.13f);
-					obj.transform.localRotation = Quaternion.Euler(-80f, 0f, (float)(-j * 12));
+					obj.transform.localRotation = UnityEngine.Quaternion.Euler(-80f, 0f, (float)(-j * 12));
 				}
 			}
 		}
 		if (kind == "frost")
 		{
-			ParticleSystem val = s.Details.AddComponent<ParticleSystem>();
-			val.Stop(true, (ParticleSystemStopBehavior)0);
-			MainModule main = val.main;
+			UnityEngine.ParticleSystem val = s.Details.AddComponent<UnityEngine.ParticleSystem>();
+			val.Stop(true, (UnityEngine.ParticleSystemStopBehavior)0);
+			UnityEngine.ParticleSystem.MainModule main = val.main;
 			main.startColor = (new Color(0.75f, 0.9f, 1f, 0.12f));
 			main.startLifetime = (0.65f);
 			main.startSpeed = (0.07f);
 			main.startSize = (0.035f);
 			main.maxParticles = 8;
 			val.emission.rateOverTime = (3f);
-			ShapeModule shape = val.shape;
-			shape.shapeType = (ParticleSystemShapeType)4;
+			UnityEngine.ParticleSystem.ShapeModule shape = val.shape;
+			shape.shapeType = (UnityEngine.ParticleSystemShapeType)4;
 			shape.radius = 0.012f;
 			shape.angle = 8f;
-			Material val2 = new Material(Shader.Find("Sprites/Default"));
-			val2.mainTexture = (Texture)(object)Devil.SmokeTexture;
-			((Renderer)s.Details.GetComponent<ParticleSystemRenderer>()).sharedMaterial = val2;
+			UnityEngine.Material val2 = new Material(UnityEngine.Shader.Find("Sprites/Default"));
+			val2.mainTexture = (UnityEngine.Texture)(object)Devil.SmokeTexture;
+			((UnityEngine.Renderer)s.Details.GetComponent<UnityEngine.ParticleSystemRenderer>()).sharedMaterial = val2;
 			val.Play();
 			s.Breath = val;
 		}
@@ -425,7 +395,7 @@ internal static class CharacterEffects
 
 	private static void ClearDetails(State s)
 	{
-		if ((Object)(object)s.Details != (Object)null)
+		if ((UnityEngine.Object)(object)s.Details != (UnityEngine.Object)null)
 		{
 			Devil.DestroyOwned(s.Details);
 		}
@@ -443,12 +413,12 @@ internal static class CharacterEffects
 		s2.Skins.Clear();
 		s2.Demon?.Dispose();
 		ClearDetails(s2);
-		if (s2.AgentChanged && (Object)(object)s2.Agent != (Object)null && Mathf.Approximately(s2.Agent.speed, s2.LastSpeed))
+		if (s2.AgentChanged && (UnityEngine.Object)(object)s2.Agent != (UnityEngine.Object)null && UnityEngine.Mathf.Approximately(s2.Agent.speed, s2.LastSpeed))
 		{
 			s2.Agent.speed = s2.BaseSpeed;
 		}
-		KeyValuePair<int, State>[] array = states.Where<KeyValuePair<int, State>>((KeyValuePair<int, State> p) => p.Value == s2).ToArray();
-		foreach (KeyValuePair<int, State> keyValuePair in array)
+		System.Collections.Generic.KeyValuePair<int, State>[] array = states.Where<System.Collections.Generic.KeyValuePair<int, State>>((System.Collections.Generic.KeyValuePair<int, State> p) => p.Value == s2).ToArray();
+		foreach (System.Collections.Generic.KeyValuePair<int, State> keyValuePair in array)
 		{
 			states.Remove(keyValuePair.Key);
 		}

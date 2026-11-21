@@ -3,11 +3,11 @@ using Il2CppScheduleOne.Growing;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(Plant), "UpdateVisuals")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.Growing.Plant), "UpdateVisuals")]
 internal static class VarietyGrowthVisuals
 {
 	[HarmonyPostfix]
-	private static void Postfix(Plant __instance)
+	private static void Postfix(Il2CppScheduleOne.Growing.Plant __instance)
 	{
 		Crops.RefreshPlant(__instance);
 	}

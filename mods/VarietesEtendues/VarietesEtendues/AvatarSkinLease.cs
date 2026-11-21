@@ -13,36 +13,36 @@ namespace VarietesEtendues;
 
 internal sealed class AvatarSkinLease
 {
-	private sealed record Slot(Renderer Renderer, Material[] Original, Material[] Owned, bool Skin);
+	private sealed record Slot(UnityEngine.Renderer Renderer, UnityEngine.Material[] Original, UnityEngine.Material[] Owned, bool Skin);
 
 	private sealed class Pose
 	{
-		internal Transform Bone;
+		internal UnityEngine.Transform Bone;
 
-		internal Quaternion Base;
+		internal UnityEngine.Quaternion Base;
 
-		internal Quaternion Applied;
+		internal UnityEngine.Quaternion Applied;
 
 		internal bool Set;
 	}
 
-	private readonly Avatar avatar;
+	private readonly Il2CppScheduleOne.AvatarFramework.Avatar avatar;
 
-	private readonly Dictionary<int, Slot> slots = new Dictionary<int, Slot>();
+	private readonly System.Collections.Generic.Dictionary<int, Slot> slots = new System.Collections.Generic.Dictionary<int, Slot>();
 
 	private float refresh;
 
-	private readonly Color leftColor;
+	private readonly UnityEngine.Color leftColor;
 
-	private readonly Color rightColor;
+	private readonly UnityEngine.Color rightColor;
 
 	private readonly float leftEmission;
 
 	private readonly float rightEmission;
 
-	private Color? ownedEyes;
+	private UnityEngine.Color? ownedEyes;
 
-	private readonly Animator? animator;
+	private readonly UnityEngine.Animator? animator;
 
 	private float animationBase;
 
@@ -54,42 +54,34 @@ internal sealed class AvatarSkinLease
 
 	private const string Label = "VX_CharacterEffect";
 
-	private readonly Dictionary<int, Pose> poses = new Dictionary<int, Pose>();
+	private readonly System.Collections.Generic.Dictionary<int, Pose> poses = new System.Collections.Generic.Dictionary<int, Pose>();
 
-	internal AvatarSkinLease(Avatar avatar)
+	internal AvatarSkinLease(Il2CppScheduleOne.AvatarFramework.Avatar avatar)
 	{
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ad: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
 		this.avatar = avatar;
-		EyeController eyes = avatar.Eyes;
-		Color? obj;
+		Il2CppScheduleOne.AvatarFramework.EyeController eyes = avatar.Eyes;
+		UnityEngine.Color? obj;
 		if (eyes == null)
 		{
 			obj = null;
 		}
 		else
 		{
-			Eye leftEye = eyes.LeftEye;
-			obj = ((leftEye != null) ? new Color?(leftEye._eyeballColor) : null);
+			Il2CppScheduleOne.AvatarFramework.Eye leftEye = eyes.LeftEye;
+			obj = ((leftEye != null) ? new UnityEngine.Color?(leftEye._eyeballColor) : null);
 		}
-		leftColor = (((Color?)obj) ?? Color.white);
-		Color? obj2;
+		leftColor = (((UnityEngine.Color?)obj) ?? Color.white);
+		UnityEngine.Color? obj2;
 		if (eyes == null)
 		{
 			obj2 = null;
 		}
 		else
 		{
-			Eye rightEye = eyes.RightEye;
-			obj2 = ((rightEye != null) ? new Color?(rightEye._eyeballColor) : null);
+			Il2CppScheduleOne.AvatarFramework.Eye rightEye = eyes.RightEye;
+			obj2 = ((rightEye != null) ? new UnityEngine.Color?(rightEye._eyeballColor) : null);
 		}
-		rightColor = (((Color?)obj2) ?? Color.white);
+		rightColor = (((UnityEngine.Color?)obj2) ?? Color.white);
 		float? obj3;
 		if (eyes == null)
 		{
@@ -97,7 +89,7 @@ internal sealed class AvatarSkinLease
 		}
 		else
 		{
-			Eye leftEye2 = eyes.LeftEye;
+			Il2CppScheduleOne.AvatarFramework.Eye leftEye2 = eyes.LeftEye;
 			obj3 = ((leftEye2 != null) ? new float?(leftEye2._eyeballEmission) : null);
 		}
 		float? num = obj3;
@@ -109,23 +101,23 @@ internal sealed class AvatarSkinLease
 		}
 		else
 		{
-			Eye rightEye2 = eyes.RightEye;
+			Il2CppScheduleOne.AvatarFramework.Eye rightEye2 = eyes.RightEye;
 			obj4 = ((rightEye2 != null) ? new float?(rightEye2._eyeballEmission) : null);
 		}
 		num = obj4;
 		rightEmission = num.GetValueOrDefault(0.115f);
-		AvatarAnimation animation = avatar.Animation;
+		Il2CppScheduleOne.AvatarFramework.Animation.AvatarAnimation animation = avatar.Animation;
 		animator = ((animation != null) ? animation._animator : null);
-		if ((Object)(object)animator != (Object)null)
+		if ((UnityEngine.Object)(object)animator != (UnityEngine.Object)null)
 		{
 			lastAnimation = (animationBase = animator.speed);
 		}
 		Capture();
 	}
 
-	private static bool IsEye(Renderer renderer)
+	private static bool IsEye(UnityEngine.Renderer renderer)
 	{
-		string text = ((Object)renderer).name.ToLowerInvariant();
+		string text = ((UnityEngine.Object)renderer).name.ToLowerInvariant();
 		if (!text.Contains("eyeball") && !text.Contains("pupil") && !text.Contains("cornea") && !text.Contains("teeth"))
 		{
 			return text.Contains("tongue");
@@ -135,94 +127,60 @@ internal sealed class AvatarSkinLease
 
 	private void Capture()
 	{
-		if ((Object)(object)avatar == (Object)null)
+		if ((UnityEngine.Object)(object)avatar == (UnityEngine.Object)null)
 		{
 			return;
 		}
-		foreach (Renderer componentsInChild in ((Component)avatar).GetComponentsInChildren<Renderer>(true))
+		foreach (UnityEngine.Renderer componentsInChild in ((UnityEngine.Component)avatar).GetComponentsInChildren<UnityEngine.Renderer>(true))
 		{
-			if (((Object)(object)((Il2CppObjectBase)componentsInChild).TryCast<SkinnedMeshRenderer>() == (Object)null && (Object)(object)((Il2CppObjectBase)componentsInChild).TryCast<MeshRenderer>() == (Object)null) || IsEye(componentsInChild) || slots.ContainsKey(((Object)componentsInChild).GetInstanceID()) || ((Object)(object)avatar.CurrentEquippable != (Object)null && ((Component)componentsInChild).transform.IsChildOf(((Component)avatar.CurrentEquippable).transform)) || ((Object)componentsInChild).name.StartsWith("VX_", StringComparison.Ordinal))
+			if (((UnityEngine.Object)(object)((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)componentsInChild).TryCast<UnityEngine.SkinnedMeshRenderer>() == (UnityEngine.Object)null && (UnityEngine.Object)(object)((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)componentsInChild).TryCast<UnityEngine.MeshRenderer>() == (UnityEngine.Object)null) || IsEye(componentsInChild) || slots.ContainsKey(((UnityEngine.Object)componentsInChild).GetInstanceID()) || ((UnityEngine.Object)(object)avatar.CurrentEquippable != (UnityEngine.Object)null && ((UnityEngine.Component)componentsInChild).transform.IsChildOf(((UnityEngine.Component)avatar.CurrentEquippable).transform)) || ((UnityEngine.Object)componentsInChild).name.StartsWith("VX_", System.StringComparison.Ordinal))
 			{
 				continue;
 			}
-			Material[] array = ((IEnumerable<Material>)componentsInChild.sharedMaterials).ToArray();
-			Material[] array2 = array.Select((Material m) => (Material)(((Object)(object)m != (Object)null) ? ((object)new Material(m)) : ((object)Models.Material(Color.white)))).ToArray();
-			string text = (((Object)componentsInChild).name + " " + string.Join(" ", from m in array
-				where (Object)(object)m != (Object)null
-				select ((Object)m).name)).ToLowerInvariant();
-			bool skin = (Object)(object)((Il2CppObjectBase)componentsInChild).TryCast<SkinnedMeshRenderer>() != (Object)null && (text.Contains("skin") || text.Contains("body") || text.Contains("face") || text.Contains("head") || text.Contains("hand") || text.Contains("arm"));
-			AvatarAppearance appearance = avatar.Appearance;
-			if ((Object)(object)((appearance != null) ? appearance._faceMesh : null) == (Object)(object)componentsInChild)
+			UnityEngine.Material[] array = ((System.Collections.Generic.IEnumerable<UnityEngine.Material>)componentsInChild.sharedMaterials).ToArray();
+			UnityEngine.Material[] array2 = array.Select((UnityEngine.Material m) => (UnityEngine.Material)(((UnityEngine.Object)(object)m != (UnityEngine.Object)null) ? ((object)new Material(m)) : ((object)Models.Material(UnityEngine.Color.white)))).ToArray();
+			string text = (((UnityEngine.Object)componentsInChild).name + " " + string.Join(" ", from m in array
+				where (UnityEngine.Object)(object)m != (UnityEngine.Object)null
+				select ((UnityEngine.Object)m).name)).ToLowerInvariant();
+			bool skin = (UnityEngine.Object)(object)((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)componentsInChild).TryCast<UnityEngine.SkinnedMeshRenderer>() != (UnityEngine.Object)null && (text.Contains("skin") || text.Contains("body") || text.Contains("face") || text.Contains("head") || text.Contains("hand") || text.Contains("arm"));
+			Il2CppScheduleOne.Avatar.AvatarAppearance appearance = avatar.Appearance;
+			if ((UnityEngine.Object)(object)((appearance != null) ? appearance._faceMesh : null) == (UnityEngine.Object)(object)componentsInChild)
 			{
 				skin = true;
 			}
-			AvatarAppearance appearance2 = avatar.Appearance;
+			Il2CppScheduleOne.Avatar.AvatarAppearance appearance2 = avatar.Appearance;
 			if (((appearance2 != null) ? appearance2._bodyMeshes : null) != null)
 			{
-				foreach (SkinnedMeshRenderer item in (Il2CppArrayBase<SkinnedMeshRenderer>)(object)avatar.Appearance._bodyMeshes)
+				foreach (UnityEngine.SkinnedMeshRenderer item in (Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.SkinnedMeshRenderer>)(object)avatar.Appearance._bodyMeshes)
 				{
-					if ((Object)(object)item == (Object)(object)componentsInChild)
+					if ((UnityEngine.Object)(object)item == (UnityEngine.Object)(object)componentsInChild)
 					{
 						skin = true;
 					}
 				}
 			}
 			componentsInChild.sharedMaterials = (array2);
-			slots[((Object)componentsInChild).GetInstanceID()] = new Slot(componentsInChild, array, array2, skin);
+			slots[((UnityEngine.Object)componentsInChild).GetInstanceID()] = new Slot(componentsInChild, array, array2, skin);
 		}
 	}
 
-	internal void Apply(HashSet<string> ids, float time)
+	internal void Apply(System.Collections.Generic.HashSet<string> ids, float time)
 	{
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0229: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0246: Unknown result type (might be due to invalid IL or missing references)
-		//IL_024b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_059f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0584: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0569: Unknown result type (might be due to invalid IL or missing references)
-		//IL_054e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02fc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0301: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0366: Unknown result type (might be due to invalid IL or missing references)
-		//IL_036b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0332: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0339: Unknown result type (might be due to invalid IL or missing references)
-		//IL_038f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0317: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0319: Unknown result type (might be due to invalid IL or missing references)
-		//IL_031c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0313: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0384: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0386: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0388: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0380: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0878: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08ac: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0837: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_093a: Unknown result type (might be due to invalid IL or missing references)
-		HashSet<string> ids2 = ids;
-		if ((Object)(object)avatar == (Object)null)
+		System.Collections.Generic.HashSet<string> ids2 = ids;
+		if ((UnityEngine.Object)(object)avatar == (UnityEngine.Object)null)
 		{
 			return;
 		}
 		bool flag = ids2.Contains("vx_diable");
 		bool flag2 = flag || Has("paranox");
-		if (Time.unscaledTime >= refresh)
+		if (UnityEngine.Time.unscaledTime >= refresh)
 		{
 			Capture();
-			refresh = Time.unscaledTime + 0.5f;
+			refresh = UnityEngine.Time.unscaledTime + 0.5f;
 		}
-		Color white = Color.white;
+		UnityEngine.Color white = UnityEngine.Color.white;
 		float num = 0f;
-		Color val = Color.black;
+		UnityEngine.Color val = UnityEngine.Color.black;
 		if (Has("mango"))
 		{
 			white = new Color(1f, 0.77f, 0.43f);
@@ -271,19 +229,19 @@ internal sealed class AvatarSkinLease
 		}
 		if (Has("glow"))
 		{
-			val = new Color(0.015f, 0.085f, 0.025f) * (1f + 0.12f * Mathf.Sin(time * 1.2f));
+			val = new Color(0.015f, 0.085f, 0.025f) * (1f + 0.12f * UnityEngine.Mathf.Sin(time * 1.2f));
 		}
 		foreach (Slot value in slots.Values)
 		{
-			if ((Object)(object)value.Renderer == (Object)null)
+			if ((UnityEngine.Object)(object)value.Renderer == (UnityEngine.Object)null)
 			{
 				continue;
 			}
 			for (int i = 0; i < value.Owned.Length; i++)
 			{
-				Material val2 = value.Owned[i];
-				Material val3 = value.Original[i];
-				if ((Object)(object)val2 == (Object)null || (Object)(object)val3 == (Object)null)
+				UnityEngine.Material val2 = value.Owned[i];
+				UnityEngine.Material val3 = value.Original[i];
+				if ((UnityEngine.Object)(object)val2 == (UnityEngine.Object)null || (UnityEngine.Object)(object)val3 == (UnityEngine.Object)null)
 				{
 					continue;
 				}
@@ -292,13 +250,13 @@ internal sealed class AvatarSkinLease
 				{
 					if (val2.HasProperty(text))
 					{
-						Color color = val3.GetColor(text);
-						val2.SetColor(text, (Color)(flag2 ? new Color(0.003f, 0.003f, 0.005f, color.a) : (value.Skin ? Color.Lerp(color, white, num) : color)));
+						UnityEngine.Color color = val3.GetColor(text);
+						val2.SetColor(text, (UnityEngine.Color)(flag2 ? new Color(0.003f, 0.003f, 0.005f, color.a) : (value.Skin ? Color.Lerp(color, white, num) : color)));
 					}
 				}
 				if (val2.HasProperty("_EmissionColor"))
 				{
-					Color color2 = val3.GetColor("_EmissionColor");
+					UnityEngine.Color color2 = val3.GetColor("_EmissionColor");
 					val2.SetColor("_EmissionColor", flag2 ? Color.black : (value.Skin ? (color2 + val) : color2));
 					if ((!flag2 && value.Skin && val.maxColorComponent > 0f) || val3.IsKeywordEnabled("_EMISSION"))
 					{
@@ -311,7 +269,7 @@ internal sealed class AvatarSkinLease
 				}
 				if (value.Skin && val2.HasProperty("_DetailAlbedoMap") && (Has("dragon") || Has("glow") || Has("lithium")))
 				{
-					val2.SetTexture("_DetailAlbedoMap", (Texture)(object)SkinPatterns.Get((!Has("dragon")) ? (Has("glow") ? 1 : 2) : 0));
+					val2.SetTexture("_DetailAlbedoMap", (UnityEngine.Texture)(object)SkinPatterns.Get((!Has("dragon")) ? (Has("glow") ? 1 : 2) : 0));
 					val2.EnableKeyword("_DETAIL_MULX2");
 				}
 				else if (val2.HasProperty("_DetailAlbedoMap"))
@@ -328,10 +286,10 @@ internal sealed class AvatarSkinLease
 				}
 			}
 		}
-		Color? val4 = (flag ? new Color?(new Color(0.7f, 0.002f, 0.008f)) : (Has("paranox") ? new Color?(Color.white) : (Has("cyclo") ? new Color?(new Color(0.45f, 0.95f, 1f)) : (Has("absinthe") ? new Color?(new Color(0.2f, 0.8f, 0.35f)) : (Has("patee") ? new Color?(new Color(0.8f, 0.45f, 0.08f)) : (Has("lemon") ? new Color?(new Color(0.85f, 0.75f, 0.12f)) : null))))));
+		UnityEngine.Color? val4 = (flag ? new UnityEngine.Color?(new Color(0.7f, 0.002f, 0.008f)) : (Has("paranox") ? new UnityEngine.Color?(UnityEngine.Color.white) : (Has("cyclo") ? new UnityEngine.Color?(new Color(0.45f, 0.95f, 1f)) : (Has("absinthe") ? new UnityEngine.Color?(new Color(0.2f, 0.8f, 0.35f)) : (Has("patee") ? new UnityEngine.Color?(new Color(0.8f, 0.45f, 0.08f)) : (Has("lemon") ? new UnityEngine.Color?(new Color(0.85f, 0.75f, 0.12f)) : null))))));
 		if (val4.HasValue)
 		{
-			EyeController eyes = avatar.Eyes;
+			Il2CppScheduleOne.AvatarFramework.EyeController eyes = avatar.Eyes;
 			if (eyes != null)
 			{
 				eyes.SetEyeballColor(val4.Value, flag2 ? 0.45f : 0.18f, false);
@@ -345,7 +303,7 @@ internal sealed class AvatarSkinLease
 		bool flag3 = Has("appetix");
 		if (flag3 && !hasWeight)
 		{
-			AvatarEffects effects = avatar.Effects;
+			Il2CppScheduleOne.AvatarFramework.AvatarEffects effects = avatar.Effects;
 			if (effects != null)
 			{
 				effects.AddAdditionalWeightOverride(0.72f, 70, "VX_CharacterEffect", false);
@@ -354,7 +312,7 @@ internal sealed class AvatarSkinLease
 		}
 		else if (!flag3 && hasWeight)
 		{
-			AvatarEffects effects2 = avatar.Effects;
+			Il2CppScheduleOne.AvatarFramework.AvatarEffects effects2 = avatar.Effects;
 			if (effects2 != null)
 			{
 				effects2.RemoveAdditionalWeightOverride("VX_CharacterEffect", false);
@@ -366,23 +324,23 @@ internal sealed class AvatarSkinLease
 		{
 			if (emotion != null)
 			{
-				AvatarEmotionManager emotionManager = avatar.EmotionManager;
+				Il2CppScheduleOne.AvatarFramework.Emotions.AvatarEmotionManager emotionManager = avatar.EmotionManager;
 				if (emotionManager != null)
 				{
 					emotionManager.RemoveEmotionOverride("VX_CharacterEffect");
 				}
 			}
 			emotion = null;
-			if (text2 != null && (Object)(object)avatar.EmotionManager != (Object)null && avatar.EmotionManager.HasEmotion(text2))
+			if (text2 != null && (UnityEngine.Object)(object)avatar.EmotionManager != (UnityEngine.Object)null && avatar.EmotionManager.HasEmotion(text2))
 			{
 				avatar.EmotionManager.AddEmotionOverride(text2, "VX_CharacterEffect", 0f, 60);
 				emotion = text2;
 			}
 		}
 		EffectTuning effectTuning = EffectRules.Combine(ids2);
-		if ((Object)(object)animator != (Object)null)
+		if ((UnityEngine.Object)(object)animator != (UnityEngine.Object)null)
 		{
-			if (!Mathf.Approximately(animator.speed, lastAnimation))
+			if (!UnityEngine.Mathf.Approximately(animator.speed, lastAnimation))
 			{
 				animationBase = animator.speed;
 			}
@@ -391,25 +349,25 @@ internal sealed class AvatarSkinLease
 		UndoPoses();
 		if (Has("syrup"))
 		{
-			AvatarEffects effects3 = avatar.Effects;
-			Offset((effects3 != null) ? effects3.NeckBone : null, Quaternion.Euler(6f + Mathf.Sin(time * 0.7f) * 2f, 0f, Mathf.Sin(time * 0.55f) * 1.3f));
+			Il2CppScheduleOne.AvatarFramework.AvatarEffects effects3 = avatar.Effects;
+			Offset((effects3 != null) ? effects3.NeckBone : null, UnityEngine.Quaternion.Euler(6f + UnityEngine.Mathf.Sin(time * 0.7f) * 2f, 0f, UnityEngine.Mathf.Sin(time * 0.55f) * 1.3f));
 		}
 		else if (Has("absinthe"))
 		{
-			Offset(avatar.MiddleSpine, Quaternion.Euler(0f, 0f, Mathf.Sin(time * 0.8f) * 1.8f));
+			Offset(avatar.MiddleSpine, UnityEngine.Quaternion.Euler(0f, 0f, UnityEngine.Mathf.Sin(time * 0.8f) * 1.8f));
 		}
 		else if (Has("patee"))
 		{
-			Offset(avatar.MiddleSpine, Quaternion.Euler(7f, 0f, 0f));
+			Offset(avatar.MiddleSpine, UnityEngine.Quaternion.Euler(7f, 0f, 0f));
 		}
 		else if (Has("prune"))
 		{
-			Offset(avatar.MiddleSpine, Quaternion.Euler(Mathf.Sin(time * 1.1f) * 0.8f, 0f, 0f));
+			Offset(avatar.MiddleSpine, UnityEngine.Quaternion.Euler(UnityEngine.Mathf.Sin(time * 1.1f) * 0.8f, 0f, 0f));
 		}
 		else if (Has("poprocks"))
 		{
-			AvatarEffects effects4 = avatar.Effects;
-			Offset((effects4 != null) ? effects4.NeckBone : null, Quaternion.Euler(Mathf.Sin(time * 1.8f) * 0.6f, 0f, 0f));
+			Il2CppScheduleOne.AvatarFramework.AvatarEffects effects4 = avatar.Effects;
+			Offset((effects4 != null) ? effects4.NeckBone : null, UnityEngine.Quaternion.Euler(UnityEngine.Mathf.Sin(time * 1.8f) * 0.6f, 0f, 0f));
 		}
 		bool Has(string key)
 		{
@@ -417,18 +375,11 @@ internal sealed class AvatarSkinLease
 		}
 	}
 
-	private void Offset(Transform? bone, Quaternion delta)
+	private void Offset(UnityEngine.Transform? bone, UnityEngine.Quaternion delta)
 	{
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)bone == (Object)null))
+		if (!((UnityEngine.Object)(object)bone == (UnityEngine.Object)null))
 		{
-			int instanceID = ((Object)bone).GetInstanceID();
+			int instanceID = ((UnityEngine.Object)bone).GetInstanceID();
 			if (!poses.TryGetValue(instanceID, out Pose value))
 			{
 				value = new Pose
@@ -446,14 +397,11 @@ internal sealed class AvatarSkinLease
 
 	private void UndoPoses()
 	{
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
 		foreach (Pose value in poses.Values)
 		{
-			if (value.Set && (Object)(object)value.Bone != (Object)null)
+			if (value.Set && (UnityEngine.Object)(object)value.Bone != (UnityEngine.Object)null)
 			{
-				if (Quaternion.Angle(value.Bone.localRotation, value.Applied) < 0.05f)
+				if (UnityEngine.Quaternion.Angle(value.Bone.localRotation, value.Applied) < 0.05f)
 				{
 					value.Bone.localRotation = value.Base;
 				}
@@ -464,16 +412,14 @@ internal sealed class AvatarSkinLease
 
 	private void RestoreEyes()
 	{
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		if (ownedEyes.HasValue && !((Object)(object)avatar == (Object)null))
+		if (ownedEyes.HasValue && !((UnityEngine.Object)(object)avatar == (UnityEngine.Object)null))
 		{
-			EyeController eyes = avatar.Eyes;
-			if ((Object)(object)((eyes != null) ? eyes.LeftEye : null) != (Object)null)
+			Il2CppScheduleOne.AvatarFramework.EyeController eyes = avatar.Eyes;
+			if ((UnityEngine.Object)(object)((eyes != null) ? eyes.LeftEye : null) != (UnityEngine.Object)null)
 			{
 				eyes.LeftEye.SetEyeballColor(leftColor, leftEmission, false);
 			}
-			if ((Object)(object)((eyes != null) ? eyes.RightEye : null) != (Object)null)
+			if ((UnityEngine.Object)(object)((eyes != null) ? eyes.RightEye : null) != (UnityEngine.Object)null)
 			{
 				eyes.RightEye.SetEyeballColor(rightColor, rightEmission, false);
 			}
@@ -485,11 +431,11 @@ internal sealed class AvatarSkinLease
 	{
 		UndoPoses();
 		RestoreEyes();
-		if ((Object)(object)avatar != (Object)null)
+		if ((UnityEngine.Object)(object)avatar != (UnityEngine.Object)null)
 		{
 			if (hasWeight)
 			{
-				AvatarEffects effects = avatar.Effects;
+				Il2CppScheduleOne.AvatarFramework.AvatarEffects effects = avatar.Effects;
 				if (effects != null)
 				{
 					effects.RemoveAdditionalWeightOverride("VX_CharacterEffect", false);
@@ -497,37 +443,37 @@ internal sealed class AvatarSkinLease
 			}
 			if (emotion != null)
 			{
-				AvatarEmotionManager emotionManager = avatar.EmotionManager;
+				Il2CppScheduleOne.AvatarFramework.Emotions.AvatarEmotionManager emotionManager = avatar.EmotionManager;
 				if (emotionManager != null)
 				{
 					emotionManager.RemoveEmotionOverride("VX_CharacterEffect");
 				}
 			}
 		}
-		if ((Object)(object)animator != (Object)null && Mathf.Approximately(animator.speed, lastAnimation))
+		if ((UnityEngine.Object)(object)animator != (UnityEngine.Object)null && UnityEngine.Mathf.Approximately(animator.speed, lastAnimation))
 		{
 			animator.speed = animationBase;
 		}
 		foreach (Slot value in slots.Values)
 		{
-			if ((Object)(object)value.Renderer != (Object)null)
+			if ((UnityEngine.Object)(object)value.Renderer != (UnityEngine.Object)null)
 			{
-				Material[] array = ((IEnumerable<Material>)value.Renderer.sharedMaterials).ToArray();
-				for (int i = 0; i < Math.Min(array.Length, value.Owned.Length); i++)
+				UnityEngine.Material[] array = ((System.Collections.Generic.IEnumerable<UnityEngine.Material>)value.Renderer.sharedMaterials).ToArray();
+				for (int i = 0; i < System.Math.Min(array.Length, value.Owned.Length); i++)
 				{
-					if ((Object)(object)array[i] == (Object)(object)value.Owned[i])
+					if ((UnityEngine.Object)(object)array[i] == (UnityEngine.Object)(object)value.Owned[i])
 					{
 						array[i] = value.Original[i];
 					}
 				}
 				value.Renderer.sharedMaterials = (array);
 			}
-			Material[] owned = value.Owned;
-			foreach (Material val in owned)
+			UnityEngine.Material[] owned = value.Owned;
+			foreach (UnityEngine.Material val in owned)
 			{
-				if ((Object)(object)val != (Object)null)
+				if ((UnityEngine.Object)(object)val != (UnityEngine.Object)null)
 				{
-					Object.Destroy((Object)(object)val);
+					UnityEngine.Object.Destroy((UnityEngine.Object)(object)val);
 				}
 			}
 		}

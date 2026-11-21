@@ -6,19 +6,19 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(ProductItemInstance), "ApplyEffectsToNPC")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.Product.ProductItemInstance), "ApplyEffectsToNPC")]
 internal static class NpcDevilApply
 {
 	[HarmonyPostfix]
-	private static void Postfix(ProductItemInstance __instance, NPC __0)
+	private static void Postfix(Il2CppScheduleOne.Product.ProductItemInstance __instance, Il2CppScheduleOne.NPCs.NPC __0)
 	{
-		if ((Object)(object)__0 == (Object)null)
+		if ((UnityEngine.Object)(object)__0 == (UnityEngine.Object)null)
 		{
 			return;
 		}
 		if (DevilReplication.HasEffect(__instance))
 		{
-			Devil.Apply(((Component)__0).transform);
+			Devil.Apply(((UnityEngine.Component)__0).transform);
 		}
 		string[] source = DevilReplication.EffectIds(__instance);
 		NewEffects.Spec[] all = NewEffects.All;
@@ -26,7 +26,7 @@ internal static class NpcDevilApply
 		{
 			if (source.Contains(spec.Id))
 			{
-				IngredientEffects.Apply(((Component)__0).transform, spec);
+				IngredientEffects.Apply(((UnityEngine.Component)__0).transform, spec);
 			}
 		}
 	}

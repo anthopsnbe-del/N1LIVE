@@ -3,7 +3,7 @@ using Il2CppScheduleOne.PlayerScripts;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(PlayerInventory), "UpdateHotbarSelection")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.PlayerScripts.PlayerInventory), "UpdateHotbarSelection")]
 internal static class DevilWheelControl
 {
 	[HarmonyPrefix]

@@ -6,40 +6,37 @@ namespace VarietesEtendues;
 
 internal static class SeedPresentation
 {
-	internal static void Apply(GameObject root, Crops.Variety variety)
+	internal static void Apply(UnityEngine.GameObject root, Crops.Variety variety)
 	{
-		//IL_0106: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bd: Unknown result type (might be due to invalid IL or missing references)
-		foreach (Renderer componentsInChild in root.GetComponentsInChildren<Renderer>(true))
+		foreach (UnityEngine.Renderer componentsInChild in root.GetComponentsInChildren<UnityEngine.Renderer>(true))
 		{
-			Il2CppReferenceArray<Material> materials = componentsInChild.materials;
-			foreach (Material item in (Il2CppArrayBase<Material>)(object)materials)
+			Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<UnityEngine.Material> materials = componentsInChild.materials;
+			foreach (UnityEngine.Material item in (Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)materials)
 			{
 				string[] obj = new string[5]
 				{
-					((Object)componentsInChild).name,
+					((UnityEngine.Object)componentsInChild).name,
 					" ",
-					((Object)item).name,
+					((UnityEngine.Object)item).name,
 					" ",
 					null
 				};
-				Texture mainTexture = item.mainTexture;
-				obj[4] = ((mainTexture != null) ? ((Object)mainTexture).name : null);
+				UnityEngine.Texture mainTexture = item.mainTexture;
+				obj[4] = ((mainTexture != null) ? ((UnityEngine.Object)mainTexture).name : null);
 				string text = string.Concat(obj).ToLowerInvariant();
 				if ((text.Contains("label") || text.Contains("etiquette") || text.Contains("ogkush") || text.Contains("og kush") || text.Contains("og_kush")) && !text.Contains("hand") && !text.Contains("skin"))
 				{
-					item.mainTexture = (Texture)(object)Models.Texture(variety.Name.ToUpperInvariant() + " VIAL");
-					item.color = Color.white;
+					item.mainTexture = (UnityEngine.Texture)(object)Models.Texture(variety.Name.ToUpperInvariant() + " VIAL");
+					item.color = UnityEngine.Color.white;
 				}
 			}
 			componentsInChild.materials = materials;
-			switch (((Object)componentsInChild).name.ToLowerInvariant())
+			switch (((UnityEngine.Object)componentsInChild).name.ToLowerInvariant())
 			{
 			default:
 			{
-				Transform parent = ((Component)componentsInChild).transform.parent;
-				if (!(((parent != null) ? ((Object)parent).name : null) == "Seed"))
+				UnityEngine.Transform parent = ((UnityEngine.Component)componentsInChild).transform.parent;
+				if (!(((parent != null) ? ((UnityEngine.Object)parent).name : null) == "Seed"))
 				{
 					continue;
 				}
@@ -50,7 +47,7 @@ internal static class SeedPresentation
 			case "grain":
 				break;
 			}
-			foreach (Material item2 in (Il2CppArrayBase<Material>)(object)materials)
+			foreach (UnityEngine.Material item2 in (Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)materials)
 			{
 				item2.color = variety.Bud;
 				if (item2.HasProperty("_BaseColor"))
@@ -61,28 +58,26 @@ internal static class SeedPresentation
 		}
 	}
 
-	internal static void TintPhysicalSeed(FunctionalSeed seed, Crops.Variety variety)
+	internal static void TintPhysicalSeed(Il2CppScheduleOne.Growing.FunctionalSeed seed, Crops.Variety variety)
 	{
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
 		object obj;
-		if (!((Object)(object)seed.SeedRigidbody != (Object)null))
+		if (!((UnityEngine.Object)(object)seed.SeedRigidbody != (UnityEngine.Object)null))
 		{
-			Collider seedCollider = seed.SeedCollider;
-			obj = ((seedCollider != null) ? ((Component)seedCollider).transform : null);
+			UnityEngine.Collider seedCollider = seed.SeedCollider;
+			obj = ((seedCollider != null) ? ((UnityEngine.Component)seedCollider).transform : null);
 		}
 		else
 		{
-			obj = ((Component)seed.SeedRigidbody).transform;
+			obj = ((UnityEngine.Component)seed.SeedRigidbody).transform;
 		}
-		Transform val = (Transform)obj;
-		if ((Object)(object)val == (Object)null)
+		UnityEngine.Transform val = (UnityEngine.Transform)obj;
+		if ((UnityEngine.Object)(object)val == (UnityEngine.Object)null)
 		{
 			return;
 		}
-		foreach (Renderer componentsInChild in ((Component)val).GetComponentsInChildren<Renderer>(true))
+		foreach (UnityEngine.Renderer componentsInChild in ((UnityEngine.Component)val).GetComponentsInChildren<UnityEngine.Renderer>(true))
 		{
-			foreach (Material item in (Il2CppArrayBase<Material>)(object)componentsInChild.materials)
+			foreach (UnityEngine.Material item in (Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)componentsInChild.materials)
 			{
 				item.color = variety.Bud;
 				if (item.HasProperty("_BaseColor"))

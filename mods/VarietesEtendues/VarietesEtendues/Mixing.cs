@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(EffectMixCalculator), "MixProperties")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.Effects.EffectMixCalculator), "MixProperties")]
 internal static class Mixing
 {
 	/// <summary>
@@ -17,30 +17,30 @@ internal static class Mixing
 	/// </summary>
 	internal static int MaxEffects => Math.Max(8, Settings.MaxEffects);
 
-	internal static readonly Dictionary<string, Entry> Ingredients = new Dictionary<string, Entry>();
+	internal static readonly System.Collections.Generic.Dictionary<string, Entry> Ingredients = new System.Collections.Generic.Dictionary<string, Entry>();
 
-	private static readonly Dictionary<string, Effect> NativeEffects = new Dictionary<string, Effect>(StringComparer.OrdinalIgnoreCase);
+	private static readonly System.Collections.Generic.Dictionary<string, Il2CppScheduleOne.Effects.Effect> NativeEffects = new System.Collections.Generic.Dictionary<string, Il2CppScheduleOne.Effects.Effect>(System.StringComparer.OrdinalIgnoreCase);
 
-	internal static Effect Native(string id)
+	internal static Il2CppScheduleOne.Effects.Effect Native(string id)
 	{
-		if (NativeEffects.TryGetValue(id, out Effect value) && (Object)(object)value != (Object)null)
+		if (NativeEffects.TryGetValue(id, out Il2CppScheduleOne.Effects.Effect value) && (UnityEngine.Object)(object)value != (UnityEngine.Object)null)
 		{
 			return value;
 		}
 		for (int i = 1; i <= 5; i++)
 		{
-			foreach (Effect item in Resources.LoadAll<Effect>("Properties/Tier" + i))
+			foreach (Il2CppScheduleOne.Effects.Effect item in UnityEngine.Resources.LoadAll<Il2CppScheduleOne.Effects.Effect>("Properties/Tier" + i))
 			{
-				if ((Object)(object)item != (Object)null && (string.Equals(item.ID, id, StringComparison.OrdinalIgnoreCase) || string.Equals(((Object)item).name, id, StringComparison.OrdinalIgnoreCase)))
+				if ((UnityEngine.Object)(object)item != (UnityEngine.Object)null && (string.Equals(item.ID, id, System.StringComparison.OrdinalIgnoreCase) || string.Equals(((UnityEngine.Object)item).name, id, System.StringComparison.OrdinalIgnoreCase)))
 				{
 					NativeEffects[id] = item;
 					return item;
 				}
 			}
 		}
-		foreach (Effect item2 in Resources.FindObjectsOfTypeAll<Effect>())
+		foreach (Il2CppScheduleOne.Effects.Effect item2 in UnityEngine.Resources.FindObjectsOfTypeAll<Il2CppScheduleOne.Effects.Effect>())
 		{
-			if ((Object)(object)item2 != (Object)null && (string.Equals(item2.ID, id, StringComparison.OrdinalIgnoreCase) || string.Equals(((Object)item2).name, id, StringComparison.OrdinalIgnoreCase)))
+			if ((UnityEngine.Object)(object)item2 != (UnityEngine.Object)null && (string.Equals(item2.ID, id, System.StringComparison.OrdinalIgnoreCase) || string.Equals(((UnityEngine.Object)item2).name, id, System.StringComparison.OrdinalIgnoreCase)))
 			{
 				NativeEffects[id] = item2;
 				return item2;
@@ -53,27 +53,27 @@ internal static class Mixing
 	// (ex. Mode 3X, Frozen) s'exécutent avant le nôtre au lieu d'être court-circuités.
 	[HarmonyPrefix]
 	[HarmonyPriority(200)]
-	private static bool Prefix(ref Effect newProperty, List<Effect> existingProperties, ref List<Effect> __result)
+	private static bool Prefix(ref Il2CppScheduleOne.Effects.Effect newProperty, Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Effects.Effect> existingProperties, ref Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Effects.Effect> __result)
 	{
-		if ((Object)(object)newProperty == (Object)null || existingProperties == null || !Ingredients.TryGetValue(newProperty.ID, out Entry value))
+		if ((UnityEngine.Object)(object)newProperty == (UnityEngine.Object)null || existingProperties == null || !Ingredients.TryGetValue(newProperty.ID, out Entry value))
 		{
 			return true;
 		}
-		List<Effect> val = new List<Effect>();
-		HashSet<string> hashSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-		Enumerator<Effect> enumerator = existingProperties.GetEnumerator();
+		Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Effects.Effect> val = new Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Effects.Effect>();
+		System.Collections.Generic.HashSet<string> hashSet = new System.Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+		var enumerator = existingProperties.GetEnumerator();
 		while (enumerator.MoveNext())
 		{
-			Effect current = enumerator.Current;
-			if ((Object)(object)current == (Object)null)
+			Il2CppScheduleOne.Effects.Effect current = enumerator.Current;
+			if ((UnityEngine.Object)(object)current == (UnityEngine.Object)null)
 			{
 				continue;
 			}
-			Effect val2 = current;
+			Il2CppScheduleOne.Effects.Effect val2 = current;
 			string[][] rules = value.Rules;
 			foreach (string[] array in rules)
 			{
-				if (string.Equals(current.ID, Native(Mod.Resolve(array[0]).ID).ID, StringComparison.OrdinalIgnoreCase))
+				if (string.Equals(current.ID, Native(Mod.Resolve(array[0]).ID).ID, System.StringComparison.OrdinalIgnoreCase))
 				{
 					val2 = Native(Mod.Resolve(array[1]).ID);
 					break;
@@ -93,25 +93,25 @@ internal static class Mixing
 	}
 
 	[HarmonyPostfix]
-	private static void PreserveNewEffects(List<Effect> existingProperties, ref List<Effect> __result)
+	private static void PreserveNewEffects(Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Effects.Effect> existingProperties, ref Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Effects.Effect> __result)
 	{
 		if (__result == null || existingProperties == null)
 		{
 			return;
 		}
-		Enumerator<Effect> enumerator = existingProperties.GetEnumerator();
+		var enumerator = existingProperties.GetEnumerator();
 		while (enumerator.MoveNext())
 		{
-			Effect current = enumerator.Current;
-			if ((Object)(object)current == (Object)null || !NewEffects.IsCustom(current.ID))
+			Il2CppScheduleOne.Effects.Effect current = enumerator.Current;
+			if ((UnityEngine.Object)(object)current == (UnityEngine.Object)null || !NewEffects.IsCustom(current.ID))
 			{
 				continue;
 			}
 			bool flag = false;
-			Enumerator<Effect> enumerator2 = __result.GetEnumerator();
+			var enumerator2 = __result.GetEnumerator();
 			while (enumerator2.MoveNext())
 			{
-				if ((Object)(object)enumerator2.Current != (Object)null && enumerator2.Current.ID == current.ID)
+				if ((UnityEngine.Object)(object)enumerator2.Current != (UnityEngine.Object)null && enumerator2.Current.ID == current.ID)
 				{
 					flag = true;
 					break;
@@ -121,12 +121,12 @@ internal static class Mixing
 			{
 				continue;
 			}
-			if (__result.Count >= Math.Max(MaxEffects, existingProperties.Count))
+			if (__result.Count >= System.Math.Max(MaxEffects, existingProperties.Count))
 			{
 				int num = -1;
 				for (int num2 = __result.Count - 1; num2 >= 0; num2--)
 				{
-					if ((Object)(object)__result[num2] == (Object)null || !NewEffects.IsCustom(__result[num2].ID))
+					if ((UnityEngine.Object)(object)__result[num2] == (UnityEngine.Object)null || !NewEffects.IsCustom(__result[num2].ID))
 					{
 						num = num2;
 						break;

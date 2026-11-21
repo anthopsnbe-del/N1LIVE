@@ -3,11 +3,11 @@ using Il2CppScheduleOne.PlayerScripts;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(PlayerMovement), "Jump")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.PlayerScripts.PlayerMovement), "Jump")]
 internal static class ScopedJump
 {
 	[HarmonyPrefix]
-	private static void Prefix(PlayerMovement __instance, out bool __state)
+	private static void Prefix(Il2CppScheduleOne.PlayerScripts.PlayerMovement __instance, out bool __state)
 	{
 		__state = MovementScope.Enter(__instance);
 	}

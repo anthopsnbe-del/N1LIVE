@@ -34,6 +34,6 @@ public sealed class Entry
 
 	public int Price { get; set; }
 
-	public string[][] Rules { get; set; } = Array.Empty<string[]>();
+	public string[][] Rules { get; set; } = System.Array.Empty<string[]>();
 
 }

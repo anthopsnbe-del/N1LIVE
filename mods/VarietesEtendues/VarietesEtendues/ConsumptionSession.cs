@@ -5,7 +5,7 @@ namespace VarietesEtendues;
 
 internal sealed class ConsumptionSession
 {
-	private readonly Dictionary<int, string> products = new Dictionary<int, string>();
+	private readonly System.Collections.Generic.Dictionary<int, string> products = new System.Collections.Generic.Dictionary<int, string>();
 
 	internal void Consumed(int player, string? product)
 	{
@@ -23,7 +23,7 @@ internal sealed class ConsumptionSession
 	{
 		if (activeProduct != null && products.TryGetValue(player, out string value))
 		{
-			return string.Equals(value, activeProduct, StringComparison.Ordinal);
+			return string.Equals(value, activeProduct, System.StringComparison.Ordinal);
 		}
 		return false;
 	}

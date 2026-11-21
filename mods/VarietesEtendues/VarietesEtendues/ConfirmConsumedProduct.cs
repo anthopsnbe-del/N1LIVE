@@ -4,11 +4,11 @@ using Il2CppScheduleOne.Product;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(Player), "ConsumeProduct")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.PlayerScripts.Player), "ConsumeProduct")]
 internal static class ConfirmConsumedProduct
 {
 	[HarmonyPostfix]
-	private static void Postfix(Player __instance, ProductItemInstance __0)
+	private static void Postfix(Il2CppScheduleOne.PlayerScripts.Player __instance, Il2CppScheduleOne.Product.ProductItemInstance __0)
 	{
 		ActiveConsumption.Consumed(__instance, __0);
 	}

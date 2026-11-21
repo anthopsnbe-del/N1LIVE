@@ -5,22 +5,22 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(ProductItemInstance), "ClearEffectsFromNPC")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.Product.ProductItemInstance), "ClearEffectsFromNPC")]
 internal static class NpcDevilClear
 {
 	[HarmonyPostfix]
-	private static void Postfix(ProductItemInstance __instance, NPC __0)
+	private static void Postfix(Il2CppScheduleOne.Product.ProductItemInstance __instance, Il2CppScheduleOne.NPCs.NPC __0)
 	{
-		if (!((Object)(object)__0 == (Object)null))
+		if (!((UnityEngine.Object)(object)__0 == (UnityEngine.Object)null))
 		{
 			if (DevilReplication.HasEffect(__instance))
 			{
-				Devil.Clear(((Component)__0).transform);
+				Devil.Clear(((UnityEngine.Component)__0).transform);
 			}
 			string[] array = DevilReplication.EffectIds(__instance);
 			foreach (string id in array)
 			{
-				IngredientEffects.Clear(((Component)__0).transform, id);
+				IngredientEffects.Clear(((UnityEngine.Component)__0).transform, id);
 			}
 		}
 	}

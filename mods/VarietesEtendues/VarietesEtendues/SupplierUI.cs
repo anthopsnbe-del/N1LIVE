@@ -17,12 +17,12 @@ using UnityEngine.UI;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(DeliveryApp), "SetOpen")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.UI.Phone.Delivery.DeliveryApp), "SetOpen")]
 internal static class SupplierUI
 {
-	private static readonly HashSet<int> prepared = new HashSet<int>();
+	private static readonly System.Collections.Generic.HashSet<int> prepared = new System.Collections.Generic.HashSet<int>();
 
-	internal static DeliveryApp? App;
+	internal static Il2CppScheduleOne.UI.Phone.Delivery.DeliveryApp? App;
 
 	internal static void Clear()
 	{
@@ -31,7 +31,7 @@ internal static class SupplierUI
 	}
 
 	[HarmonyPostfix]
-	private static void Postfix(DeliveryApp __instance, bool __0)
+	private static void Postfix(Il2CppScheduleOne.UI.Phone.Delivery.DeliveryApp __instance, bool __0)
 	{
 		App = __instance;
 		if (!__0)
@@ -43,66 +43,62 @@ internal static class SupplierUI
 		{
 			Refresh(__instance);
 		}
-		catch (Exception ex)
+		catch (System.Exception ex)
 		{
-			MelonLogger.Error("Lucien : initialisation du catalogue : " + ex);
+			MelonLoader.MelonLogger.Error("Lucien : initialisation du catalogue : " + ex);
 		}
 	}
 
-	internal static void Refresh(DeliveryApp app)
+	internal static void Refresh(Il2CppScheduleOne.UI.Phone.Delivery.DeliveryApp app)
 	{
-		//IL_0145: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014f: Expected O, but got Unknown
-		//IL_02cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0421: Unknown result type (might be due to invalid IL or missing references)
-		DeliveryApp app2 = app;
-		Lucien lucien = NPC.All.OfType<Lucien>().FirstOrDefault();
-		Supplier val = ((lucien != null) ? ((NPC)lucien).gameObject.GetComponent<Supplier>() : null);
-		if (lucien == null || (Object)(object)((val != null) ? val.Shop : null) == (Object)null)
+		Il2CppScheduleOne.UI.Phone.Delivery.DeliveryApp app2 = app;
+		Lucien lucien = S1API.Entities.NPC.All.OfType<Lucien>().FirstOrDefault();
+		Il2CppScheduleOne.Economy.Supplier val = ((lucien != null) ? ((S1API.Entities.NPC)lucien).gameObject.GetComponent<Il2CppScheduleOne.Economy.Supplier>() : null);
+		if (lucien == null || (UnityEngine.Object)(object)((val != null) ? val.Shop : null) == (UnityEngine.Object)null)
 		{
 			return;
 		}
-		DeliveryApp obj = app2;
+		Il2CppScheduleOne.UI.Phone.Delivery.DeliveryApp obj = app2;
 		if (((obj != null) ? obj._shopElements : null) == null)
 		{
 			return;
 		}
-		Enumerator<DeliveryShopElement> enumerator = app2._shopElements.GetEnumerator();
+		var enumerator = app2._shopElements.GetEnumerator();
 		while (enumerator.MoveNext())
 		{
-			DeliveryShopElement current = enumerator.Current;
-			if ((Object)(object)((current != null) ? current.Shop : null) == (Object)null || (Object)(object)current.Button == (Object)null || current.Shop.MatchingShopInterfaceName != val.Shop.ShopName)
+			Il2CppScheduleOne.UI.Phone.Delivery.DeliveryApp.DeliveryShopElement current = enumerator.Current;
+			if ((UnityEngine.Object)(object)((current != null) ? current.Shop : null) == (UnityEngine.Object)null || (UnityEngine.Object)(object)current.Button == (UnityEngine.Object)null || current.Shop.MatchingShopInterfaceName != val.Shop.ShopName)
 			{
 				continue;
 			}
-			if (!prepared.Contains(((Object)current.Button).GetInstanceID()))
+			if (!prepared.Contains(((UnityEngine.Object)current.Button).GetInstanceID()))
 			{
-				DeliveryShop deliveryShop = current.Shop;
-				if ((Object)(object)deliveryShop.MatchingShop == (Object)null || deliveryShop.listingEntries == null || deliveryShop.listingEntries.Count == 0)
+				Il2CppScheduleOne.UI.Phone.Delivery.DeliveryShop deliveryShop = current.Shop;
+				if ((UnityEngine.Object)(object)deliveryShop.MatchingShop == (UnityEngine.Object)null || deliveryShop.listingEntries == null || deliveryShop.listingEntries.Count == 0)
 				{
 					deliveryShop.Initialize();
 				}
 				current.Button.onClick = new ButtonClickedEvent();
-				((UnityEvent)current.Button.onClick).AddListener(((Action)delegate
+				((UnityEngine.Events.UnityEvent)current.Button.onClick).AddListener(((System.Action)delegate
 				{
 					app2.OpenShop(deliveryShop);
 				}));
-				Action<DeliveryShop> onSelect = DelegateSupport.ConvertDelegate<Action<DeliveryShop>>((Delegate)new Action<DeliveryShop>(app2.CloseShop));
+				Il2CppSystem.Action<Il2CppScheduleOne.UI.Phone.Delivery.DeliveryShop> onSelect = Il2CppInterop.Runtime.DelegateSupport.ConvertDelegate<Il2CppSystem.Action<Il2CppScheduleOne.UI.Phone.Delivery.DeliveryShop>>((System.Delegate)new System.Action<Il2CppScheduleOne.UI.Phone.Delivery.DeliveryShop>(app2.CloseShop));
 				deliveryShop.OnSelect = onSelect;
-				if ((Object)(object)app2._deliveryScreen != (Object)null)
+				if ((UnityEngine.Object)(object)app2._deliveryScreen != (UnityEngine.Object)null)
 				{
-					Enumerator<UIPanel> enumerator2 = deliveryShop.Panels.GetEnumerator();
+					var enumerator2 = deliveryShop.Panels.GetEnumerator();
 					while (enumerator2.MoveNext())
 					{
-						UIPanel current2 = enumerator2.Current;
+						Il2CppScheduleOne.UIPanel current2 = enumerator2.Current;
 						app2._deliveryScreen.AddPanel(current2);
 					}
 				}
-				prepared.Add(((Object)current.Button).GetInstanceID());
-				MelonLogger.Msg("Lucien : bouton de commande relié au catalogue.");
+				prepared.Add(((UnityEngine.Object)current.Button).GetInstanceID());
+				MelonLoader.MelonLogger.Msg("Lucien : bouton de commande relié au catalogue.");
 			}
-			((Selectable)current.Button).interactable = true;
-			Il2CppArrayBase<Text> componentsInChildren = ((Component)current.Button).GetComponentsInChildren<Text>(true);
+			((UnityEngine.UI.Selectable)current.Button).interactable = true;
+			Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.UI.Text> componentsInChildren = ((UnityEngine.Component)current.Button).GetComponentsInChildren<UnityEngine.UI.Text>(true);
 			if (componentsInChildren.Length > 0)
 			{
 				componentsInChildren[0].text = Localization.Text("Lucien — Comptoir des Variétés", "Lucien — Variety Counter", "Lucien — Sortentresen", "Lucien — Mostrador de Variedades");
@@ -111,54 +107,42 @@ internal static class SupplierUI
 			{
 				componentsInChildren[1].text = Localization.Text("Ingrédients pour tes mélanges", "Ingredients for your mixes", "Zutaten für deine Mischungen", "Ingredientes para tus mezclas");
 			}
-			Sprite val2 = DevilPortrait.Image ?? ((NPC)lucien).Icon;
-			foreach (Image componentsInChild in ((Component)current.Button).GetComponentsInChildren<Image>(true))
+			UnityEngine.Sprite val2 = DevilPortrait.Image ?? ((S1API.Entities.NPC)lucien).Icon;
+			foreach (UnityEngine.UI.Image componentsInChild in ((UnityEngine.Component)current.Button).GetComponentsInChildren<UnityEngine.UI.Image>(true))
 			{
-				if (IsPortrait(componentsInChild) && (Object)(object)val2 != (Object)null)
+				if (IsPortrait(componentsInChild) && (UnityEngine.Object)(object)val2 != (UnityEngine.Object)null)
 				{
 					componentsInChild.sprite = val2;
-					((Graphic)componentsInChild).color = Color.white;
+					((UnityEngine.UI.Graphic)componentsInChild).color = UnityEngine.Color.white;
 				}
 			}
-			foreach (Text componentsInChild2 in ((Component)current.Shop).GetComponentsInChildren<Text>(true))
+			foreach (UnityEngine.UI.Text componentsInChild2 in ((UnityEngine.Component)current.Shop).GetComponentsInChildren<UnityEngine.UI.Text>(true))
 			{
-				if (!((Object)(object)current.Shop.ListingContainer != (Object)null) || !((Component)componentsInChild2).transform.IsChildOf((Transform)(object)current.Shop.ListingContainer))
+				if (!((UnityEngine.Object)(object)current.Shop.ListingContainer != (UnityEngine.Object)null) || !((UnityEngine.Component)componentsInChild2).transform.IsChildOf((UnityEngine.Transform)(object)current.Shop.ListingContainer))
 				{
-					string text = ((Object)componentsInChild2).name.ToLowerInvariant();
-					if (text.Contains("shopname") || text.Contains("storename") || componentsInChild2.text.Contains("Quincaillerie", StringComparison.OrdinalIgnoreCase) || componentsInChild2.text.Contains("Hardware", StringComparison.OrdinalIgnoreCase))
+					string text = ((UnityEngine.Object)componentsInChild2).name.ToLowerInvariant();
+					if (text.Contains("shopname") || text.Contains("storename") || componentsInChild2.text.Contains("Quincaillerie", System.StringComparison.OrdinalIgnoreCase) || componentsInChild2.text.Contains("Hardware", System.StringComparison.OrdinalIgnoreCase))
 					{
 						componentsInChild2.text = "Lucien — 666";
 					}
 				}
 			}
-			foreach (Image componentsInChild3 in ((Component)current.Shop).GetComponentsInChildren<Image>(true))
+			foreach (UnityEngine.UI.Image componentsInChild3 in ((UnityEngine.Component)current.Shop).GetComponentsInChildren<UnityEngine.UI.Image>(true))
 			{
-				if ((!((Object)(object)current.Shop.ListingContainer != (Object)null) || !((Component)componentsInChild3).transform.IsChildOf((Transform)(object)current.Shop.ListingContainer)) && IsPortrait(componentsInChild3) && (Object)(object)val2 != (Object)null)
+				if ((!((UnityEngine.Object)(object)current.Shop.ListingContainer != (UnityEngine.Object)null) || !((UnityEngine.Component)componentsInChild3).transform.IsChildOf((UnityEngine.Transform)(object)current.Shop.ListingContainer)) && IsPortrait(componentsInChild3) && (UnityEngine.Object)(object)val2 != (UnityEngine.Object)null)
 				{
 					componentsInChild3.sprite = val2;
-					((Graphic)componentsInChild3).color = Color.white;
+					((UnityEngine.UI.Graphic)componentsInChild3).color = UnityEngine.Color.white;
 				}
 			}
 		}
 	}
 
-	private static bool IsPortrait(Image image)
+	private static bool IsPortrait(UnityEngine.UI.Image image)
 	{
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
-		string name = ((Object)image).name;
-		Sprite sprite = image.sprite;
-		string text = (name + " " + ((sprite != null) ? ((Object)sprite).name : null)).ToLowerInvariant();
+		string name = ((UnityEngine.Object)image).name;
+		UnityEngine.Sprite sprite = image.sprite;
+		string text = (name + " " + ((sprite != null) ? ((UnityEngine.Object)sprite).name : null)).ToLowerInvariant();
 		if (text.Contains("arrow") || text.Contains("back") || text.Contains("check") || text.Contains("background"))
 		{
 			return false;
@@ -167,13 +151,13 @@ internal static class SupplierUI
 		{
 			return true;
 		}
-		Rect rect = ((Graphic)image).rectTransform.rect;
-		Vector2 val = rect.size;
+		UnityEngine.Rect rect = ((UnityEngine.UI.Graphic)image).rectTransform.rect;
+		UnityEngine.Vector2 val = rect.size;
 		if (val.x < 1f || val.y < 1f)
 		{
-			val = ((Graphic)image).rectTransform.sizeDelta;
+			val = ((UnityEngine.UI.Graphic)image).rectTransform.sizeDelta;
 		}
-		if (Mathf.Abs(val.x - val.y) < 4f && val.x >= 24f)
+		if (UnityEngine.Mathf.Abs(val.x - val.y) < 4f && val.x >= 24f)
 		{
 			return val.x <= 100f;
 		}

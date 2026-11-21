@@ -16,4 +16,3 @@ using VarietesEtendues;
 [assembly: AssemblyProduct("VarietesEtendues")]
 [assembly: AssemblyTitle("VarietesEtendues")]
 [assembly: AssemblyVersion("0.6.1.0")]
-[module: RefSafetyRules(11)]

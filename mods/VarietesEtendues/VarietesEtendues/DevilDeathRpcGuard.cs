@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(PlayerHealth), "Die")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth), "Die")]
 internal static class DevilDeathRpcGuard
 {
 	[HarmonyPrefix]
-	private static bool Prefix(PlayerHealth __instance)
+	private static bool Prefix(Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth __instance)
 	{
-		if (!((Object)(object)__instance.Player == (Object)null))
+		if (!((UnityEngine.Object)(object)__instance.Player == (UnityEngine.Object)null))
 		{
-			return !CharacterEffects.Tuning(((Component)__instance.Player).transform).God;
+			return !CharacterEffects.Tuning(((UnityEngine.Component)__instance.Player).transform).God;
 		}
 		return true;
 	}

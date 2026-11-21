@@ -4,17 +4,17 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(NPCHealth), "TakeDamage")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.NPCs.NPCHealth), "TakeDamage")]
 internal static class NpcEffectResistance
 {
 	[HarmonyPrefix]
-	private static bool Prefix(NPCHealth __instance, ref float __0)
+	private static bool Prefix(Il2CppScheduleOne.NPCs.NPCHealth __instance, ref float __0)
 	{
-		if ((Object)(object)__instance._npc == (Object)null)
+		if ((UnityEngine.Object)(object)__instance._npc == (UnityEngine.Object)null)
 		{
 			return true;
 		}
-		EffectTuning effectTuning = CharacterEffects.Tuning(((Component)__instance._npc).transform);
+		EffectTuning effectTuning = CharacterEffects.Tuning(((UnityEngine.Component)__instance._npc).transform);
 		if (effectTuning.God)
 		{
 			return false;

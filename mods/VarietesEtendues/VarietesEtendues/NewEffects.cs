@@ -12,7 +12,7 @@ namespace VarietesEtendues;
 
 internal static class NewEffects
 {
-	internal sealed record Spec(string Key, string French, string English, string FrDescription, string EnDescription, string German, string Spanish, string DeDescription, string EsDescription, Color Color, int Kind)
+	internal sealed record Spec(string Key, string French, string English, string FrDescription, string EnDescription, string German, string Spanish, string DeDescription, string EsDescription, UnityEngine.Color Color, int Kind)
 	{
 		internal string Id => EffectRules.Id(Key);
 
@@ -60,30 +60,26 @@ internal static class NewEffects
 		return true;
 	}
 
-	internal static PropertyBase Build(Entry entry)
+	internal static S1API.Properties.Interfaces.PropertyBase Build(Entry entry)
 	{
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
 		Spec s = For(entry.Key);
-		Effect val = Mixing.Native(Mod.Resolve(entry.Effect).ID);
-		return (PropertyBase)(object)new CustomEffectBuilder().WithBasicInfo(s.Id, s.Name, s.Description).WithTier(val.Tier).WithColors(s.Color, s.Color)
+		Il2CppScheduleOne.Effects.Effect val = Mixing.Native(Mod.Resolve(entry.Effect).ID);
+		return (S1API.Properties.Interfaces.PropertyBase)(object)new CustomEffectBuilder().WithBasicInfo(s.Id, s.Name, s.Description).WithTier(val.Tier).WithColors(s.Color, s.Color)
 			.WithValue(0, 1f, 0.18f + (float)s.Kind * 0.012f)
 			.WithMixGeometry(val.MixDirection, val.MixMagnitude)
-			.WithBehavior((Action<Player>)delegate(Player p)
+			.WithBehavior((System.Action<S1API.Entities.Player>)delegate(S1API.Entities.Player p)
 			{
 				IngredientEffects.Apply(p.Transform, s);
 			})
-			.WithNpcBehavior((Action<NPC>)delegate(NPC n)
+			.WithNpcBehavior((System.Action<S1API.Entities.NPC>)delegate(S1API.Entities.NPC n)
 			{
 				IngredientEffects.Apply(n.Transform, s);
 			})
-			.WithClearBehavior((Action<Player>)delegate(Player p)
+			.WithClearBehavior((System.Action<S1API.Entities.Player>)delegate(S1API.Entities.Player p)
 			{
 				IngredientEffects.Clear(p.Transform, s.Id);
 			})
-			.WithNpcClearBehavior((Action<NPC>)delegate(NPC n)
+			.WithNpcClearBehavior((System.Action<S1API.Entities.NPC>)delegate(S1API.Entities.NPC n)
 			{
 				IngredientEffects.Clear(n.Transform, s.Id);
 			})

@@ -25,28 +25,24 @@ namespace VarietesEtendues;
 
 internal static class Crops
 {
-	internal sealed record Variety(string Key, string Name, string Effect, int SeedPrice, int BasePrice, Color Bud, Color Leaf)
+	internal sealed record Variety(string Key, string Name, string Effect, int SeedPrice, int BasePrice, UnityEngine.Color Bud, UnityEngine.Color Leaf)
 	{
 		[CompilerGenerated]
-		private bool PrintMembers(StringBuilder builder)
+		private bool PrintMembers(System.Text.StringBuilder builder)
 		{
-			//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00d3: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-			RuntimeHelpers.EnsureSufficientExecutionStack();
+			System.Runtime.CompilerServices.RuntimeHelpers.EnsureSufficientExecutionStack();
 			builder.Append("Key = ");
 			builder.Append((object?)Key);
 			builder.Append(", Name = ");
 			builder.Append((object?)Name);
 			builder.Append(", Effect = ");
-			builder.Append((object?)Effect);
+			builder.Append((object?)Il2CppScheduleOne.Effects.Effect);
 			builder.Append(", SeedPrice = ");
 			builder.Append(SeedPrice.ToString());
 			builder.Append(", BasePrice = ");
 			builder.Append(BasePrice.ToString());
 			builder.Append(", Bud = ");
-			Color val = Bud;
+			UnityEngine.Color val = Bud;
 			builder.Append(val.ToString());
 			builder.Append(", Leaf = ");
 			val = Leaf;
@@ -62,15 +58,15 @@ internal static class Crops
 		new Variety("dragonkush", "Dragon Kush", "Glowing", 70, 52, new Color(0.4f, 0.2f, 0.54f), new Color(0.42f, 0.34f, 0.4f))
 	};
 
-	internal static readonly Dictionary<string, SeedDefinition> Seeds = new Dictionary<string, SeedDefinition>(StringComparer.Ordinal);
+	internal static readonly System.Collections.Generic.Dictionary<string, Il2CppScheduleOne.Growing.SeedDefinition> Seeds = new System.Collections.Generic.Dictionary<string, Il2CppScheduleOne.Growing.SeedDefinition>(System.StringComparer.Ordinal);
 
-	private static readonly Dictionary<string, WeedDefinition> Products = new Dictionary<string, WeedDefinition>(StringComparer.Ordinal);
+	private static readonly System.Collections.Generic.Dictionary<string, Il2CppScheduleOne.Product.WeedDefinition> Products = new System.Collections.Generic.Dictionary<string, Il2CppScheduleOne.Product.WeedDefinition>(System.StringComparer.Ordinal);
 
-	internal static SeedDefinition? Source;
+	internal static Il2CppScheduleOne.Growing.SeedDefinition? Source;
 
 	internal static string? SourceId;
 
-	private static readonly Dictionary<int, Renderer> tinted = new Dictionary<int, Renderer>();
+	private static readonly System.Collections.Generic.Dictionary<int, UnityEngine.Renderer> tinted = new System.Collections.Generic.Dictionary<int, UnityEngine.Renderer>();
 
 	internal static string SeedId(Variety v)
 	{
@@ -82,38 +78,31 @@ internal static class Crops
 		tinted.Clear();
 	}
 
-	internal static void RefreshPlant(Plant plant)
+	internal static void RefreshPlant(Il2CppScheduleOne.Growing.Plant plant)
 	{
-		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0100: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
-		Plant plant2 = plant;
+		Il2CppScheduleOne.Growing.Plant plant2 = plant;
 		Variety variety = Varieties.FirstOrDefault(delegate(Variety v)
 		{
 			string text2 = SeedId(v);
-			SeedDefinition seedDefinition = plant2.SeedDefinition;
-			return text2 == ((seedDefinition != null) ? ((BaseItemDefinition)seedDefinition).ID : null);
+			Il2CppScheduleOne.Growing.SeedDefinition seedDefinition = plant2.SeedDefinition;
+			return text2 == ((seedDefinition != null) ? ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)seedDefinition).ID : null);
 		});
 		if (variety == null)
 		{
 			return;
 		}
-		foreach (Renderer componentsInChild in ((Component)plant2).GetComponentsInChildren<Renderer>(true))
+		foreach (UnityEngine.Renderer componentsInChild in ((UnityEngine.Component)plant2).GetComponentsInChildren<UnityEngine.Renderer>(true))
 		{
-			int instanceID = ((Object)componentsInChild).GetInstanceID();
-			if (tinted.TryGetValue(instanceID, out Renderer value) && (Object)(object)value == (Object)(object)componentsInChild)
+			int instanceID = ((UnityEngine.Object)componentsInChild).GetInstanceID();
+			if (tinted.TryGetValue(instanceID, out UnityEngine.Renderer value) && (UnityEngine.Object)(object)value == (UnityEngine.Object)(object)componentsInChild)
 			{
 				continue;
 			}
-			foreach (Material item in (Il2CppArrayBase<Material>)(object)componentsInChild.materials)
+			foreach (UnityEngine.Material item in (Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)componentsInChild.materials)
 			{
-				string text = (((Object)componentsInChild).name + ((Object)item).name).ToLowerInvariant();
-				Color val2 = (item.color = ((text.Contains("leaf") || text.Contains("leaves") || text.Contains("stem")) ? variety.Leaf : variety.Bud));
-				Color val3 = val2;
+				string text = (((UnityEngine.Object)componentsInChild).name + ((UnityEngine.Object)item).name).ToLowerInvariant();
+				UnityEngine.Color val2 = (item.color = ((text.Contains("leaf") || text.Contains("leaves") || text.Contains("stem")) ? variety.Leaf : variety.Bud));
+				UnityEngine.Color val3 = val2;
 				if (item.HasProperty("_BaseColor"))
 				{
 					item.SetColor("_BaseColor", val3);
@@ -123,30 +112,23 @@ internal static class Crops
 		}
 	}
 
-	private static void Tint(GameObject root, Variety variety)
+	private static void Tint(UnityEngine.GameObject root, Variety variety)
 	{
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Expected O, but got Unknown
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00be: Unknown result type (might be due to invalid IL or missing references)
-		foreach (Renderer componentsInChild in root.GetComponentsInChildren<Renderer>(true))
+		foreach (UnityEngine.Renderer componentsInChild in root.GetComponentsInChildren<UnityEngine.Renderer>(true))
 		{
-			Il2CppReferenceArray<Material> sharedMaterials = componentsInChild.sharedMaterials;
-			Material[] array = (Material[])(object)new Material[((Il2CppArrayBase<Material>)(object)sharedMaterials).Length];
-			for (int i = 0; i < ((Il2CppArrayBase<Material>)(object)sharedMaterials).Length; i++)
+			Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<UnityEngine.Material> sharedMaterials = componentsInChild.sharedMaterials;
+			UnityEngine.Material[] array = (UnityEngine.Material[])(object)new UnityEngine.Material[((Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)sharedMaterials).Length];
+			for (int i = 0; i < ((Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)sharedMaterials).Length; i++)
 			{
-				if ((Object)(object)((Il2CppArrayBase<Material>)(object)sharedMaterials)[i] == (Object)null)
+				if ((UnityEngine.Object)(object)((Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)sharedMaterials)[i] == (UnityEngine.Object)null)
 				{
 					array[i] = Models.Material(variety.Leaf);
 					continue;
 				}
-				array[i] = new Material(((Il2CppArrayBase<Material>)(object)sharedMaterials)[i]);
-				string text = (((Object)componentsInChild).name + ((Object)((Il2CppArrayBase<Material>)(object)sharedMaterials)[i]).name).ToLowerInvariant();
+				array[i] = new Material(((Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)sharedMaterials)[i]);
+				string text = (((UnityEngine.Object)componentsInChild).name + ((UnityEngine.Object)((Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<UnityEngine.Material>)(object)sharedMaterials)[i]).name).ToLowerInvariant();
 				bool flag = text.Contains("leaf") || text.Contains("leaves") || text.Contains("stem");
-				array[i].color = (flag ? Color.Lerp(Color.white, variety.Leaf, 0.55f) : variety.Bud);
+				array[i].color = (flag ? Color.Lerp(UnityEngine.Color.white, variety.Leaf, 0.55f) : variety.Bud);
 			}
 			componentsInChild.materials = (array);
 		}
@@ -154,146 +136,127 @@ internal static class Crops
 
 	internal static void Register()
 	{
-		//IL_020c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0211: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0218: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0227: Unknown result type (might be due to invalid IL or missing references)
-		//IL_022c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0233: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0238: Unknown result type (might be due to invalid IL or missing references)
-		//IL_024b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0250: Unknown result type (might be due to invalid IL or missing references)
-		//IL_025a: Expected O, but got Unknown
-		//IL_0270: Unknown result type (might be due to invalid IL or missing references)
-		//IL_027a: Expected O, but got Unknown
-		//IL_0290: Unknown result type (might be due to invalid IL or missing references)
-		//IL_029a: Expected O, but got Unknown
-		//IL_02b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02ba: Expected O, but got Unknown
-		//IL_02d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02da: Expected O, but got Unknown
-		List<(string, GameObject)> list = new List<(string, GameObject)>();
+		System.Collections.Generic.List<(string, UnityEngine.GameObject)> list = new System.Collections.Generic.List<(string, UnityEngine.GameObject)>();
 		if (Seeds.Count == 0)
 		{
-			Source = (from s in (IEnumerable<SeedDefinition>)Resources.FindObjectsOfTypeAll<SeedDefinition>()
-				where (Object)(object)s != (Object)null && (Object)(object)s.PlantPrefab != (Object)null && (Object)(object)((Il2CppObjectBase)s.PlantPrefab).TryCast<WeedPlant>() != (Object)null && !((BaseItemDefinition)s).ID.StartsWith("vx_")
-				orderby (!((BaseItemDefinition)s).ID.Equals("ogkushseed", StringComparison.OrdinalIgnoreCase)) ? 1 : 0
-				select s).ThenBy<SeedDefinition, string>((SeedDefinition s) => ((BaseItemDefinition)s).ID, StringComparer.Ordinal).FirstOrDefault();
-			if ((Object)(object)Source == (Object)null)
+			Source = (from s in (System.Collections.Generic.IEnumerable<Il2CppScheduleOne.Growing.SeedDefinition>)UnityEngine.Resources.FindObjectsOfTypeAll<Il2CppScheduleOne.Growing.SeedDefinition>()
+				where (UnityEngine.Object)(object)s != (UnityEngine.Object)null && (UnityEngine.Object)(object)s.PlantPrefab != (UnityEngine.Object)null && (UnityEngine.Object)(object)((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)s.PlantPrefab).TryCast<Il2CppScheduleOne.Growing.WeedPlant>() != (UnityEngine.Object)null && !((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)s).ID.StartsWith("vx_")
+				orderby (!((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)s).ID.Equals("ogkushseed", System.StringComparison.OrdinalIgnoreCase)) ? 1 : 0
+				select s).ThenBy<Il2CppScheduleOne.Growing.SeedDefinition, string>((Il2CppScheduleOne.Growing.SeedDefinition s) => ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)s).ID, System.StringComparer.Ordinal).FirstOrDefault();
+			if ((UnityEngine.Object)(object)Source == (UnityEngine.Object)null)
 			{
 				throw new InvalidOperationException("Aucune graine de cannabis native disponible");
 			}
-			SourceId = ((BaseItemDefinition)Source).ID;
-			WeedDefinition val = (from p in (IEnumerable<WeedDefinition>)Resources.FindObjectsOfTypeAll<WeedDefinition>()
-				where (Object)(object)p != (Object)null && !((BaseItemDefinition)p).ID.StartsWith("vx_")
-				orderby (!((BaseItemDefinition)p).ID.Equals("ogkush", StringComparison.OrdinalIgnoreCase)) ? 1 : 0
-				select p).ThenBy<WeedDefinition, string>((WeedDefinition p) => ((BaseItemDefinition)p).ID, StringComparer.Ordinal).FirstOrDefault();
-			if ((Object)(object)val == (Object)null)
+			SourceId = ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)Source).ID;
+			Il2CppScheduleOne.Product.WeedDefinition val = (from p in (System.Collections.Generic.IEnumerable<Il2CppScheduleOne.Product.WeedDefinition>)UnityEngine.Resources.FindObjectsOfTypeAll<Il2CppScheduleOne.Product.WeedDefinition>()
+				where (UnityEngine.Object)(object)p != (UnityEngine.Object)null && !((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)p).ID.StartsWith("vx_")
+				orderby (!((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)p).ID.Equals("ogkush", System.StringComparison.OrdinalIgnoreCase)) ? 1 : 0
+				select p).ThenBy<Il2CppScheduleOne.Product.WeedDefinition, string>((Il2CppScheduleOne.Product.WeedDefinition p) => ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)p).ID, System.StringComparer.Ordinal).FirstOrDefault();
+			if ((UnityEngine.Object)(object)val == (UnityEngine.Object)null)
 			{
 				throw new InvalidOperationException("Aucune variété native disponible");
 			}
 			Variety[] varieties = Varieties;
 			foreach (Variety variety in varieties)
 			{
-				WeedDefinition val2 = Object.Instantiate<WeedDefinition>(val);
-				((BaseItemDefinition)val2).ID = "vx_" + variety.Key;
-				((Object)val2).name = ((BaseItemDefinition)val2).ID;
-				((BaseItemDefinition)val2).Name = variety.Name;
-				((BaseItemDefinition)val2).Description = Localization.Text("Variété cultivée au Comptoir des Variétés : ", "Variety grown for Lucien's Variety Counter: ", "Im Sortentresen angebaute Sorte: ", "Variedad cultivada en el Mostrador de Variedades: ") + variety.Name;
-				((ProductDefinition)val2).BasePrice = variety.BasePrice;
-				((ProductDefinition)val2).MarketValue = variety.BasePrice;
-				((PropertyItemDefinition)val2).Properties = new List<Effect>();
-				((PropertyItemDefinition)val2).Properties.Add(Mixing.Native(Mod.Resolve(variety.Effect).ID));
-				val2.appearance = new WeedAppearanceSettings((variety.Bud), (Color.Lerp(variety.Bud, Color.white, 0.25f)), (variety.Leaf), new Color32((byte)113, (byte)133, (byte)66, byte.MaxValue));
-				if ((Object)(object)val.MainMat != (Object)null)
+				Il2CppScheduleOne.Product.WeedDefinition val2 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.Product.WeedDefinition>(val);
+				((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val2).ID = "vx_" + variety.Key;
+				((UnityEngine.Object)val2).name = ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val2).ID;
+				((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val2).Name = variety.Name;
+				((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val2).Description = Localization.Text("Variété cultivée au Comptoir des Variétés : ", "Variety grown for Lucien's Variety Counter: ", "Im Sortentresen angebaute Sorte: ", "Variedad cultivada en el Mostrador de Variedades: ") + variety.Name;
+				((Il2CppScheduleOne.Product.ProductDefinition)val2).BasePrice = variety.BasePrice;
+				((Il2CppScheduleOne.Product.ProductDefinition)val2).MarketValue = variety.BasePrice;
+				((Il2CppScheduleOne.Product.PropertyItemDefinition)val2).Properties = new Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Effects.Effect>();
+				((Il2CppScheduleOne.Product.PropertyItemDefinition)val2).Properties.Add(Mixing.Native(Mod.Resolve(variety.Effect).ID));
+				val2.appearance = new WeedAppearanceSettings((variety.Bud), (UnityEngine.Color.Lerp(variety.Bud, UnityEngine.Color.white, 0.25f)), (variety.Leaf), new Color32((byte)113, (byte)133, (byte)66, byte.MaxValue));
+				if ((UnityEngine.Object)(object)val.MainMat != (UnityEngine.Object)null)
 				{
 					val2.MainMat = new Material(val.MainMat);
 				}
-				if ((Object)(object)val.SecondaryMat != (Object)null)
+				if ((UnityEngine.Object)(object)val.SecondaryMat != (UnityEngine.Object)null)
 				{
 					val2.SecondaryMat = new Material(val.SecondaryMat);
 				}
-				if ((Object)(object)val.LeafMat != (Object)null)
+				if ((UnityEngine.Object)(object)val.LeafMat != (UnityEngine.Object)null)
 				{
 					val2.LeafMat = new Material(val.LeafMat);
 				}
-				if ((Object)(object)val.StemMat != (Object)null)
+				if ((UnityEngine.Object)(object)val.StemMat != (UnityEngine.Object)null)
 				{
 					val2.StemMat = new Material(val.StemMat);
 				}
 				val2.ApplyAppearanceSettings();
-				Object.DontDestroyOnLoad((Object)(object)val2);
-				Products[((BaseItemDefinition)val2).ID] = val2;
-				list.Add((((BaseItemDefinition)val2).ID, WeedPresentation.Configure(val2, val)));
-				SeedDefinition val3 = Object.Instantiate<SeedDefinition>(Source);
-				((BaseItemDefinition)val3).ID = SeedId(variety);
-				((Object)val3).name = ((BaseItemDefinition)val3).ID;
-				((BaseItemDefinition)val3).Name = Localization.Text("Graine ", "Seed: ", "Samen: ", "Semilla: ") + variety.Name;
-				((StorableItemDefinition)val3).BasePurchasePrice = variety.SeedPrice;
-				((BaseItemDefinition)val3).Description = Localization.Text("Variété de cannabis : ", "Cannabis variety: ", "Cannabissorte: ", "Variedad de cannabis: ") + variety.Name;
-				GameObject val4 = Object.Instantiate<GameObject>(((Component)((StorableItemDefinition)Source).StoredItem).gameObject);
-				GameObject item = val4;
+				UnityEngine.Object.DontDestroyOnLoad((UnityEngine.Object)(object)val2);
+				Products[((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val2).ID] = val2;
+				list.Add((((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val2).ID, WeedPresentation.Configure(val2, val)));
+				Il2CppScheduleOne.Growing.SeedDefinition val3 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.Growing.SeedDefinition>(Source);
+				((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val3).ID = SeedId(variety);
+				((UnityEngine.Object)val3).name = ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val3).ID;
+				((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val3).Name = Localization.Text("Graine ", "Seed: ", "Samen: ", "Semilla: ") + variety.Name;
+				((Il2CppScheduleOne.ItemFramework.StorableItemDefinition)val3).BasePurchasePrice = variety.SeedPrice;
+				((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val3).Description = Localization.Text("Variété de cannabis : ", "Cannabis variety: ", "Cannabissorte: ", "Variedad de cannabis: ") + variety.Name;
+				UnityEngine.GameObject val4 = UnityEngine.Object.Instantiate<UnityEngine.GameObject>(((UnityEngine.Component)((Il2CppScheduleOne.ItemFramework.StorableItemDefinition)Source).StoredItem).gameObject);
+				UnityEngine.GameObject item = val4;
 				Presentation.Cache(val4);
-				((StorableItemDefinition)val3).StoredItem = val4.GetComponent<StoredItem>();
-				Equippable val5 = Object.Instantiate<Equippable>(((ItemDefinition)Source).Equippable);
-				((Object)val5).name = "VX_SeedHeld_" + variety.Key;
-				(((Il2CppObjectBase)val5).TryCast<Equippable_Seed>() ?? throw new InvalidOperationException("Équipement natif de graine incompatible")).Seed = val3;
-				Presentation.Cache(((Component)val5).gameObject);
-				((ItemDefinition)val3).Equippable = val5;
-				Equippable_Viewmodel val6 = ((Il2CppObjectBase)val5).TryCast<Equippable_Viewmodel>();
-				if ((Object)(object)((val6 != null) ? val6.AvatarEquippable : null) != (Object)null)
+				((Il2CppScheduleOne.ItemFramework.StorableItemDefinition)val3).StoredItem = val4.GetComponent<Il2CppScheduleOne.Storage.StoredItem>();
+				Il2CppScheduleOne.Equipping.Equippable val5 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.Equipping.Equippable>(((Il2CppScheduleOne.ItemFramework.ItemDefinition)Source).Equippable);
+				((UnityEngine.Object)val5).name = "VX_SeedHeld_" + variety.Key;
+				(((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)val5).TryCast<Il2CppScheduleOne.Equipping.Equippable_Seed>() ?? throw new InvalidOperationException("Équipement natif de graine incompatible")).Seed = val3;
+				Presentation.Cache(((UnityEngine.Component)val5).gameObject);
+				((Il2CppScheduleOne.ItemFramework.ItemDefinition)val3).Equippable = val5;
+				Il2CppScheduleOne.Equipping.Equippable_Viewmodel val6 = ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)val5).TryCast<Il2CppScheduleOne.Equipping.Equippable_Viewmodel>();
+				if ((UnityEngine.Object)(object)((val6 != null) ? val6.AvatarEquippable : null) != (UnityEngine.Object)null)
 				{
-					AvatarEquippable val7 = Object.Instantiate<AvatarEquippable>(val6.AvatarEquippable);
-					((Object)val7).name = "VX_SeedAvatar_" + variety.Key;
-					SeedPresentation.Apply(((Component)val7).gameObject, variety);
+					Il2CppScheduleOne.AvatarFramework.Equipping.AvatarEquippable val7 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.AvatarFramework.Equipping.AvatarEquippable>(val6.AvatarEquippable);
+					((UnityEngine.Object)val7).name = "VX_SeedAvatar_" + variety.Key;
+					SeedPresentation.Apply(((UnityEngine.Component)val7).gameObject, variety);
 					string text2 = (val7.AssetPath = "Equippables/VarietesEtendues/seed_" + variety.Key);
-					if (!AvatarEquippableRegistry.RegisterAvatarEquippable(text2, ((Component)val7).gameObject))
+					if (!S1API.Items.AvatarEquippableRegistry.RegisterAvatarEquippable(text2, ((UnityEngine.Component)val7).gameObject))
 					{
 						throw new InvalidOperationException("Présentation réseau de graine absente : " + variety.Key);
 					}
-					Presentation.Cache(((Component)val7).gameObject);
+					Presentation.Cache(((UnityEngine.Component)val7).gameObject);
 					val6.AvatarEquippable = val7;
 				}
-				FunctionalSeed val8 = Object.Instantiate<FunctionalSeed>(Source.FunctionSeedPrefab);
-				((Object)val8).name = "VX_SeedSowing_" + variety.Key;
-				SeedPresentation.Apply(((Component)val8).gameObject, variety);
+				Il2CppScheduleOne.Growing.FunctionalSeed val8 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.Growing.FunctionalSeed>(Source.FunctionSeedPrefab);
+				((UnityEngine.Object)val8).name = "VX_SeedSowing_" + variety.Key;
+				SeedPresentation.Apply(((UnityEngine.Component)val8).gameObject, variety);
 				SeedPresentation.TintPhysicalSeed(val8, variety);
-				SeedPresentation.Apply(((Component)val5).gameObject, variety);
+				SeedPresentation.Apply(((UnityEngine.Component)val5).gameObject, variety);
 				SeedPresentation.Apply(val4, variety);
-				Presentation.Cache(((Component)val8).gameObject);
+				Presentation.Cache(((UnityEngine.Component)val8).gameObject);
 				val3.FunctionSeedPrefab = val8;
-				list.Add((((BaseItemDefinition)val3).ID, item));
-				Plant val9 = Object.Instantiate<Plant>(Source.PlantPrefab);
-				((Object)val9).name = "VX_Plant_" + variety.Key;
+				list.Add((((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val3).ID, item));
+				Il2CppScheduleOne.Growing.Plant val9 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.Growing.Plant>(Source.PlantPrefab);
+				((UnityEngine.Object)val9).name = "VX_Plant_" + variety.Key;
 				val9.SeedDefinition = val3;
-				Tint(((Component)val9).gameObject, variety);
-				WeedPlant val10 = ((Il2CppObjectBase)val9).Cast<WeedPlant>();
-				if ((Object)(object)val10.BranchPrefab != (Object)null)
+				Tint(((UnityEngine.Component)val9).gameObject, variety);
+				Il2CppScheduleOne.Growing.WeedPlant val10 = ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)val9).Cast<Il2CppScheduleOne.Growing.WeedPlant>();
+				if ((UnityEngine.Object)(object)val10.BranchPrefab != (UnityEngine.Object)null)
 				{
-					PlantHarvestable val11 = Object.Instantiate<PlantHarvestable>(val10.BranchPrefab);
-					Tint(((Component)val11).gameObject, variety);
-					Presentation.Cache(((Component)val11).gameObject);
+					Il2CppScheduleOne.Growing.PlantHarvestable val11 = UnityEngine.Object.Instantiate<Il2CppScheduleOne.Growing.PlantHarvestable>(val10.BranchPrefab);
+					Tint(((UnityEngine.Component)val11).gameObject, variety);
+					Presentation.Cache(((UnityEngine.Component)val11).gameObject);
 					val10.BranchPrefab = val11;
 				}
-				Presentation.Cache(((Component)val9).gameObject);
+				Presentation.Cache(((UnityEngine.Component)val9).gameObject);
 				val3.PlantPrefab = val9;
-				Object.DontDestroyOnLoad((Object)(object)val3);
-				Seeds[((BaseItemDefinition)val3).ID] = val3;
+				UnityEngine.Object.DontDestroyOnLoad((UnityEngine.Object)(object)val3);
+				Seeds[((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)val3).ID] = val3;
 			}
 		}
-		foreach (WeedDefinition value in Products.Values)
+		foreach (Il2CppScheduleOne.Product.WeedDefinition value in Products.Values)
 		{
-			if (!Registry.ItemExists(((BaseItemDefinition)value).ID))
+			if (!Il2CppScheduleOne.Registry.ItemExists(((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value).ID))
 			{
-				Singleton<Registry>.Instance.AddToRegistry((ItemDefinition)(object)value);
+				Il2CppScheduleOne.DevUtilities.Singleton<Il2CppScheduleOne.Registry>.Instance.AddToRegistry((Il2CppScheduleOne.ItemFramework.ItemDefinition)(object)value);
 			}
 		}
-		foreach (SeedDefinition value2 in Seeds.Values)
+		foreach (Il2CppScheduleOne.Growing.SeedDefinition value2 in Seeds.Values)
 		{
-			if (!Registry.ItemExists(((BaseItemDefinition)value2).ID))
+			if (!Il2CppScheduleOne.Registry.ItemExists(((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value2).ID))
 			{
-				Singleton<Registry>.Instance.AddToRegistry((ItemDefinition)(object)value2);
+				Il2CppScheduleOne.DevUtilities.Singleton<Il2CppScheduleOne.Registry>.Instance.AddToRegistry((Il2CppScheduleOne.ItemFramework.ItemDefinition)(object)value2);
 			}
 		}
 		PopulateProducts(discover: false);
@@ -307,45 +270,45 @@ internal static class Crops
 	internal static void PopulateProducts(bool discover = true)
 	{
 		BotanistSeeds.Register();
-		ProductManager instance = NetworkSingleton<ProductManager>.Instance;
-		if ((Object)(object)instance == (Object)null)
+		Il2CppScheduleOne.Product.ProductManager instance = Il2CppScheduleOne.DevUtilities.NetworkSingleton<Il2CppScheduleOne.Product.ProductManager>.Instance;
+		if ((UnityEngine.Object)(object)instance == (UnityEngine.Object)null)
 		{
 			return;
 		}
-		foreach (WeedDefinition value in Products.Values)
+		foreach (Il2CppScheduleOne.Product.WeedDefinition value in Products.Values)
 		{
-			if (!Contains(instance.AllProducts, ((BaseItemDefinition)value).ID))
+			if (!Contains(instance.AllProducts, ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value).ID))
 			{
-				instance.AllProducts.Add((ProductDefinition)(object)value);
+				instance.AllProducts.Add((Il2CppScheduleOne.Product.ProductDefinition)(object)value);
 			}
-			if (instance.DefaultKnownProducts != null && !Contains(instance.DefaultKnownProducts, ((BaseItemDefinition)value).ID))
+			if (instance.DefaultKnownProducts != null && !Contains(instance.DefaultKnownProducts, ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value).ID))
 			{
-				instance.DefaultKnownProducts.Add((ProductDefinition)(object)value);
+				instance.DefaultKnownProducts.Add((Il2CppScheduleOne.Product.ProductDefinition)(object)value);
 			}
-			if (instance.ProductPrices != null && !instance.ProductPrices.ContainsKey((ProductDefinition)(object)value))
+			if (instance.ProductPrices != null && !instance.ProductPrices.ContainsKey((Il2CppScheduleOne.Product.ProductDefinition)(object)value))
 			{
-				instance.ProductPrices.Add((ProductDefinition)(object)value, ((ProductDefinition)value).BasePrice);
+				instance.ProductPrices.Add((Il2CppScheduleOne.Product.ProductDefinition)(object)value, ((Il2CppScheduleOne.Product.ProductDefinition)value).BasePrice);
 			}
-			if (discover && ProductManager.DiscoveredProducts != null && !Contains(ProductManager.DiscoveredProducts, ((BaseItemDefinition)value).ID))
+			if (discover && Il2CppScheduleOne.Product.ProductManager.DiscoveredProducts != null && !Contains(Il2CppScheduleOne.Product.ProductManager.DiscoveredProducts, ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value).ID))
 			{
-				if (((NetworkBehaviour)instance).IsServerInitialized)
+				if (((Il2CppFishNet.Object.NetworkBehaviour)instance).IsServerInitialized)
 				{
-					instance.SetProductDiscovered((NetworkConnection)null, ((BaseItemDefinition)value).ID, false);
+					instance.SetProductDiscovered((Il2CppFishNet.Connection.NetworkConnection)null, ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value).ID, false);
 					continue;
 				}
-				ProductManager.DiscoveredProducts.Add((ProductDefinition)(object)value);
-				instance.onProductDiscovered?.Invoke((ProductDefinition)(object)value);
+				Il2CppScheduleOne.Product.ProductManager.DiscoveredProducts.Add((Il2CppScheduleOne.Product.ProductDefinition)(object)value);
+				instance.onProductDiscovered?.Invoke((Il2CppScheduleOne.Product.ProductDefinition)(object)value);
 			}
 		}
 	}
 
-	private static bool Contains(List<ProductDefinition> products, string id)
+	private static bool Contains(Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Product.ProductDefinition> products, string id)
 	{
-		Enumerator<ProductDefinition> enumerator = products.GetEnumerator();
+		var enumerator = products.GetEnumerator();
 		while (enumerator.MoveNext())
 		{
-			ProductDefinition current = enumerator.Current;
-			if ((Object)(object)current != (Object)null && ((BaseItemDefinition)current).ID == id)
+			Il2CppScheduleOne.Product.ProductDefinition current = enumerator.Current;
+			if ((UnityEngine.Object)(object)current != (UnityEngine.Object)null && ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)current).ID == id)
 			{
 				return true;
 			}

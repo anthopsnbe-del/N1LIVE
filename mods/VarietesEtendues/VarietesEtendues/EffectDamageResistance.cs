@@ -4,17 +4,17 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(PlayerHealth), "RpcLogic___TakeDamage_3505310624")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth), "RpcLogic___TakeDamage_3505310624")]
 internal static class EffectDamageResistance
 {
 	[HarmonyPrefix]
-	private static bool Prefix(PlayerHealth __instance, ref float __0)
+	private static bool Prefix(Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth __instance, ref float __0)
 	{
-		if ((Object)(object)__instance.Player == (Object)null)
+		if ((UnityEngine.Object)(object)__instance.Player == (UnityEngine.Object)null)
 		{
 			return true;
 		}
-		EffectTuning effectTuning = CharacterEffects.Tuning(((Component)__instance.Player).transform);
+		EffectTuning effectTuning = CharacterEffects.Tuning(((UnityEngine.Component)__instance.Player).transform);
 		if (effectTuning.God)
 		{
 			return false;

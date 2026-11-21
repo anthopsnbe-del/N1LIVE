@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace VarietesEtendues;
 
-[HarmonyPatch(typeof(PlayerHealth), "get_CanTakeDamage")]
+[HarmonyPatch(typeof(Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth), "get_CanTakeDamage")]
 internal static class DevilCanBeDamaged
 {
 	[HarmonyPostfix]
-	private static void Postfix(PlayerHealth __instance, ref bool __result)
+	private static void Postfix(Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth __instance, ref bool __result)
 	{
-		if ((Object)(object)__instance.Player != (Object)null && CharacterEffects.Tuning(((Component)__instance.Player).transform).God)
+		if ((UnityEngine.Object)(object)__instance.Player != (UnityEngine.Object)null && CharacterEffects.Tuning(((UnityEngine.Component)__instance.Player).transform).God)
 		{
 			__result = false;
 		}

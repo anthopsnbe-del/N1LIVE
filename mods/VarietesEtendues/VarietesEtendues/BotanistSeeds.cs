@@ -25,15 +25,15 @@ internal static class BotanistSeeds
 	{
 		try
 		{
-			ManagementUtilities instance = Singleton<ManagementUtilities>.Instance;
-			if ((Object)(object)instance == (Object)null || instance.Seeds == null)
+			ManagementUtilities instance = Il2CppScheduleOne.DevUtilities.Singleton<ManagementUtilities>.Instance;
+			if ((UnityEngine.Object)(object)instance == (UnityEngine.Object)null || instance.Seeds == null)
 			{
 				return;
 			}
 			int num = 0;
-			foreach (SeedDefinition value in Crops.Seeds.Values)
+			foreach (Il2CppScheduleOne.Growing.SeedDefinition value in Crops.Seeds.Values)
 			{
-				if (!Contains(instance.Seeds, ((BaseItemDefinition)value).ID))
+				if (!Contains(instance.Seeds, ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value).ID))
 				{
 					instance.Seeds.Add(value);
 					num++;
@@ -41,12 +41,12 @@ internal static class BotanistSeeds
 			}
 			if (num > 0)
 			{
-				MelonLogger.Msg($"BOTANISTES : {num} graine(s) ajoutée(s) aux options des pots.");
+				MelonLoader.MelonLogger.Msg($"BOTANISTES : {num} graine(s) ajoutée(s) aux options des pots.");
 			}
 		}
-		catch (Exception ex)
+		catch (System.Exception ex)
 		{
-			MelonLogger.Warning("BOTANISTES : graines non enregistrées : " + ex.Message);
+			MelonLoader.MelonLogger.Warning("BOTANISTES : graines non enregistrées : " + ex.Message);
 		}
 	}
 
@@ -56,12 +56,12 @@ internal static class BotanistSeeds
 		{
 			return;
 		}
-		foreach (SeedDefinition value in Crops.Seeds.Values)
+		foreach (Il2CppScheduleOne.Growing.SeedDefinition value in Crops.Seeds.Values)
 		{
 			bool flag = false;
-			foreach (ItemDefinition option in field.Options)
+			foreach (Il2CppScheduleOne.ItemFramework.ItemDefinition option in field.Options)
 			{
-				if ((Object)(object)option != (Object)null && ((BaseItemDefinition)option).ID == ((BaseItemDefinition)value).ID)
+				if ((UnityEngine.Object)(object)option != (UnityEngine.Object)null && ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)option).ID == ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)value).ID)
 				{
 					flag = true;
 					break;
@@ -69,16 +69,16 @@ internal static class BotanistSeeds
 			}
 			if (!flag)
 			{
-				field.Options.Add((ItemDefinition)(object)value);
+				field.Options.Add((Il2CppScheduleOne.ItemFramework.ItemDefinition)(object)value);
 			}
 		}
 	}
 
-	private static bool Contains(Il2CppSystem.Collections.Generic.List<SeedDefinition> seeds, string id)
+	private static bool Contains(Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Growing.SeedDefinition> seeds, string id)
 	{
-		foreach (SeedDefinition seed in seeds)
+		foreach (Il2CppScheduleOne.Growing.SeedDefinition seed in seeds)
 		{
-			if ((Object)(object)seed != (Object)null && ((BaseItemDefinition)seed).ID == id)
+			if ((UnityEngine.Object)(object)seed != (UnityEngine.Object)null && ((Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition)seed).ID == id)
 			{
 				return true;
 			}
@@ -91,7 +91,7 @@ internal static class BotanistSeeds
 [HarmonyPatch]
 internal static class PotConfigurationSeedOptions
 {
-	private static IEnumerable<MethodBase> TargetMethods()
+	private static System.Collections.Generic.IEnumerable<System.Reflection.MethodBase> TargetMethods()
 	{
 		return AccessTools.GetDeclaredConstructors(typeof(PotConfiguration), (bool?)null);
 	}
