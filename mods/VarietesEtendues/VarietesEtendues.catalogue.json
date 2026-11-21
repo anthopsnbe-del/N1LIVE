@@ -1,0 +1,385 @@
+[
+  {
+    "Name": "Mangue",
+    "Rules": [
+      [
+        "Calming",
+        "Tropic Thunder"
+      ],
+      [
+        "Sneaky",
+        "Glowing"
+      ]
+    ],
+    "Effect": "Euphoric",
+    "Rank": "Street Rat I",
+    "Price": 6,
+    "Key": "mango",
+    "EnglishName": "Mango",
+    "GermanName": "Mango",
+    "SpanishName": "Mango"
+  },
+  {
+    "Name": "Citron",
+    "Rules": [
+      [
+        "Toxic",
+        "Bright-Eyed"
+      ],
+      [
+        "Foggy",
+        "Focused"
+      ]
+    ],
+    "Effect": "Refreshing",
+    "Rank": "Street Rat I",
+    "Price": 4,
+    "Key": "lemon",
+    "EnglishName": "Lemon",
+    "GermanName": "Zitrone",
+    "SpanishName": "Limón"
+  },
+  {
+    "Name": "Tranche de pastèque",
+    "Rules": [
+      [
+        "Energizing",
+        "Euphoric"
+      ],
+      [
+        "Spicy",
+        "Refreshing"
+      ]
+    ],
+    "Effect": "Calming",
+    "Rank": "Street Rat III",
+    "Price": 5,
+    "Key": "melon",
+    "EnglishName": "Watermelon Slice",
+    "GermanName": "Wassermelonenscheibe",
+    "SpanishName": "Rodaja de sandía"
+  },
+  {
+    "Name": "Fruit du dragon",
+    "Rules": [
+      [
+        "Gingeritis",
+        "Anti-Gravity"
+      ],
+      [
+        "Munchies",
+        "Cyclopean"
+      ]
+    ],
+    "Effect": "Glowing",
+    "Rank": "Hustler I",
+    "Price": 9,
+    "Key": "dragon",
+    "EnglishName": "Dragon Fruit",
+    "GermanName": "Drachenfrucht",
+    "SpanishName": "Fruta del dragón"
+  },
+  {
+    "Name": "Pruneaux",
+    "Rules": [
+      [
+        "Calorie-Dense",
+        "Slippery"
+      ],
+      [
+        "Sedating",
+        "Long Faced"
+      ]
+    ],
+    "Effect": "Laxative",
+    "Rank": "Street Rat II",
+    "Price": 3,
+    "Key": "prune",
+    "EnglishName": "Prunes",
+    "GermanName": "Backpflaumen",
+    "SpanishName": "Ciruelas pasas"
+  },
+  {
+    "Name": "Durian",
+    "Rules": [
+      [
+        "Euphoric",
+        "Zombifying"
+      ],
+      [
+        "Refreshing",
+        "Toxic"
+      ],
+      [
+        "Calming",
+        "Paranoia"
+      ]
+    ],
+    "Effect": "Smelly",
+    "Rank": "Peddler II",
+    "Price": 7,
+    "Key": "durian",
+    "EnglishName": "Durian",
+    "GermanName": "Durian",
+    "SpanishName": "Durián"
+  },
+  {
+    "Name": "Sirop Coffix",
+    "Rules": [
+      [
+        "Focused",
+        "Foggy"
+      ],
+      [
+        "Athletic",
+        "Sedating"
+      ]
+    ],
+    "Effect": "Disorienting",
+    "Rank": "Hoodlum I",
+    "Price": 8,
+    "Key": "syrup",
+    "EnglishName": "Coffix Syrup",
+    "GermanName": "Coffix-Sirup",
+    "SpanishName": "Jarabe Coffix"
+  },
+  {
+    "Name": "Focalix",
+    "Rules": [
+      [
+        "Paranoia",
+        "Thought-Provoking"
+      ],
+      [
+        "Schizophrenia",
+        "Calming"
+      ],
+      [
+        "Disorienting",
+        "Bright-Eyed"
+      ]
+    ],
+    "Effect": "Focused",
+    "Rank": "Bagman I",
+    "Price": 10,
+    "Key": "focalix",
+    "EnglishName": "Focalix",
+    "GermanName": "Focalix",
+    "SpanishName": "Focalix"
+  },
+  {
+    "Name": "Appétix",
+    "Rules": [
+      [
+        "Laxative",
+        "Calorie-Dense"
+      ],
+      [
+        "Toxic",
+        "Spicy"
+      ]
+    ],
+    "Effect": "Munchies",
+    "Rank": "Hoodlum II",
+    "Price": 6,
+    "Key": "appetix",
+    "EnglishName": "Appetix",
+    "GermanName": "Appetix",
+    "SpanishName": "Apetix"
+  },
+  {
+    "Name": "Bulle-Gaz",
+    "Rules": [
+      [
+        "Slippery",
+        "Electrifying"
+      ],
+      [
+        "Foggy",
+        "Glowing"
+      ]
+    ],
+    "Effect": "Anti-Gravity",
+    "Rank": "Hustler III",
+    "Price": 12,
+    "Key": "fizz",
+    "EnglishName": "Fizz Tabs",
+    "GermanName": "Sprudeltabletten",
+    "SpanishName": "Tabletas efervescentes"
+  },
+  {
+    "Name": "Cyclo-Drops",
+    "Rules": [
+      [
+        "Bright-Eyed",
+        "Jennerising"
+      ],
+      [
+        "Glowing",
+        "Shrinking"
+      ]
+    ],
+    "Effect": "Cyclopean",
+    "Rank": "Enforcer I",
+    "Price": 11,
+    "Key": "cyclo",
+    "EnglishName": "Cyclo-Drops",
+    "GermanName": "Cyclo-Tropfen",
+    "SpanishName": "Cyclo-Gotas"
+  },
+  {
+    "Name": "ParaNox",
+    "Rules": [
+      [
+        "Sneaky",
+        "Seizure-Inducing"
+      ],
+      [
+        "Calming",
+        "Disorienting"
+      ]
+    ],
+    "Effect": "Paranoia",
+    "Rank": "Hoodlum III",
+    "Price": 5,
+    "Key": "paranox",
+    "EnglishName": "ParaNox Spray",
+    "GermanName": "ParaNox-Spray",
+    "SpanishName": "Spray ParaNox"
+  },
+  {
+    "Name": "Bonbons pétillants",
+    "Rules": [
+      [
+        "Spicy",
+        "Electrifying"
+      ],
+      [
+        "Euphoric",
+        "Energizing"
+      ]
+    ],
+    "Effect": "Explosive",
+    "Rank": "Street Rat II",
+    "Price": 4,
+    "Key": "poprocks",
+    "EnglishName": "Pop Candy",
+    "GermanName": "Knisterbonbons",
+    "SpanishName": "Caramelos explosivos"
+  },
+  {
+    "Name": "Pile au lithium",
+    "Rules": [
+      [
+        "Athletic",
+        "Anti-Gravity"
+      ],
+      [
+        "Sedating",
+        "Bright-Eyed"
+      ]
+    ],
+    "Effect": "Electrifying",
+    "Rank": "Shot Caller I",
+    "Price": 14,
+    "Key": "lithium",
+    "EnglishName": "Lithium Cell",
+    "GermanName": "Lithiumzelle",
+    "SpanishName": "Pila de litio"
+  },
+  {
+    "Name": "Pâtée pour chien",
+    "Rules": [
+      [
+        "Munchies",
+        "Calorie-Dense"
+      ],
+      [
+        "Long Faced",
+        "Cyclopean"
+      ]
+    ],
+    "Effect": "Zombifying",
+    "Rank": "Peddler I",
+    "Price": 4,
+    "Key": "patee",
+    "EnglishName": "Dog Food",
+    "GermanName": "Hundefutter",
+    "SpanishName": "Comida para perros"
+  },
+  {
+    "Name": "Bâton lumineux",
+    "Rules": [
+      [
+        "Bright-Eyed",
+        "Glowing"
+      ],
+      [
+        "Smelly",
+        "Glowing"
+      ]
+    ],
+    "Effect": "Seizure-Inducing",
+    "Rank": "Peddler III",
+    "Price": 3,
+    "Key": "glow",
+    "EnglishName": "Glow Stick",
+    "GermanName": "Leuchtstab",
+    "SpanishName": "Barra luminosa"
+  },
+  {
+    "Name": "Cartouche d'azote",
+    "Rules": [
+      [
+        "Explosive",
+        "Anti-Gravity"
+      ],
+      [
+        "Toxic",
+        "Calming"
+      ]
+    ],
+    "Effect": "Shrinking",
+    "Rank": "Block Boss I",
+    "Price": 16,
+    "Key": "nitro",
+    "EnglishName": "Nitro Canister",
+    "GermanName": "Stickstoffkartusche",
+    "SpanishName": "Cartucho de nitrógeno"
+  },
+  {
+    "Name": "Absinthe",
+    "Rules": [
+      [
+        "Thought-Provoking",
+        "Cyclopean"
+      ],
+      [
+        "Glowing",
+        "Tropic Thunder"
+      ],
+      [
+        "Calming",
+        "Sedating"
+      ]
+    ],
+    "Effect": "Schizophrenia",
+    "Rank": "Enforcer III",
+    "Price": 13,
+    "Key": "absinthe",
+    "EnglishName": "Absinthe",
+    "GermanName": "Absinth",
+    "SpanishName": "Absenta"
+  },
+  {
+    "Name": "Pilule 666",
+    "Rules": [],
+    "Effect": "Diable",
+    "Rank": "Street Rat I",
+    "Price": 80,
+    "Key": "pill666",
+    "EnglishName": "666 Pill",
+    "GermanName": "666-Pille",
+    "SpanishName": "Píldora 666"
+  }
+]
